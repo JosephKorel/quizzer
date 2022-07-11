@@ -1,10 +1,18 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Button,
+  Image,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackPrams";
 import { AppContext } from "../Context";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase_config";
+import * as ImagePicker from "expo-image-picker";
 
 function NewPost() {
   const { user } = useContext(AppContext);
@@ -12,6 +20,7 @@ function NewPost() {
   const [choice, setChoice] = useState("");
   const [options, setOptions] = useState<string[]>(["", ""]);
   const [success, setSuccess] = useState(false);
+  const [image, setImage] = useState<null | any>(null);
 
   const navigation = useNavigation<propsStack>();
 
@@ -108,6 +117,19 @@ function NewPost() {
     );
   };
 
+  const addImage = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status === "granted") {
+      let img = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      !img.cancelled && setImage(img);
+    }
+  };
+
   return (
     <View>
       <Text>O que você quer perguntar?</Text>
@@ -116,6 +138,12 @@ function NewPost() {
         value={question}
         onChangeText={(text) => setQuestion(text)}
       ></TextInput>
+      {image && (
+        <Image
+          style={{ width: 100, height: 100 }}
+          source={{ uri: image.uri }}
+        ></Image>
+      )}
       <Text>Sua pergunta é do tipo</Text>
       {questionType.map((question, index) => (
         <TouchableOpacity
@@ -128,6 +156,7 @@ function NewPost() {
       ))}
       {choice === "Enquete" && OptionMap()}
       <Button onPress={addQuestion} title="Perguntar"></Button>
+      <Button title="Imagem" onPress={addImage}></Button>
       {success && <Text>Postado!</Text>}
       <Button
         onPress={() => navigation.navigate("Login")}
