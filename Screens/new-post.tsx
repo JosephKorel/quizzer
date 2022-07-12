@@ -8,10 +8,10 @@ import {
   View,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { propsStack } from "./RootStackPrams";
+import { propsStack } from "./RootStackParams";
 import { AppContext } from "../Context";
 import { doc, setDoc } from "firebase/firestore";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "../firebase_config";
 import * as ImagePicker from "expo-image-picker";
 
@@ -24,6 +24,7 @@ function NewPost() {
   const [image, setImage] = useState<null | any>(null);
   const [imgUrl, setImgUrl] = useState("");
   const [tags, setTags] = useState("");
+  const [hasSpoiler, setHasSpoiler] = useState(false);
 
   const navigation = useNavigation<propsStack>();
 
@@ -47,7 +48,6 @@ function NewPost() {
   };
 
   const addDoc = async (
-    question: string,
     tags: string[],
     votes: {} | null,
     options: {} | null
@@ -66,6 +66,7 @@ function NewPost() {
         votes,
         options,
         tags,
+        hasSpoiler,
         date,
       })
         .then(() => {
@@ -84,6 +85,7 @@ function NewPost() {
         votes,
         options,
         tags,
+        hasSpoiler,
         date,
       })
         .then(() => {
@@ -126,11 +128,11 @@ function NewPost() {
   const addQuestion = async () => {
     if (user && question && tags) {
       //Põe as tags num array
-      const tagArr = tags.split(/\s/);
+      const tagArr = tags.split(",");
 
       if (choice === "Sim ou Não") {
         const votes = { yes: [], no: [] };
-        addDoc(question, tagArr, votes, null);
+        addDoc(tagArr, votes, null);
         return;
       }
       if (choice === "Enquete") {
@@ -140,7 +142,7 @@ function NewPost() {
         options.forEach(
           (option) => (allOptions = { ...allOptions, [option]: [] })
         );
-        addDoc(question, tagArr, null, allOptions);
+        addDoc(tagArr, null, allOptions);
       }
     }
   };
@@ -213,6 +215,10 @@ function NewPost() {
         </TouchableOpacity>
       ))}
       {choice === "Enquete" && OptionMap()}
+      <Text onPress={() => setHasSpoiler(!hasSpoiler)}>
+        Sua pergunta é um possível spoiler?
+      </Text>
+      {hasSpoiler ? <Text>Sim</Text> : <Text>Não</Text>}
       <Text>Tags</Text>
       <TextInput
         placeholder="Ex:'pessoal, curiosidade, super heróis, netflix'"

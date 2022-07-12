@@ -7,10 +7,10 @@ import {
   query,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { Button, Image, Text, View } from "react-native";
+import { Button, Image, Text, TouchableOpacity, View } from "react-native";
 import { db } from "../firebase_config";
 import { useNavigation } from "@react-navigation/native";
-import { propsStack } from "./RootStackPrams";
+import { propsStack } from "./RootStackParams";
 import { User } from "firebase/auth";
 
 type Questions = {
@@ -20,13 +20,15 @@ type Questions = {
   votes: { yes: User[]; no: User[] } | null;
   options: { [item: string]: User[] } | null;
   media?: string;
-  tags?: string[];
+  tags: string[];
+  hasSpoiler: boolean;
   date: string;
 };
 
 function Home() {
   const [questions, setQuestions] = useState<Questions[] | null>(null);
   const [index, setIndex] = useState(0);
+  const [reveal, setReveal] = useState(false);
 
   const navigation = useNavigation<propsStack>();
 
@@ -52,38 +54,53 @@ function Home() {
           Perguntado por {questions[index].author.name}, em{" "}
           {questions[index].date}
         </Text>
-        <Text>{questions[index].question}</Text>
-        {questions[index].media && (
-          <Image
-            style={{ width: 100, height: 100 }}
-            source={{ uri: questions[index].media }}
-          ></Image>
-        )}
-        <Text>Opções</Text>
-        {questions[index].votes && (
+        {questions[index].hasSpoiler === true && reveal === false ? (
           <View>
-            <Text>Sim:{questions[index].votes?.yes.length}</Text>
-            <Text>Não:{questions[index].votes?.no.length}</Text>
+            <Text>
+              Cuidado! Esta pergunta contém spoiler, tem certeza de que quer
+              ver?
+            </Text>
+            <TouchableOpacity onPress={() => setReveal(true)}>
+              <Text>Sim</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={nextQuestion}>
+              <Text>Não, passar pergunta</Text>
+            </TouchableOpacity>
           </View>
-        )}
-        {questions[index].options && (
+        ) : (
           <View>
-            {Object.entries(questions[index].options!).map(
-              ([key, value], i) => (
-                <Text key={i}>
-                  {key}:{value.length}
-                </Text>
-              )
+            <Text>{questions[index].question}</Text>
+            {questions[index].media && (
+              <Image
+                style={{ width: 100, height: 100 }}
+                source={{ uri: questions[index].media }}
+              ></Image>
+            )}
+            <Text>Opções</Text>
+            {questions[index].votes && (
+              <View>
+                <Text>Sim:{questions[index].votes?.yes.length}</Text>
+                <Text>Não:{questions[index].votes?.no.length}</Text>
+              </View>
+            )}
+            {questions[index].options && (
+              <View>
+                {Object.entries(questions[index].options!).map(
+                  ([key, value], i) => (
+                    <Text key={i}>
+                      {key}:{value.length}
+                    </Text>
+                  )
+                )}
+              </View>
             )}
           </View>
         )}
-        {questions[index].tags && (
-          <View>
-            {questions[index].tags?.map((tag, i) => (
-              <Text key={i}>{tag}</Text>
-            ))}
-          </View>
-        )}
+        <View>
+          {questions[index].tags.map((tag, i) => (
+            <Text key={i}>{tag}</Text>
+          ))}
+        </View>
       </View>
     ) : (
       <View></View>
@@ -93,6 +110,7 @@ function Home() {
   const nextQuestion = () => {
     const qstLen = questions?.length;
     index === qstLen! - 1 ? setIndex(0) : setIndex((prev) => prev + 1);
+    setReveal(false);
   };
 
   const prevQuestion = () => {

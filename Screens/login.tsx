@@ -10,7 +10,7 @@ import {
 import { auth } from "../firebase_config";
 import { AppContext } from "../Context";
 import { useNavigation } from "@react-navigation/native";
-import { propsStack } from "./RootStackPrams";
+import { propsStack } from "./RootStackParams";
 
 export default function Login() {
   const { user, setUser, setIsAuth, isAuth } = useContext(AppContext);
