@@ -7,7 +7,7 @@ import {
   query,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { Button, Text, View } from "react-native";
+import { Button, Image, Text, View } from "react-native";
 import { db } from "../firebase_config";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackPrams";
@@ -17,8 +17,10 @@ type Questions = {
   id: string;
   author: { name: string; uid: string };
   question: string;
-  votes?: { yes: User[]; no: User[] };
-  options?: { [item: string]: User[] };
+  votes: { yes: User[]; no: User[] } | null;
+  options: { [item: string]: User[] } | null;
+  media?: string;
+  tags?: string[];
   date: string;
 };
 
@@ -51,6 +53,12 @@ function Home() {
           {questions[index].date}
         </Text>
         <Text>{questions[index].question}</Text>
+        {questions[index].media && (
+          <Image
+            style={{ width: 100, height: 100 }}
+            source={{ uri: questions[index].media }}
+          ></Image>
+        )}
         <Text>Opções</Text>
         {questions[index].votes && (
           <View>
@@ -60,10 +68,19 @@ function Home() {
         )}
         {questions[index].options && (
           <View>
-            {Object.entries(questions[index].options!).map(([key, value]) => (
-              <Text>
-                {key}:{value.length}
-              </Text>
+            {Object.entries(questions[index].options!).map(
+              ([key, value], i) => (
+                <Text key={i}>
+                  {key}:{value.length}
+                </Text>
+              )
+            )}
+          </View>
+        )}
+        {questions[index].tags && (
+          <View>
+            {questions[index].tags?.map((tag, i) => (
+              <Text key={i}>{tag}</Text>
             ))}
           </View>
         )}

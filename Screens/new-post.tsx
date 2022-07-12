@@ -23,6 +23,7 @@ function NewPost() {
   const [success, setSuccess] = useState(false);
   const [image, setImage] = useState<null | any>(null);
   const [imgUrl, setImgUrl] = useState("");
+  const [tags, setTags] = useState("");
 
   const navigation = useNavigation<propsStack>();
 
@@ -30,6 +31,67 @@ function NewPost() {
 
   const clearMsg = () => {
     setSuccess(false);
+  };
+
+  const addImage = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status === "granted") {
+      let img = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+      !img.cancelled && setImage(img);
+    }
+  };
+
+  const addDoc = async (
+    question: string,
+    tags: string[],
+    votes: {} | null,
+    options: {} | null
+  ) => {
+    const id = Date.now().toString();
+    const date = new Date().toLocaleDateString();
+
+    if (image !== null) {
+      await uploadImageAsync(image.uri);
+
+      setDoc(doc(db, "questionsdb", id), {
+        id,
+        author: { name: user!.name, uid: user!.uid },
+        question,
+        media: imgUrl,
+        votes,
+        options,
+        tags,
+        date,
+      })
+        .then(() => {
+          setSuccess(true);
+          setTimeout(clearMsg, 2000);
+          setChoice("");
+        })
+        .catch((error) => console.log(error));
+
+      return;
+    } else
+      setDoc(doc(db, "questionsdb", id), {
+        id,
+        author: { name: user!.name, uid: user!.uid },
+        question,
+        votes,
+        options,
+        tags,
+        date,
+      })
+        .then(() => {
+          setSuccess(true);
+          setTimeout(clearMsg, 2000);
+          setChoice("");
+        })
+        .catch((error) => console.log(error));
   };
 
   const uploadImageAsync = async (uri: string) => {
@@ -62,63 +124,23 @@ function NewPost() {
   };
 
   const addQuestion = async () => {
-    const id = Date.now().toString();
-    const date = new Date().toLocaleDateString();
-    if (user) {
-      if (!question) return;
-      else if (choice === "Sim ou Não")
-        if (image !== null) {
-          await uploadImageAsync(image.uri);
+    if (user && question && tags) {
+      //Põe as tags num array
+      const tagArr = tags.split(/\s/);
 
-          setDoc(doc(db, "questionsdb", id), {
-            id,
-            author: { name: user.name, uid: user.uid },
-            question,
-            media: imgUrl,
-            votes: { yes: [], no: [] },
-            date,
-          })
-            .then(() => {
-              setSuccess(true);
-              setTimeout(clearMsg, 2000);
-              setChoice("");
-            })
-            .catch((error) => console.log(error));
-        } else
-          setDoc(doc(db, "questionsdb", id), {
-            id,
-            author: { name: user.name, uid: user.uid },
-            question,
-            votes: { yes: [], no: [] },
-            date,
-          })
-            .then(() => {
-              setSuccess(true);
-              setTimeout(clearMsg, 2000);
-              setChoice("");
-            })
-            .catch((error) => console.log(error));
-      else if (choice === "Enquete") {
+      if (choice === "Sim ou Não") {
+        const votes = { yes: [], no: [] };
+        addDoc(question, tagArr, votes, null);
+        return;
+      }
+      if (choice === "Enquete") {
         let allOptions = {};
+
+        //Adiciona as opções do input
         options.forEach(
           (option) => (allOptions = { ...allOptions, [option]: [] })
         );
-
-        setDoc(doc(db, "questionsdb", id), {
-          id,
-          author: { name: user.name, uid: user.uid },
-          question,
-          options: allOptions,
-          date,
-        })
-          .then(() => {
-            setSuccess(true);
-            setTimeout(clearMsg, 2000);
-            setOptions(["", ""]);
-            setChoice("");
-            setQuestion("");
-          })
-          .catch((error) => console.log(error));
+        addDoc(question, tagArr, null, allOptions);
       }
     }
   };
@@ -166,19 +188,6 @@ function NewPost() {
     );
   };
 
-  const addImage = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status === "granted") {
-      let img = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-      !img.cancelled && setImage(img);
-    }
-  };
-
   return (
     <View>
       <Text>O que você quer perguntar?</Text>
@@ -204,6 +213,12 @@ function NewPost() {
         </TouchableOpacity>
       ))}
       {choice === "Enquete" && OptionMap()}
+      <Text>Tags</Text>
+      <TextInput
+        placeholder="Ex:'pessoal, curiosidade, super heróis, netflix'"
+        value={tags}
+        onChangeText={(text) => setTags(text)}
+      ></TextInput>
       <Button onPress={addQuestion} title="Perguntar"></Button>
       <Button title="Imagem" onPress={addImage}></Button>
       {success && <Text>Postado!</Text>}
