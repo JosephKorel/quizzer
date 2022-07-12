@@ -11,7 +11,8 @@ import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackPrams";
 import { AppContext } from "../Context";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../firebase_config";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { db, storage } from "../firebase_config";
 import * as ImagePicker from "expo-image-picker";
 
 function NewPost() {
@@ -21,6 +22,7 @@ function NewPost() {
   const [options, setOptions] = useState<string[]>(["", ""]);
   const [success, setSuccess] = useState(false);
   const [image, setImage] = useState<null | any>(null);
+  const [imgUrl, setImgUrl] = useState("");
 
   const navigation = useNavigation<propsStack>();
 
@@ -30,25 +32,72 @@ function NewPost() {
     setSuccess(false);
   };
 
-  const addQuestion = () => {
+  const uploadImageAsync = async (uri: string) => {
+    const id = Date.now().toString();
+    const blob: Blob | any = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        console.log(e);
+        reject(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+
+    const imgRef = ref(storage, user?.uid + id);
+    const result = await uploadBytes(imgRef, blob);
+
+    blob.close();
+
+    const url = await getDownloadURL(imgRef);
+    try {
+      setImgUrl(url);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addQuestion = async () => {
     const id = Date.now().toString();
     const date = new Date().toLocaleDateString();
     if (user) {
       if (!question) return;
       else if (choice === "Sim ou Não")
-        setDoc(doc(db, "questionsdb", id), {
-          id,
-          author: { name: user.name, uid: user.uid },
-          question,
-          votes: { yes: [], no: [] },
-          date,
-        })
-          .then(() => {
-            setSuccess(true);
-            setTimeout(clearMsg, 2000);
-            setChoice("");
+        if (image !== null) {
+          await uploadImageAsync(image.uri);
+
+          setDoc(doc(db, "questionsdb", id), {
+            id,
+            author: { name: user.name, uid: user.uid },
+            question,
+            media: imgUrl,
+            votes: { yes: [], no: [] },
+            date,
           })
-          .catch((error) => console.log(error));
+            .then(() => {
+              setSuccess(true);
+              setTimeout(clearMsg, 2000);
+              setChoice("");
+            })
+            .catch((error) => console.log(error));
+        } else
+          setDoc(doc(db, "questionsdb", id), {
+            id,
+            author: { name: user.name, uid: user.uid },
+            question,
+            votes: { yes: [], no: [] },
+            date,
+          })
+            .then(() => {
+              setSuccess(true);
+              setTimeout(clearMsg, 2000);
+              setChoice("");
+            })
+            .catch((error) => console.log(error));
       else if (choice === "Enquete") {
         let allOptions = {};
         options.forEach(

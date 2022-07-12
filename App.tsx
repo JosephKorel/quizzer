@@ -13,7 +13,7 @@ export default function App() {
   return (
     <AppContextProvider>
       <NavigationContainer>
-        <Navigator initialRouteName="NewPost">
+        <Navigator initialRouteName="Login">
           <Screen name="Login" component={Login}></Screen>
           <Screen name="Home" component={Home}></Screen>
           <Screen name="NewPost" component={NewPost}></Screen>
