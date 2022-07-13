@@ -12,6 +12,7 @@ import { db } from "../firebase_config";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import { User } from "firebase/auth";
+import { Slider } from "@miblanchard/react-native-slider";
 
 type Questions = {
   id: string;
@@ -19,6 +20,7 @@ type Questions = {
   question: string;
   votes: { yes: User[]; no: User[] } | null;
   options: { [item: string]: User[] } | null;
+  scale: [] | null;
   media?: string;
   tags: string[];
   hasSpoiler: boolean;
@@ -29,6 +31,7 @@ function Home() {
   const [questions, setQuestions] = useState<Questions[] | null>(null);
   const [index, setIndex] = useState(0);
   const [reveal, setReveal] = useState(false);
+  const [scaleVal, setScaleVal] = useState<number | number[]>([]);
 
   const navigation = useNavigation<propsStack>();
 
@@ -47,6 +50,13 @@ function Home() {
     retrieveCollection();
   }, []);
 
+  const custom = (index: number | Array<number>) => {
+    if (Array.isArray(index)) {
+      if (index[0] < 0.2) return <Text>Meh</Text>;
+      if (index[0] < 0.6) return <Text>Cool</Text>;
+      if (index[0] > 0.6) return <Text>Awesome</Text>;
+    }
+  };
   const qstComponent = (index: number) => {
     return questions ? (
       <View>
@@ -94,6 +104,15 @@ function Home() {
                 )}
               </View>
             )}
+            {questions[index].scale && (
+              <View>
+                <Slider
+                  value={scaleVal}
+                  onValueChange={(value) => setScaleVal(value)}
+                  renderAboveThumbComponent={() => custom(scaleVal)}
+                ></Slider>
+              </View>
+            )}
           </View>
         )}
         <View>
@@ -120,7 +139,7 @@ function Home() {
   return (
     <View>
       <Text>Perguntas de hoje</Text>
-      {questions && qstComponent(index)}
+      {questions ? qstComponent(index) : <View></View>}
       <Button title="Anterior" onPress={prevQuestion}></Button>
       <Button title="Próxima" onPress={nextQuestion}></Button>
       <Button

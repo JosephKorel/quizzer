@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   Button,
   Image,
+  SliderComponent,
   Text,
   TextInput,
   TouchableOpacity,
@@ -14,6 +15,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "../firebase_config";
 import * as ImagePicker from "expo-image-picker";
+import moment from "moment";
 
 function NewPost() {
   const { user } = useContext(AppContext);
@@ -28,7 +30,7 @@ function NewPost() {
 
   const navigation = useNavigation<propsStack>();
 
-  const questionType = ["Sim ou Não", "Enquete"];
+  const questionType = ["Sim ou Não", "Enquete", "Escala de 0 a 10"];
 
   const clearMsg = () => {
     setSuccess(false);
@@ -50,10 +52,11 @@ function NewPost() {
   const addDoc = async (
     tags: string[],
     votes: {} | null,
-    options: {} | null
+    options: {} | null,
+    scale: [] | null
   ) => {
     const id = Date.now().toString();
-    const date = new Date().toLocaleDateString();
+    const date = moment(new Date()).format("DD/MM/YYYY");
 
     if (image !== null) {
       await uploadImageAsync(image.uri);
@@ -65,6 +68,7 @@ function NewPost() {
         media: imgUrl,
         votes,
         options,
+        scale,
         tags,
         hasSpoiler,
         date,
@@ -84,6 +88,7 @@ function NewPost() {
         question,
         votes,
         options,
+        scale,
         tags,
         hasSpoiler,
         date,
@@ -132,7 +137,7 @@ function NewPost() {
 
       if (choice === "Sim ou Não") {
         const votes = { yes: [], no: [] };
-        addDoc(tagArr, votes, null);
+        addDoc(tagArr, votes, null, null);
         return;
       }
       if (choice === "Enquete") {
@@ -142,7 +147,10 @@ function NewPost() {
         options.forEach(
           (option) => (allOptions = { ...allOptions, [option]: [] })
         );
-        addDoc(tagArr, null, allOptions);
+        addDoc(tagArr, null, allOptions, null);
+      }
+      if (choice === "Escala de 0 a 10") {
+        addDoc(tagArr, null, null, []);
       }
     }
   };
