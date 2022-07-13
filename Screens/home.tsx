@@ -25,7 +25,7 @@ type Questions = {
     no: { name: string | null }[];
   } | null;
   options: { [item: string]: string[] } | null;
-  scale: [] | null;
+  scale: { name: string; value: number }[] | null;
   media?: string;
   tags: string[];
   hasSpoiler: boolean;
@@ -38,6 +38,7 @@ function Home() {
   const [index, setIndex] = useState(0);
   const [reveal, setReveal] = useState(false);
   const [scaleVal, setScaleVal] = useState<number | number[]>([]);
+  const [isSliding, setIsSliding] = useState(false);
 
   const navigation = useNavigation<propsStack>();
 
@@ -59,9 +60,9 @@ function Home() {
 
   const custom = (index: number | Array<number>) => {
     if (Array.isArray(index)) {
-      if (index[0] < 0.2) return <Text>Meh</Text>;
-      if (index[0] < 0.6) return <Text>Cool</Text>;
-      if (index[0] > 0.6) return <Text>Awesome</Text>;
+      if (index[0] < 2) return <Text>Meh</Text>;
+      if (index[0] < 6) return <Text>Cool</Text>;
+      if (index[0] > 6) return <Text>Awesome</Text>;
     }
   };
 
@@ -112,10 +113,15 @@ function Home() {
     const id = questions![index].id;
     const currVotes = questions![index].options;
     const docRef = doc(db, "questionsdb", id);
-    const hasVoted = Object.entries(currVotes!).filter(([objKey, value]) => {
-      value.includes(user!.name!);
-    });
-    if (hasVoted.length) return;
+
+    //Pega os valores de cada opção
+    const val = Object.values(currVotes!);
+
+    //Filtra se existem algum que contém o username do usuário
+    const valFil = val.filter((item) => item.includes(user?.name!));
+
+    //Se contém, para a função
+    if (valFil.length) return;
 
     currVotes![key].push(user!.name!);
     updateDoc(docRef, {
@@ -123,6 +129,55 @@ function Home() {
     });
     retrieveCollection();
     return;
+  };
+
+  const onChangeScale = () => {
+    const id = questions![index].id;
+    const currVal = questions![index].scale;
+    const hasVoted = currVal?.filter((item) => item.name === user?.name!);
+    const docRef = doc(db, "questionsdb", id);
+
+    if (Array.isArray(scaleVal)) {
+      const val = +scaleVal[0].toFixed(1);
+
+      if (hasVoted?.length) {
+        currVal?.forEach((item) => {
+          if (item.name === user?.name) item.value = val;
+        });
+        updateDoc(docRef, {
+          scale: currVal,
+        });
+        setIsSliding(false);
+        retrieveCollection();
+        return;
+      } else {
+        currVal?.push({ name: user?.name!, value: val });
+
+        updateDoc(docRef, {
+          scale: currVal,
+        });
+        setIsSliding(false);
+        retrieveCollection();
+        return;
+      }
+    }
+  };
+
+  const currScaleVal = () => {
+    const currVal = questions![index].scale;
+    const hasVoted = currVal!.filter((item) => item.name === user?.name);
+    if (hasVoted.length > 0 && isSliding === false) {
+      return hasVoted[0].value;
+    } else return scaleVal;
+  };
+
+  const onSliding = () => {
+    const currVal = questions![index].scale;
+    const hasVoted = currVal!.filter((item) => item.name === user?.name);
+    if (hasVoted.length) {
+      setIsSliding(true);
+      setScaleVal(hasVoted[0].value);
+    }
   };
 
   const qstComponent = (index: number) => {
@@ -169,8 +224,8 @@ function Home() {
               <View>
                 {Object.entries(questions[index].options!).map(
                   ([key, value], i) => (
-                    <TouchableOpacity onPress={() => onChoose(key)}>
-                      <Text key={i}>
+                    <TouchableOpacity onPress={() => onChoose(key)} key={i}>
+                      <Text>
                         {key}:{value.length}
                       </Text>
                     </TouchableOpacity>
@@ -181,9 +236,13 @@ function Home() {
             {questions[index].scale && (
               <View>
                 <Slider
-                  value={scaleVal}
+                  minimumValue={0}
+                  maximumValue={10}
+                  value={currScaleVal()}
                   onValueChange={(value) => setScaleVal(value)}
                   renderAboveThumbComponent={() => custom(scaleVal)}
+                  onSlidingComplete={onChangeScale}
+                  onSlidingStart={onSliding}
                 ></Slider>
               </View>
             )}
