@@ -8,7 +8,14 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Button, Image, Text, TouchableOpacity, View } from "react-native";
+import {
+  Button,
+  Image,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { db } from "../firebase_config";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
@@ -39,6 +46,7 @@ function Home() {
   const [reveal, setReveal] = useState(false);
   const [scaleVal, setScaleVal] = useState<number | number[]>([]);
   const [isSliding, setIsSliding] = useState(false);
+  const [search, setSearch] = useState("");
 
   const navigation = useNavigation<propsStack>();
 
@@ -90,7 +98,7 @@ function Home() {
       });
 
       //Atualizar em tempo real
-      retrieveCollection();
+      search.length ? searchForTag() : retrieveCollection();
       return;
     }
 
@@ -104,7 +112,7 @@ function Home() {
       });
 
       //Atualizar em tempo real
-      retrieveCollection();
+      search.length ? searchForTag() : retrieveCollection();
       return;
     }
   };
@@ -127,7 +135,8 @@ function Home() {
     updateDoc(docRef, {
       options: currVotes,
     });
-    retrieveCollection();
+
+    search.length ? searchForTag() : retrieveCollection();
     return;
   };
 
@@ -148,7 +157,7 @@ function Home() {
           scale: currVal,
         });
         setIsSliding(false);
-        retrieveCollection();
+        search.length ? searchForTag() : retrieveCollection();
         return;
       } else {
         currVal?.push({ name: user?.name!, value: val });
@@ -157,7 +166,7 @@ function Home() {
           scale: currVal,
         });
         setIsSliding(false);
-        retrieveCollection();
+        search.length ? searchForTag() : retrieveCollection();
         return;
       }
     }
@@ -178,6 +187,13 @@ function Home() {
       setIsSliding(true);
       setScaleVal(hasVoted[0].value);
     }
+  };
+
+  const searchForTag = () => {
+    const questionFilter = questions?.filter((item) =>
+      item.tags.includes(search.trim().toLowerCase())
+    );
+    questionFilter?.length && setQuestions(questionFilter);
   };
 
   const qstComponent = (index: number) => {
@@ -275,6 +291,14 @@ function Home() {
       {questions ? qstComponent(index) : <View></View>}
       <Button title="Anterior" onPress={prevQuestion}></Button>
       <Button title="Próxima" onPress={nextQuestion}></Button>
+      <TextInput
+        placeholder="Procurar pergunta por tag"
+        value={search}
+        onChangeText={(text) => setSearch(text)}
+      ></TextInput>
+      <TouchableOpacity onPress={searchForTag}>
+        <Text>Procurar</Text>
+      </TouchableOpacity>
       <Button
         onPress={() => navigation.navigate("NewPost")}
         title="Perguntar"

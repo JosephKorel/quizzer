@@ -130,14 +130,28 @@ function NewPost() {
     }
   };
 
+  const tagss = ["Pessoal", " Trabalho", " Escola"];
+  const txt = "Pessoal, Trabalho, Escola";
+  const myarr: string[] = [];
+  tagss.forEach((tag) => {
+    tag.toLocaleLowerCase();
+    myarr.push(tag.trim());
+  });
+
+  console.log(myarr);
+
   const addQuestion = async () => {
     if (user && question && tags) {
       //Põe as tags num array
-      const tagArr = tags.split(",");
+      const inputTags = tags.toLowerCase().split(",");
+      const newTags: string[] = [];
+      inputTags.forEach((tag) => {
+        newTags.push(tag.trim());
+      });
 
       if (choice === "Sim ou Não") {
         const votes = { yes: [], no: [] };
-        addDoc(tagArr, votes, null, null);
+        addDoc(newTags, votes, null, null);
         return;
       }
       if (choice === "Enquete") {
@@ -147,10 +161,10 @@ function NewPost() {
         options.forEach(
           (option) => (allOptions = { ...allOptions, [option]: [] })
         );
-        addDoc(tagArr, null, allOptions, null);
+        addDoc(newTags, null, allOptions, null);
       }
       if (choice === "Escala de 0 a 10") {
-        addDoc(tagArr, null, null, []);
+        addDoc(newTags, null, null, []);
       }
     }
   };
