@@ -5,21 +5,26 @@ import {
   getDoc,
   getDocs,
   query,
+  updateDoc,
 } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { Button, Image, Text, TouchableOpacity, View } from "react-native";
 import { db } from "../firebase_config";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import { User } from "firebase/auth";
 import { Slider } from "@miblanchard/react-native-slider";
+import { AppContext } from "../Context";
 
 type Questions = {
   id: string;
   author: { name: string; uid: string };
   question: string;
-  votes: { yes: User[]; no: User[] } | null;
-  options: { [item: string]: User[] } | null;
+  votes: {
+    yes: { name: string | null }[];
+    no: { name: string | null }[];
+  } | null;
+  options: { [item: string]: string[] } | null;
   scale: [] | null;
   media?: string;
   tags: string[];
@@ -28,6 +33,7 @@ type Questions = {
 };
 
 function Home() {
+  const { user } = useContext(AppContext);
   const [questions, setQuestions] = useState<Questions[] | null>(null);
   const [index, setIndex] = useState(0);
   const [reveal, setReveal] = useState(false);
@@ -46,6 +52,7 @@ function Home() {
     querySnapshot.forEach((doc: DocumentData) => questionDocs.push(doc.data()));
     setQuestions(questionDocs);
   };
+
   useEffect(() => {
     retrieveCollection();
   }, []);
@@ -57,6 +64,67 @@ function Home() {
       if (index[0] > 0.6) return <Text>Awesome</Text>;
     }
   };
+
+  //Voto de Sim ou Não
+  const onVote = (choice: string) => {
+    const hasVotedYes = questions![index].votes?.yes.filter(
+      (item) => item.name === user!.name
+    );
+    const hasVotedNo = questions![index].votes?.no.filter(
+      (item) => item.name === user!.name
+    );
+    //Usuário já votou?
+    if (hasVotedYes!.length > 0 || hasVotedNo!.length > 0) return;
+
+    const id = questions![index].id;
+    const currVotes = questions![index].votes;
+
+    if (choice === "yes") {
+      //Adiciona o voto
+      currVotes?.yes.push({ name: user!.name });
+
+      const docRef = doc(db, "questionsdb", id);
+      updateDoc(docRef, {
+        votes: currVotes,
+      });
+
+      //Atualizar em tempo real
+      retrieveCollection();
+      return;
+    }
+
+    if (choice === "no") {
+      //Adiciona o voto
+      currVotes?.no.push({ name: user!.name });
+
+      const docRef = doc(db, "questionsdb", id);
+      updateDoc(docRef, {
+        votes: currVotes,
+      });
+
+      //Atualizar em tempo real
+      retrieveCollection();
+      return;
+    }
+  };
+
+  const onChoose = (key: string) => {
+    const id = questions![index].id;
+    const currVotes = questions![index].options;
+    const docRef = doc(db, "questionsdb", id);
+    const hasVoted = Object.entries(currVotes!).filter(([objKey, value]) => {
+      value.includes(user!.name!);
+    });
+    if (hasVoted.length) return;
+
+    currVotes![key].push(user!.name!);
+    updateDoc(docRef, {
+      options: currVotes,
+    });
+    retrieveCollection();
+    return;
+  };
+
   const qstComponent = (index: number) => {
     return questions ? (
       <View>
@@ -89,17 +157,23 @@ function Home() {
             <Text>Opções</Text>
             {questions[index].votes && (
               <View>
-                <Text>Sim:{questions[index].votes?.yes.length}</Text>
-                <Text>Não:{questions[index].votes?.no.length}</Text>
+                <TouchableOpacity onPress={() => onVote("yes")}>
+                  <Text>Sim:{questions[index].votes?.yes.length}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => onVote("no")}>
+                  <Text>Não:{questions[index].votes?.no.length}</Text>
+                </TouchableOpacity>
               </View>
             )}
             {questions[index].options && (
               <View>
                 {Object.entries(questions[index].options!).map(
                   ([key, value], i) => (
-                    <Text key={i}>
-                      {key}:{value.length}
-                    </Text>
+                    <TouchableOpacity onPress={() => onChoose(key)}>
+                      <Text key={i}>
+                        {key}:{value.length}
+                      </Text>
+                    </TouchableOpacity>
                   )
                 )}
               </View>
