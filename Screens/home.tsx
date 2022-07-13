@@ -1,4 +1,5 @@
 import {
+  arrayUnion,
   collection,
   doc,
   DocumentData,
@@ -36,6 +37,8 @@ type Questions = {
   media?: string;
   tags: string[];
   hasSpoiler: boolean;
+  hasVoted: string[];
+  views: number;
   date: string;
 };
 
@@ -59,6 +62,16 @@ function Home() {
     const colQuery = query(questionCol);
     const querySnapshot = await getDocs(colQuery);
     querySnapshot.forEach((doc: DocumentData) => questionDocs.push(doc.data()));
+
+    //Sort pelo número de votos
+    questionDocs.sort((a, b) => {
+      if (a.views > b.views) return -1;
+      else return 1;
+    });
+
+    //Sort pelas perguntas ainda não respondidas
+    const hasAnswered = questionDocs.filter((item) => {});
+
     setQuestions(questionDocs);
   };
 
@@ -76,113 +89,166 @@ function Home() {
 
   //Voto de Sim ou Não
   const onVote = (choice: string) => {
-    const hasVotedYes = questions![index].votes?.yes.filter(
-      (item) => item.name === user!.name
-    );
-    const hasVotedNo = questions![index].votes?.no.filter(
-      (item) => item.name === user!.name
-    );
+    const hasVoted = questions![index].hasVoted;
+
     //Usuário já votou?
-    if (hasVotedYes!.length > 0 || hasVotedNo!.length > 0) return;
+    if (hasVoted.includes(user!.uid)) return;
 
     const id = questions![index].id;
-    const currVotes = questions![index].votes;
+    let currVotes = questions![index].votes;
+    let currViews = questions![index].views;
+    const docRef = doc(db, "questionsdb", id);
 
     if (choice === "yes") {
+      let qstSlice = questions?.slice();
+
       //Adiciona o voto
       currVotes?.yes.push({ name: user!.name });
+      currViews += 1;
 
-      const docRef = doc(db, "questionsdb", id);
+      //Atualiza o front end em tempo real
+      qstSlice![index].votes = currVotes;
+      qstSlice![index].hasVoted.push(user!.uid);
+      setQuestions(qstSlice!);
+
+      //Atualiza no firebase
       updateDoc(docRef, {
         votes: currVotes,
+        hasVoted: arrayUnion(user!.uid),
+        views: currViews,
       });
 
-      //Atualizar em tempo real
-      search.length ? searchForTag() : retrieveCollection();
       return;
     }
 
     if (choice === "no") {
+      let qstSlice = questions?.slice();
+
       //Adiciona o voto
       currVotes?.no.push({ name: user!.name });
+      currViews += 1;
 
-      const docRef = doc(db, "questionsdb", id);
+      //Atualiza o front end em tempo real
+      qstSlice![index].votes = currVotes;
+      qstSlice![index].hasVoted.push(user!.uid);
+
+      setQuestions(qstSlice!);
+
+      //Atualiza no firebase
       updateDoc(docRef, {
         votes: currVotes,
+        hasVoted: arrayUnion(user!.uid),
+        views: currViews,
       });
 
-      //Atualizar em tempo real
-      search.length ? searchForTag() : retrieveCollection();
       return;
     }
   };
 
   const onChoose = (key: string) => {
     const id = questions![index].id;
-    const currVotes = questions![index].options;
+    const hasVoted = questions![index].hasVoted;
+    let currVotes = questions![index].options;
+    let currViews = questions![index].views;
+    let qstSlice = questions?.slice();
     const docRef = doc(db, "questionsdb", id);
 
-    //Pega os valores de cada opção
-    const val = Object.values(currVotes!);
-
-    //Filtra se existem algum que contém o username do usuário
-    const valFil = val.filter((item) => item.includes(user?.name!));
-
-    //Se contém, para a função
-    if (valFil.length) return;
+    //Se o usuário já votou, para a função
+    if (hasVoted.includes(user!.uid)) return;
 
     currVotes![key].push(user!.name!);
+    currViews += 1;
+
+    //Atualização em tempo real
+    qstSlice![index].options = currVotes;
+    qstSlice![index].hasVoted.push(user!.uid);
+
+    setQuestions(qstSlice!);
+
+    //Atualiza no firebase
     updateDoc(docRef, {
       options: currVotes,
+      hasVoted: arrayUnion(user!.uid),
+      views: currViews,
     });
 
-    search.length ? searchForTag() : retrieveCollection();
     return;
   };
 
   const onChangeScale = () => {
     const id = questions![index].id;
-    const currVal = questions![index].scale;
-    const hasVoted = currVal?.filter((item) => item.name === user?.name!);
+    let currVal = questions![index].scale;
+    let currViews = questions![index].views;
+    const hasVoted = questions![index].hasVoted;
+    let qstSlice = questions?.slice();
     const docRef = doc(db, "questionsdb", id);
 
     if (Array.isArray(scaleVal)) {
+      //Arredonda pra uma casa
       const val = +scaleVal[0].toFixed(1);
 
-      if (hasVoted?.length) {
+      if (hasVoted.includes(user!.uid)) {
+        //Muda o valor escolhido pelo usuário
         currVal?.forEach((item) => {
-          if (item.name === user?.name) item.value = val;
+          if (item.name === user!.name) item.value = val;
         });
+        currViews += 1;
+
+        //Atualiza o front
+        qstSlice![index].scale = currVal;
+
+        setQuestions(qstSlice!);
+
+        //Atualiza o Doc
         updateDoc(docRef, {
           scale: currVal,
+          views: currViews,
         });
         setIsSliding(false);
-        search.length ? searchForTag() : retrieveCollection();
+        /* search.length ? searchForTag() : retrieveCollection(); */
         return;
       } else {
         currVal?.push({ name: user?.name!, value: val });
+        currViews += 1;
 
+        //Atualiza no front
+        qstSlice![index].scale = currVal;
+        qstSlice![index].hasVoted.push(user!.uid);
+
+        setQuestions(qstSlice!);
+
+        //Atualiza o Doc
         updateDoc(docRef, {
           scale: currVal,
+          hasVoted: arrayUnion(user!.uid),
+          views: currViews,
         });
         setIsSliding(false);
-        search.length ? searchForTag() : retrieveCollection();
+        /* search.length ? searchForTag() : retrieveCollection(); */
         return;
       }
     }
   };
 
+  //Define o valor atual da escala
   const currScaleVal = () => {
     const currVal = questions![index].scale;
     const hasVoted = currVal!.filter((item) => item.name === user?.name);
+
+    //Se há o voto e a escala não está mudando, fica o valor previamente registrado
     if (hasVoted.length > 0 && isSliding === false) {
       return hasVoted[0].value;
-    } else return scaleVal;
+    }
+    //Se não, ou não há voto ou isSliding é true o que significa que a escala tá mudando
+    else return scaleVal;
   };
 
+  //Função quando a escala começa a mudar
   const onSliding = () => {
     const currVal = questions![index].scale;
     const hasVoted = currVal!.filter((item) => item.name === user?.name);
+
+    //Se há o voto, isSliding é true e então o valor da escala passa a ser o de scaleVal
     if (hasVoted.length) {
       setIsSliding(true);
       setScaleVal(hasVoted[0].value);

@@ -49,6 +49,35 @@ function NewPost() {
     }
   };
 
+  const uploadImageAsync = async (uri: string) => {
+    const id = Date.now().toString();
+    const blob: Blob | any = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        console.log(e);
+        reject(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+
+    const imgRef = ref(storage, user?.uid + id);
+    await uploadBytes(imgRef, blob);
+
+    blob.close();
+
+    const url = await getDownloadURL(imgRef);
+    try {
+      setImgUrl(url);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const addDoc = async (
     tags: string[],
     votes: {} | null,
@@ -71,6 +100,8 @@ function NewPost() {
         scale,
         tags,
         hasSpoiler,
+        hasVoted: [],
+        views: 0,
         date,
       })
         .then(() => {
@@ -91,6 +122,8 @@ function NewPost() {
         scale,
         tags,
         hasSpoiler,
+        hasVoted: [],
+        views: 0,
         date,
       })
         .then(() => {
@@ -100,45 +133,6 @@ function NewPost() {
         })
         .catch((error) => console.log(error));
   };
-
-  const uploadImageAsync = async (uri: string) => {
-    const id = Date.now().toString();
-    const blob: Blob | any = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function (e) {
-        console.log(e);
-        reject(new TypeError("Network request failed"));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", uri, true);
-      xhr.send(null);
-    });
-
-    const imgRef = ref(storage, user?.uid + id);
-    const result = await uploadBytes(imgRef, blob);
-
-    blob.close();
-
-    const url = await getDownloadURL(imgRef);
-    try {
-      setImgUrl(url);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const tagss = ["Pessoal", " Trabalho", " Escola"];
-  const txt = "Pessoal, Trabalho, Escola";
-  const myarr: string[] = [];
-  tagss.forEach((tag) => {
-    tag.toLocaleLowerCase();
-    myarr.push(tag.trim());
-  });
-
-  console.log(myarr);
 
   const addQuestion = async () => {
     if (user && question && tags) {
