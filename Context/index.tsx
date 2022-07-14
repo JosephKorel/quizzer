@@ -10,6 +10,24 @@ type user = {
   avatar?: string | null;
 };
 
+export type Questions = {
+  id: string;
+  author: { name: string; uid: string };
+  question: string;
+  votes: {
+    yes: { name: string | null }[];
+    no: { name: string | null }[];
+  } | null;
+  options: { [item: string]: string[] } | null;
+  scale: { name: string; value: number }[] | null;
+  media?: string;
+  tags: string[];
+  hasSpoiler: boolean;
+  hasVoted: string[];
+  views: number;
+  date: string;
+};
+
 type ContextType = {
   isAuth: boolean;
   setIsAuth: (data: boolean) => void;

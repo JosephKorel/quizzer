@@ -3,12 +3,11 @@ import {
   collection,
   doc,
   DocumentData,
-  getDoc,
   getDocs,
   query,
   updateDoc,
 } from "firebase/firestore";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Button,
   Image,
@@ -20,27 +19,8 @@ import {
 import { db } from "../firebase_config";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
-import { User } from "firebase/auth";
 import { Slider } from "@miblanchard/react-native-slider";
-import { AppContext } from "../Context";
-
-type Questions = {
-  id: string;
-  author: { name: string; uid: string };
-  question: string;
-  votes: {
-    yes: { name: string | null }[];
-    no: { name: string | null }[];
-  } | null;
-  options: { [item: string]: string[] } | null;
-  scale: { name: string; value: number }[] | null;
-  media?: string;
-  tags: string[];
-  hasSpoiler: boolean;
-  hasVoted: string[];
-  views: number;
-  date: string;
-};
+import { AppContext, Questions } from "../Context";
 
 function Home() {
   const { user } = useContext(AppContext);
@@ -70,7 +50,10 @@ function Home() {
     });
 
     //Sort pelas perguntas ainda não respondidas
-    const hasAnswered = questionDocs.filter((item) => {});
+    questionDocs.sort((a, b) => {
+      if (a.hasVoted.includes(user!.uid)) return 1;
+      else return -1;
+    });
 
     setQuestions(questionDocs);
   };
@@ -368,6 +351,10 @@ function Home() {
       <Button
         onPress={() => navigation.navigate("NewPost")}
         title="Perguntar"
+      ></Button>
+      <Button
+        onPress={() => navigation.navigate("Profile")}
+        title="Perfil"
       ></Button>
     </View>
   );
