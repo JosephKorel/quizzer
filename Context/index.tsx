@@ -19,7 +19,7 @@ export type Questions = {
     no: { name: string | null }[];
   } | null;
   options: { [item: string]: string[] } | null;
-  scale: { name: string; value: number }[] | null;
+  scale: { name: string; value: number; label: string[] }[] | null;
   media?: string;
   tags: string[];
   hasSpoiler: boolean;
@@ -33,6 +33,8 @@ type ContextType = {
   setIsAuth: (data: boolean) => void;
   user: null | user;
   setUser: (data: user) => void;
+  scaleTxt: string[];
+  setScaleTxt: (data: string[]) => void;
 };
 
 const initialValue = {
@@ -40,6 +42,8 @@ const initialValue = {
   setIsAuth: () => {},
   user: null,
   setUser: () => {},
+  scaleTxt: ["Meh", "Cool", "Amazing"],
+  setScaleTxt: () => {},
 };
 
 export const AppContext = createContext<ContextType>(initialValue);
@@ -47,9 +51,12 @@ export const AppContext = createContext<ContextType>(initialValue);
 export const AppContextProvider = ({ children }: Props) => {
   const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState<null | user>(null);
+  const [scaleTxt, setScaleTxt] = useState(["Meh", "Cool", "Amazing"]);
 
   return (
-    <AppContext.Provider value={{ isAuth, setIsAuth, user, setUser }}>
+    <AppContext.Provider
+      value={{ isAuth, setIsAuth, user, setUser, scaleTxt, setScaleTxt }}
+    >
       {children}
     </AppContext.Provider>
   );

@@ -26,6 +26,7 @@ function NewPost() {
   const [imgUrl, setImgUrl] = useState("");
   const [tags, setTags] = useState("");
   const [hasSpoiler, setHasSpoiler] = useState(false);
+  const [scaleLabel, setScaleLabel] = useState(["Meh", "Cool", "Awesome"]);
 
   const navigation = useNavigation<propsStack>();
 
@@ -205,6 +206,23 @@ function NewPost() {
     );
   };
 
+  const ScaleLabel = (): JSX.Element => {
+    return (
+      <View>
+        {scaleLabel.map((label, i) => (
+          <TextInput
+            value={label}
+            onChangeText={(text) =>
+              setScaleLabel(
+                scaleLabel.map((item, index) => (index === i ? text : item))
+              )
+            }
+          />
+        ))}
+      </View>
+    );
+  };
+
   return (
     <View>
       <Text>O que você quer perguntar?</Text>
@@ -230,6 +248,7 @@ function NewPost() {
         </TouchableOpacity>
       ))}
       {choice === "Enquete" && OptionMap()}
+      {choice === "Escala de 0 a 10" && ScaleLabel()}
       <Text onPress={() => setHasSpoiler(!hasSpoiler)}>
         Sua pergunta é um possível spoiler?
       </Text>

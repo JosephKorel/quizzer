@@ -3,17 +3,13 @@ import {
   Button,
   FlatList,
   Image,
-  ListRenderItem,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { AppContext, Questions } from "../Context";
 import {
-  arrayUnion,
   collection,
-  doc,
   DocumentData,
   getDocs,
   query,

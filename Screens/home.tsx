@@ -23,7 +23,7 @@ import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
 
 function Home() {
-  const { user } = useContext(AppContext);
+  const { user, scaleTxt } = useContext(AppContext);
   const [questions, setQuestions] = useState<Questions[] | null>(null);
   const [index, setIndex] = useState(0);
   const [reveal, setReveal] = useState(false);
@@ -64,14 +64,14 @@ function Home() {
 
   const custom = (index: number | Array<number>) => {
     if (Array.isArray(index)) {
-      if (index[0] < 2) return <Text>Meh</Text>;
-      if (index[0] < 6) return <Text>Cool</Text>;
-      if (index[0] > 6) return <Text>Awesome</Text>;
+      if (index[0] < 2) return <Text>{scaleTxt[0]}</Text>;
+      if (index[0] < 6) return <Text>{scaleTxt[1]}</Text>;
+      if (index[0] > 6) return <Text>{scaleTxt[2]}</Text>;
     }
   };
 
   //Voto de Sim ou Não
-  const onVote = (choice: string) => {
+  const onVote = async (choice: string): Promise<void | null> => {
     const hasVoted = questions![index].hasVoted;
 
     //Usuário já votou?
@@ -89,46 +89,53 @@ function Home() {
       currVotes?.yes.push({ name: user!.name });
       currViews += 1;
 
-      //Atualiza o front end em tempo real
-      qstSlice![index].votes = currVotes;
-      qstSlice![index].hasVoted.push(user!.uid);
-      setQuestions(qstSlice!);
+      try {
+        //Atualiza no firebase
+        await updateDoc(docRef, {
+          votes: currVotes,
+          hasVoted: arrayUnion(user!.uid),
+          views: currViews,
+        });
 
-      //Atualiza no firebase
-      updateDoc(docRef, {
-        votes: currVotes,
-        hasVoted: arrayUnion(user!.uid),
-        views: currViews,
-      });
-
-      return;
+        //Atualiza o front end em tempo real
+        qstSlice![index].votes = currVotes;
+        qstSlice![index].hasVoted.push(user!.uid);
+        setQuestions(qstSlice!);
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
     }
 
-    if (choice === "no") {
+    //Voto de não
+    else {
       let qstSlice = questions?.slice();
 
       //Adiciona o voto
       currVotes?.no.push({ name: user!.name });
       currViews += 1;
 
-      //Atualiza o front end em tempo real
-      qstSlice![index].votes = currVotes;
-      qstSlice![index].hasVoted.push(user!.uid);
+      try {
+        //Atualiza no firebase
+        await updateDoc(docRef, {
+          votes: currVotes,
+          hasVoted: arrayUnion(user!.uid),
+          views: currViews,
+        });
 
-      setQuestions(qstSlice!);
+        //Atualiza o front end em tempo real
+        qstSlice![index].votes = currVotes;
+        qstSlice![index].hasVoted.push(user!.uid);
 
-      //Atualiza no firebase
-      updateDoc(docRef, {
-        votes: currVotes,
-        hasVoted: arrayUnion(user!.uid),
-        views: currViews,
-      });
-
-      return;
+        setQuestions(qstSlice!);
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
     }
   };
 
-  const onChoose = (key: string) => {
+  const onChoose = async (key: string): Promise<void | null> => {
     const id = questions![index].id;
     const hasVoted = questions![index].hasVoted;
     let currVotes = questions![index].options;
@@ -142,23 +149,26 @@ function Home() {
     currVotes![key].push(user!.name!);
     currViews += 1;
 
-    //Atualização em tempo real
-    qstSlice![index].options = currVotes;
-    qstSlice![index].hasVoted.push(user!.uid);
+    try {
+      //Atualiza no firebase
+      await updateDoc(docRef, {
+        options: currVotes,
+        hasVoted: arrayUnion(user!.uid),
+        views: currViews,
+      });
 
-    setQuestions(qstSlice!);
+      //Atualização em tempo real
+      qstSlice![index].options = currVotes;
+      qstSlice![index].hasVoted.push(user!.uid);
 
-    //Atualiza no firebase
-    updateDoc(docRef, {
-      options: currVotes,
-      hasVoted: arrayUnion(user!.uid),
-      views: currViews,
-    });
-
-    return;
+      setQuestions(qstSlice!);
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   };
 
-  const onChangeScale = () => {
+  const onChangeScale = async () => {
     const id = questions![index].id;
     let currVal = questions![index].scale;
     let currViews = questions![index].views;
@@ -177,36 +187,44 @@ function Home() {
         });
         currViews += 1;
 
-        //Atualiza o front
-        qstSlice![index].scale = currVal;
+        try {
+          //Atualiza o Doc
+          await updateDoc(docRef, {
+            scale: currVal,
+            views: currViews,
+          });
+          setIsSliding(false);
 
-        setQuestions(qstSlice!);
+          //Atualiza o front
+          qstSlice![index].scale = currVal;
 
-        //Atualiza o Doc
-        updateDoc(docRef, {
-          scale: currVal,
-          views: currViews,
-        });
-        setIsSliding(false);
+          setQuestions(qstSlice!);
+        } catch (error) {}
+
         /* search.length ? searchForTag() : retrieveCollection(); */
         return;
       } else {
         currVal?.push({ name: user?.name!, value: val });
         currViews += 1;
 
-        //Atualiza no front
-        qstSlice![index].scale = currVal;
-        qstSlice![index].hasVoted.push(user!.uid);
+        try {
+          //Atualiza o Doc
+          await updateDoc(docRef, {
+            scale: currVal,
+            hasVoted: arrayUnion(user!.uid),
+            views: currViews,
+          });
+          setIsSliding(false);
 
-        setQuestions(qstSlice!);
+          //Atualiza no front
+          qstSlice![index].scale = currVal;
+          qstSlice![index].hasVoted.push(user!.uid);
 
-        //Atualiza o Doc
-        updateDoc(docRef, {
-          scale: currVal,
-          hasVoted: arrayUnion(user!.uid),
-          views: currViews,
-        });
-        setIsSliding(false);
+          setQuestions(qstSlice!);
+        } catch (error) {
+          console.log(error);
+        }
+
         /* search.length ? searchForTag() : retrieveCollection(); */
         return;
       }
