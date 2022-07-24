@@ -21,6 +21,7 @@ import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
+import tailwind from "twrnc";
 
 function Home() {
   const { user, scaleTxt } = useContext(AppContext);
@@ -30,6 +31,7 @@ function Home() {
   const [scaleVal, setScaleVal] = useState<number | number[]>([]);
   const [isSliding, setIsSliding] = useState(false);
   const [search, setSearch] = useState("");
+  const [myQuestions, setMyQuestions] = useState(false);
 
   const navigation = useNavigation<propsStack>();
 
@@ -54,21 +56,12 @@ function Home() {
       if (a.hasVoted.includes(user!.uid)) return 1;
       else return -1;
     });
-
     setQuestions(questionDocs);
   };
 
   useEffect(() => {
     retrieveCollection();
   }, []);
-
-  const custom = (index: number | Array<number>) => {
-    if (Array.isArray(index)) {
-      if (index[0] < 2) return <Text>{scaleTxt[0]}</Text>;
-      if (index[0] < 6) return <Text>{scaleTxt[1]}</Text>;
-      if (index[0] > 6) return <Text>{scaleTxt[2]}</Text>;
-    }
-  };
 
   //Voto de Sim ou Não
   const onVote = async (choice: string): Promise<void | null> => {
@@ -263,13 +256,51 @@ function Home() {
     questionFilter?.length && setQuestions(questionFilter);
   };
 
+  const custom = (value: number | Array<number>, index: number) => {
+    const labels = questions![index].labels!;
+    if (Array.isArray(value)) {
+      if (value[0] < 2) return <Text>{labels[0]}</Text>;
+      if (value[0] < 6) return <Text>{labels[1]}</Text>;
+      if (value[0] > 6) return <Text>{labels[2]}</Text>;
+    }
+  };
+
+  useEffect(() => {
+    const showMyQuestions = async () => {
+      await retrieveCollection();
+      console.log(questions);
+      const myQuestionFilter = questions?.filter(
+        (item) => item.author.uid === user?.uid
+      );
+
+      setQuestions(myQuestionFilter!);
+    };
+
+    const showAllQuestions = async () => {
+      await retrieveCollection();
+      const myQuestionFilter = questions?.filter(
+        (item) => item.author.uid !== user?.uid
+      );
+
+      setQuestions(myQuestionFilter!);
+    };
+
+    myQuestions ? showMyQuestions() : showAllQuestions();
+  }, [myQuestions]);
+
   const qstComponent = (index: number) => {
-    return questions ? (
+    return questions?.length ? (
       <View>
-        <Text>
-          Perguntado por {questions[index].author.name}, em{" "}
-          {questions[index].date}
-        </Text>
+        <View style={tailwind`flex flex-row items-center`}>
+          <Image
+            style={tailwind`rounded-full w-8 h-8`}
+            source={{ uri: user?.avatar ? user.avatar : undefined }}
+          />
+          <Text>
+            {questions[index].author.name}, em {questions[index].date}
+          </Text>
+        </View>
+
         {questions[index].hasSpoiler === true && reveal === false ? (
           <View>
             <Text>
@@ -323,7 +354,7 @@ function Home() {
                   maximumValue={10}
                   value={currScaleVal()}
                   onValueChange={(value) => setScaleVal(value)}
-                  renderAboveThumbComponent={() => custom(scaleVal)}
+                  renderAboveThumbComponent={() => custom(scaleVal, index)}
                   onSlidingComplete={onChangeScale}
                   onSlidingStart={onSliding}
                 ></Slider>
@@ -355,6 +386,11 @@ function Home() {
   return (
     <View>
       <Text>Perguntas de hoje</Text>
+      <TouchableOpacity onPress={() => setMyQuestions(!myQuestions)}>
+        <Text>
+          {myQuestions ? "Ver todas perguntas" : "Ver minhas perguntas"}
+        </Text>
+      </TouchableOpacity>
       {questions ? qstComponent(index) : <View></View>}
       <Button title="Anterior" onPress={prevQuestion}></Button>
       <Button title="Próxima" onPress={nextQuestion}></Button>
@@ -374,6 +410,9 @@ function Home() {
         onPress={() => navigation.navigate("Profile")}
         title="Perfil"
       ></Button>
+      <TouchableOpacity onPress={retrieveCollection}>
+        <Text>Atualizar</Text>
+      </TouchableOpacity>
     </View>
   );
 }

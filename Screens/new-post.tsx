@@ -15,6 +15,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "../firebase_config";
 import * as ImagePicker from "expo-image-picker";
 import moment from "moment";
+import tailwind from "twrnc";
 
 function NewPost() {
   const { user } = useContext(AppContext);
@@ -82,56 +83,62 @@ function NewPost() {
     tags: string[],
     votes: {} | null,
     options: {} | null,
-    scale: [] | null
+    scale: [] | null,
+    labels: string[] | null
   ) => {
     const id = Date.now().toString();
     const date = moment(new Date()).format("DD/MM/YYYY");
 
     if (image !== null) {
-      await uploadImageAsync(image.uri);
+      try {
+        await uploadImageAsync(image.uri);
 
-      setDoc(doc(db, "questionsdb", id), {
-        id,
-        author: { name: user!.name, uid: user!.uid },
-        question,
-        media: imgUrl,
-        votes,
-        options,
-        scale,
-        tags,
-        hasSpoiler,
-        hasVoted: [],
-        views: 0,
-        date,
-      })
-        .then(() => {
-          setSuccess(true);
-          setTimeout(clearMsg, 2000);
-          setChoice("");
-        })
-        .catch((error) => console.log(error));
+        await setDoc(doc(db, "questionsdb", id), {
+          id,
+          author: { name: user!.name, uid: user!.uid, avatar: user?.avatar },
+          question,
+          media: imgUrl,
+          votes,
+          options,
+          scale,
+          labels,
+          tags,
+          hasSpoiler,
+          hasVoted: [],
+          views: 0,
+          date,
+        });
 
-      return;
+        setSuccess(true);
+        setTimeout(clearMsg, 2000);
+        setChoice("");
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
     } else
-      setDoc(doc(db, "questionsdb", id), {
-        id,
-        author: { name: user!.name, uid: user!.uid },
-        question,
-        votes,
-        options,
-        scale,
-        tags,
-        hasSpoiler,
-        hasVoted: [],
-        views: 0,
-        date,
-      })
-        .then(() => {
-          setSuccess(true);
-          setTimeout(clearMsg, 2000);
-          setChoice("");
-        })
-        .catch((error) => console.log(error));
+      try {
+        await setDoc(doc(db, "questionsdb", id), {
+          id,
+          author: { name: user!.name, uid: user!.uid, avatar: user?.avatar },
+          question,
+          votes,
+          options,
+          scale,
+          labels,
+          tags,
+          hasSpoiler,
+          hasVoted: [],
+          views: 0,
+          date,
+        });
+        setSuccess(true);
+        setTimeout(clearMsg, 2000);
+        setChoice("");
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
   };
 
   const addQuestion = async () => {
@@ -145,7 +152,7 @@ function NewPost() {
 
       if (choice === "Sim ou Não") {
         const votes = { yes: [], no: [] };
-        addDoc(newTags, votes, null, null);
+        addDoc(newTags, votes, null, null, null);
         return;
       }
       if (choice === "Enquete") {
@@ -155,10 +162,10 @@ function NewPost() {
         options.forEach(
           (option) => (allOptions = { ...allOptions, [option]: [] })
         );
-        addDoc(newTags, null, allOptions, null);
+        addDoc(newTags, null, allOptions, null, null);
       }
       if (choice === "Escala de 0 a 10") {
-        addDoc(newTags, null, null, []);
+        addDoc(newTags, null, null, [], scaleLabel);
       }
     }
   };
@@ -208,9 +215,14 @@ function NewPost() {
 
   const ScaleLabel = (): JSX.Element => {
     return (
-      <View>
+      <View
+        style={tailwind`flex flex-row bg-blue-300 justify-between text-xl italic`}
+      >
         {scaleLabel.map((label, i) => (
           <TextInput
+            style={tailwind`border-2 border-blue-500 pr-5`}
+            maxLength={8}
+            key={i}
             value={label}
             onChangeText={(text) =>
               setScaleLabel(

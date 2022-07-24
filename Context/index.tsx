@@ -19,7 +19,8 @@ export type Questions = {
     no: { name: string | null }[];
   } | null;
   options: { [item: string]: string[] } | null;
-  scale: { name: string; value: number; label: string[] }[] | null;
+  scale: { name: string; value: number }[] | null;
+  labels?: string[];
   media?: string;
   tags: string[];
   hasSpoiler: boolean;
