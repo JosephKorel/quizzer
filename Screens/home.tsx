@@ -24,7 +24,14 @@ import { propsStack } from "./RootStackParams";
 import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
 import tailwind from "twrnc";
-import { ArrowForwardIcon, Avatar, Icon, IconButton } from "native-base";
+import {
+  ArrowForwardIcon,
+  Avatar,
+  CheckCircleIcon,
+  Icon,
+  IconButton,
+} from "native-base";
+import { MaterialIcons } from "@expo/vector-icons";
 
 function Home() {
   const { user, scaleTxt } = useContext(AppContext);
@@ -395,9 +402,24 @@ function Home() {
     <View style={tailwind`bg-[#f3f4f6] h-full w-11/12 mx-auto`}>
       <StatusBar barStyle="dark-content" />
       {questions?.length ? qstComponent(index) : <View></View>}
-      <IconButton icon={<Icon as={ArrowForwardIcon} color="black" />} />
-      <Button title="Anterior" onPress={prevQuestion}></Button>
-      <Button title="Próxima" onPress={nextQuestion}></Button>
+
+      <View style={tailwind`flex-row justify-between items-center`}>
+        <MaterialIcons
+          name="navigate-before"
+          size={42}
+          color="white"
+          onPress={prevQuestion}
+          style={tailwind`rounded-full bg-indigo-400`}
+        />
+        <MaterialIcons
+          name="navigate-next"
+          size={42}
+          color="white"
+          onPress={nextQuestion}
+          style={tailwind`rounded-full bg-indigo-400`}
+        />
+      </View>
+
       <TextInput
         placeholder="Procurar pergunta por tag"
         value={search}
