@@ -68,12 +68,7 @@ export default function Login() {
       >
         Quizzer
       </Text>
-
-      <Button
-        onPress={() => promptAsync()}
-        leftIcon={<Icon as={FavouriteIcon} name="Login" size="xl" />}
-        colorScheme="indigo"
-      >
+      <Button onPress={() => promptAsync()} colorScheme="indigo">
         ENTRAR COM O GOOGLE
       </Button>
     </View>

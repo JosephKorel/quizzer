@@ -11,6 +11,8 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   Button,
   Image,
+  StatusBar,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -22,6 +24,7 @@ import { propsStack } from "./RootStackParams";
 import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
 import tailwind from "twrnc";
+import { ArrowForwardIcon, Avatar, Icon, IconButton } from "native-base";
 
 function Home() {
   const { user, scaleTxt } = useContext(AppContext);
@@ -32,6 +35,7 @@ function Home() {
   const [isSliding, setIsSliding] = useState(false);
   const [search, setSearch] = useState("");
   const [myQuestions, setMyQuestions] = useState(false);
+  const [allQuestions, setAllQuestions] = useState<Questions[] | null>(null);
 
   const navigation = useNavigation<propsStack>();
 
@@ -57,6 +61,7 @@ function Home() {
       else return -1;
     });
     setQuestions(questionDocs);
+    setAllQuestions(questionDocs);
   };
 
   useEffect(() => {
@@ -266,22 +271,17 @@ function Home() {
   };
 
   useEffect(() => {
-    const showMyQuestions = async () => {
-      await retrieveCollection();
-      console.log(questions);
-      const myQuestionFilter = questions?.filter(
+    const showMyQuestions = () => {
+      const myQuestionFilter = allQuestions?.filter(
         (item) => item.author.uid === user?.uid
       );
-
       setQuestions(myQuestionFilter!);
     };
 
-    const showAllQuestions = async () => {
-      await retrieveCollection();
-      const myQuestionFilter = questions?.filter(
+    const showAllQuestions = () => {
+      const myQuestionFilter = allQuestions?.filter(
         (item) => item.author.uid !== user?.uid
       );
-
       setQuestions(myQuestionFilter!);
     };
 
@@ -290,19 +290,23 @@ function Home() {
 
   const qstComponent = (index: number) => {
     return questions?.length ? (
-      <View>
-        <View style={tailwind`flex flex-row items-center`}>
-          <Image
-            style={tailwind`rounded-full w-8 h-8`}
-            source={{ uri: user?.avatar ? user.avatar : undefined }}
-          />
-          <Text>
-            {questions[index].author.name}, em {questions[index].date}
+      <View style={tailwind`mt-12`}>
+        <View style={tailwind`flex flex-col items-center`}>
+          <Avatar source={{ uri: user?.avatar ? user.avatar : undefined }} />
+          <Text style={tailwind`text-stone-600 text-base`}>
+            {questions[index].author.name}
           </Text>
         </View>
-
+        <View style={tailwind`mt-6 flex flex-row justify-between items-center`}>
+          <View
+            style={tailwind`w-[46%] p-1 bg-indigo-500 rounded-br-lg rounded-tl-lg`}
+          ></View>
+          <View
+            style={tailwind`w-[46%] p-1 bg-indigo-500  rounded-bl-lg rounded-tr-lg`}
+          ></View>
+        </View>
         {questions[index].hasSpoiler === true && reveal === false ? (
-          <View>
+          <View style={tailwind`mt-8`}>
             <Text>
               Cuidado! Esta pergunta contém spoiler, tem certeza de que quer
               ver?
@@ -315,15 +319,16 @@ function Home() {
             </TouchableOpacity>
           </View>
         ) : (
-          <View>
-            <Text>{questions[index].question}</Text>
+          <View style={tailwind`mt-4  bg-indigo-500 p-2 rounded-lg shadow-xl`}>
+            <Text style={tailwind`text-2xl text-slate-50 text-center`}>
+              {questions[index].question}
+            </Text>
             {questions[index].media && (
               <Image
                 style={{ width: 100, height: 100 }}
                 source={{ uri: questions[index].media }}
               ></Image>
             )}
-            <Text>Opções</Text>
             {questions[index].votes && (
               <View>
                 <TouchableOpacity onPress={() => onVote("yes")}>
@@ -348,7 +353,7 @@ function Home() {
               </View>
             )}
             {questions[index].scale && (
-              <View>
+              <View style={tailwind`mt-4`}>
                 <Slider
                   minimumValue={0}
                   maximumValue={10}
@@ -362,9 +367,12 @@ function Home() {
             )}
           </View>
         )}
-        <View>
-          {questions[index].tags.map((tag, i) => (
-            <Text key={i}>{tag}</Text>
+        <View style={tailwind`mt-2 flex-row `}>
+          {questions[index].tags.map((tag, i, arr) => (
+            <Text key={i} style={tailwind` text-slate-500 mr-2`}>
+              {tag}
+              {i === arr.length - 1 ? "" : ","}
+            </Text>
           ))}
         </View>
       </View>
@@ -384,14 +392,10 @@ function Home() {
   };
 
   return (
-    <View>
-      <Text>Perguntas de hoje</Text>
-      <TouchableOpacity onPress={() => setMyQuestions(!myQuestions)}>
-        <Text>
-          {myQuestions ? "Ver todas perguntas" : "Ver minhas perguntas"}
-        </Text>
-      </TouchableOpacity>
-      {questions ? qstComponent(index) : <View></View>}
+    <View style={tailwind`bg-[#f3f4f6] h-full w-11/12 mx-auto`}>
+      <StatusBar barStyle="dark-content" />
+      {questions?.length ? qstComponent(index) : <View></View>}
+      <IconButton icon={<Icon as={ArrowForwardIcon} color="black" />} />
       <Button title="Anterior" onPress={prevQuestion}></Button>
       <Button title="Próxima" onPress={nextQuestion}></Button>
       <TextInput
@@ -401,6 +405,11 @@ function Home() {
       ></TextInput>
       <TouchableOpacity onPress={searchForTag}>
         <Text>Procurar</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => setMyQuestions(!myQuestions)}>
+        <Text>
+          {myQuestions ? "Ver todas perguntas" : "Ver minhas perguntas"}
+        </Text>
       </TouchableOpacity>
       <Button
         onPress={() => navigation.navigate("NewPost")}
