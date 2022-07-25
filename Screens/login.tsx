@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import * as Google from "expo-auth-session/providers/google";
 import {
   GoogleAuthProvider,
@@ -11,6 +11,8 @@ import { auth } from "../firebase_config";
 import { AppContext } from "../Context";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
+import tailwind from "twrnc";
+import { Button, FavouriteIcon, Icon } from "native-base";
 
 export default function Login() {
   const { user, setUser, setIsAuth, isAuth } = useContext(AppContext);
@@ -57,9 +59,23 @@ export default function Login() {
   }, [response]);
 
   return (
-    <View>
-      <Text>Entre com sua conta do Google</Text>
-      <Button onPress={() => promptAsync()} title="Entrar"></Button>
+    <View
+      style={tailwind`absolute top-0 w-full text-center flex flex-col justify-center items-center bg-[#2c3e6d] h-full`}
+    >
+      <StatusBar />
+      <Text
+        style={tailwind`absolute top-1/4 text-2xl text-center text-slate-50`}
+      >
+        Quizzer
+      </Text>
+
+      <Button
+        onPress={() => promptAsync()}
+        leftIcon={<Icon as={FavouriteIcon} name="Login" size="xl" />}
+        colorScheme="indigo"
+      >
+        ENTRAR COM O GOOGLE
+      </Button>
     </View>
   );
 }

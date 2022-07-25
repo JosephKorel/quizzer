@@ -7,20 +7,28 @@ import NewPost from "./Screens/new-post";
 import { AppContextProvider } from "./Context";
 import Home from "./Screens/home";
 import Profile from "./Screens/profile";
+import { NativeBaseProvider } from "native-base";
+import tailwind, { useDeviceContext } from "twrnc";
 
 const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
+  useDeviceContext(tailwind);
   return (
     <AppContextProvider>
-      <NavigationContainer>
-        <Navigator initialRouteName="Login">
-          <Screen name="Login" component={Login}></Screen>
-          <Screen name="Home" component={Home}></Screen>
-          <Screen name="NewPost" component={NewPost}></Screen>
-          <Screen name="Profile" component={Profile}></Screen>
-        </Navigator>
-      </NavigationContainer>
+      <NativeBaseProvider>
+        <NavigationContainer>
+          <Navigator
+            initialRouteName="Login"
+            screenOptions={{ headerShown: false }}
+          >
+            <Screen name="Login" component={Login}></Screen>
+            <Screen name="Home" component={Home}></Screen>
+            <Screen name="NewPost" component={NewPost}></Screen>
+            <Screen name="Profile" component={Profile}></Screen>
+          </Navigator>
+        </NavigationContainer>
+      </NativeBaseProvider>
     </AppContextProvider>
   );
 }

@@ -1,12 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  Button,
-  FlatList,
-  Image,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { AppContext, Questions } from "../Context";
 import {
   collection,
@@ -15,12 +8,18 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../firebase_config";
+import { auth, db } from "../firebase_config";
+import { Button } from "native-base";
+import { signOut } from "firebase/auth";
+import { useNavigation } from "@react-navigation/native";
+import { propsStack } from "./RootStackParams";
 
 function Profile() {
   const { user } = useContext(AppContext);
   const [questions, setQuestions] = useState<Questions[] | null>(null);
   const [index, setIndex] = useState(0);
+
+  const navigation = useNavigation<propsStack>();
 
   const retrieveCollection = async () => {
     //Array que recebe cada documento
@@ -43,6 +42,12 @@ function Profile() {
   useEffect(() => {
     retrieveCollection();
   }, []);
+
+  const logOut = () => {
+    signOut(auth).then(() => {
+      navigation.navigate("Login");
+    });
+  };
 
   const qstComponent = ({ item }: { item: Questions }) => {
     return questions ? (
@@ -96,6 +101,9 @@ function Profile() {
         style={{ width: 100, height: 100 }}
       ></Image>
       <Text>{user!.name}</Text>
+      <Button variant="subtle" onPress={logOut}>
+        Sair
+      </Button>
       <Text>Minhas perguntas</Text>
       {questions && (
         <FlatList data={questions} renderItem={qstComponent}></FlatList>
