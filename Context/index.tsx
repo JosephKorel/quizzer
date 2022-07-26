@@ -36,6 +36,8 @@ type ContextType = {
   setUser: (data: user) => void;
   scaleTxt: string[];
   setScaleTxt: (data: string[]) => void;
+  light: boolean;
+  setLight: (data: boolean) => void;
 };
 
 const initialValue = {
@@ -45,6 +47,8 @@ const initialValue = {
   setUser: () => {},
   scaleTxt: ["Meh", "Cool", "Amazing"],
   setScaleTxt: () => {},
+  light: false,
+  setLight: () => {},
 };
 
 export const AppContext = createContext<ContextType>(initialValue);
@@ -52,11 +56,22 @@ export const AppContext = createContext<ContextType>(initialValue);
 export const AppContextProvider = ({ children }: Props) => {
   const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState<null | user>(null);
+
   const [scaleTxt, setScaleTxt] = useState(["Meh", "Cool", "Amazing"]);
+  const [light, setLight] = useState(false);
 
   return (
     <AppContext.Provider
-      value={{ isAuth, setIsAuth, user, setUser, scaleTxt, setScaleTxt }}
+      value={{
+        isAuth,
+        setIsAuth,
+        user,
+        setUser,
+        scaleTxt,
+        setScaleTxt,
+        light,
+        setLight,
+      }}
     >
       {children}
     </AppContext.Provider>

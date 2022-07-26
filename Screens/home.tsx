@@ -29,7 +29,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { BottomNav } from "../Components/bottom_nav";
 
 function Home() {
-  const { user, scaleTxt } = useContext(AppContext);
+  const { user, light, setLight } = useContext(AppContext);
   const [questions, setQuestions] = useState<Questions[] | null>(null);
   const [index, setIndex] = useState(0);
   const [reveal, setReveal] = useState(false);
@@ -39,7 +39,6 @@ function Home() {
   const [myQuestions, setMyQuestions] = useState(false);
   const [allQuestions, setAllQuestions] = useState<Questions[] | null>(null);
   const [tagSearch, setTagSearch] = useState(false);
-  const [light, setLight] = useState(false);
 
   const navigation = useNavigation<propsStack>();
 
@@ -268,9 +267,24 @@ function Home() {
   const custom = (value: number | Array<number>, index: number) => {
     const labels = questions![index].labels!;
     if (Array.isArray(value)) {
-      if (value[0] < 2) return <Text>{labels[0]}</Text>;
-      if (value[0] < 6) return <Text>{labels[1]}</Text>;
-      if (value[0] > 6) return <Text>{labels[2]}</Text>;
+      if (value[0] < 2)
+        return (
+          <Text style={tailwind`italic text-lg text-slate-50`}>
+            {labels[0]}
+          </Text>
+        );
+      if (value[0] < 6)
+        return (
+          <Text style={tailwind`italic text-lg text-slate-50`}>
+            {labels[1]}
+          </Text>
+        );
+      if (value[0] > 6)
+        return (
+          <Text style={tailwind`italic text-lg text-slate-50`}>
+            {labels[2]}
+          </Text>
+        );
     }
   };
 
@@ -320,6 +334,83 @@ function Home() {
     );
   };
 
+  const OptionsButtons = ({
+    objkey,
+    value,
+  }: {
+    objkey: string;
+    value: string[];
+  }): JSX.Element => {
+    const hasVoted = (): boolean => {
+      const filter = questions![index].hasVoted.includes(
+        auth.currentUser?.uid!
+      );
+      return filter;
+    };
+
+    return (
+      <View>
+        <View style={tailwind`bg-stone-900 mt-5`}>
+          <TouchableOpacity onPress={() => onVote("yes")} style={styles.text}>
+            <Text
+              style={tailwind`text-slate-50 font-bold text-2xl text-center italic`}
+            >
+              {objkey}
+              {hasVoted() && ": " + value.length}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const ScaleComponent = () => {
+    let totalValues: number[] = [];
+
+    if (questions?.length) {
+      questions[index].scale?.forEach((item) => totalValues.push(item.value));
+    }
+
+    const valueSum = totalValues.reduce((acc, curr) => {
+      acc += curr;
+      return acc;
+    }, 0);
+
+    const averageAnswer: number = valueSum / totalValues.length;
+
+    return (
+      <View style={tailwind`mt-10`}>
+        <Slider
+          minimumTrackTintColor="#F72585"
+          thumbTintColor="#F72585"
+          minimumValue={0}
+          maximumValue={10}
+          value={currScaleVal()}
+          onValueChange={(value) => setScaleVal(value)}
+          renderAboveThumbComponent={() => custom(scaleVal, index)}
+          onSlidingComplete={onChangeScale}
+          onSlidingStart={onSliding}
+        ></Slider>
+        {questions![index].hasVoted.includes(user?.uid!) && (
+          <View>
+            <View style={tailwind`bg-stone-900 mt-8`}>
+              <TouchableOpacity
+                onPress={() => onVote("yes")}
+                style={styles.text}
+              >
+                <Text
+                  style={tailwind`text-slate-50 font-bold text-xl text-center italic`}
+                >
+                  RESPOSTA MÉDIA: {averageAnswer}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </View>
+    );
+  };
+
   const styles = StyleSheet.create({
     text: {
       backgroundColor: "#F72585",
@@ -331,7 +422,7 @@ function Home() {
   const qstComponent = (index: number) => {
     return questions?.length ? (
       <View style={tailwind`mt-12`}>
-        <View style={tailwind`flex-row justify-center items-center`}>
+        <View style={tailwind`text-center`}>
           <View style={tailwind`flex flex-col items-center`}>
             <Avatar source={{ uri: user?.avatar ? user.avatar : undefined }} />
             <Text style={tailwind`text-slate-300 text-base`}>
@@ -380,31 +471,15 @@ function Home() {
               </View>
             )}
             {questions[index].options && (
-              <View>
+              <View style={tailwind`flex-col justify-center`}>
                 {Object.entries(questions[index].options!).map(
                   ([key, value], i) => (
-                    <TouchableOpacity onPress={() => onChoose(key)} key={i}>
-                      <Text>
-                        {key}:{value.length}
-                      </Text>
-                    </TouchableOpacity>
+                    <OptionsButtons key={i} objkey={key} value={value} />
                   )
                 )}
               </View>
             )}
-            {questions[index].scale && (
-              <View style={tailwind`mt-4`}>
-                <Slider
-                  minimumValue={0}
-                  maximumValue={10}
-                  value={currScaleVal()}
-                  onValueChange={(value) => setScaleVal(value)}
-                  renderAboveThumbComponent={() => custom(scaleVal, index)}
-                  onSlidingComplete={onChangeScale}
-                  onSlidingStart={onSliding}
-                ></Slider>
-              </View>
-            )}
+            {questions[index].scale && <View>{ScaleComponent()}</View>}
           </View>
         )}
         <View style={tailwind`mt-2 flex-row items-center`}>

@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import {
   Button,
   Image,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -17,9 +18,11 @@ import * as ImagePicker from "expo-image-picker";
 import moment from "moment";
 import tailwind from "twrnc";
 import { BottomNav } from "../Components/bottom_nav";
+import { MaterialIcons } from "@expo/vector-icons";
+import { IconButton } from "native-base";
 
 function NewPost() {
-  const { user } = useContext(AppContext);
+  const { user, light, setLight } = useContext(AppContext);
   const [question, setQuestion] = useState("");
   const [choice, setChoice] = useState("");
   const [options, setOptions] = useState<string[]>(["", ""]);
@@ -236,50 +239,110 @@ function NewPost() {
     );
   };
 
+  const PostStyles = StyleSheet.create({
+    main: {
+      transform: [{ translateY: -5 }],
+    },
+    translate: {
+      transform: [{ translateX: 4 }, { translateY: -4 }],
+    },
+  });
+
   return (
-    <View>
-      <Text>O que você quer perguntar?</Text>
-      <TextInput
-        placeholder="Escreva aqui"
-        value={question}
-        onChangeText={(text) => setQuestion(text)}
-      ></TextInput>
-      {image && (
-        <Image
-          style={{ width: 100, height: 100 }}
-          source={{ uri: image.uri }}
-        ></Image>
+    <View
+      style={tailwind.style(
+        light ? "bg-red-200" : "bg-[#0d0f47]",
+        "w-full",
+        "h-full"
       )}
-      <Text>Sua pergunta é do tipo</Text>
-      {questionType.map((question, index) => (
-        <TouchableOpacity
-          onPress={() => setChoice(questionType[index])}
-          style={{ padding: 10 }}
-          key={index}
-        >
-          <Text>{question}</Text>
-        </TouchableOpacity>
-      ))}
-      {choice === "Enquete" && OptionMap()}
-      {choice === "Escala de 0 a 10" && ScaleLabel()}
-      <Text onPress={() => setHasSpoiler(!hasSpoiler)}>
-        Sua pergunta é um possível spoiler?
-      </Text>
-      {hasSpoiler ? <Text>Sim</Text> : <Text>Não</Text>}
-      <Text>Tags</Text>
-      <TextInput
-        placeholder="Ex:'pessoal, curiosidade, super heróis, netflix'"
-        value={tags}
-        onChangeText={(text) => setTags(text)}
-      ></TextInput>
-      <Button onPress={addQuestion} title="Perguntar"></Button>
-      <Button title="Imagem" onPress={addImage}></Button>
-      {success && <Text>Postado!</Text>}
-      <Button
-        onPress={() => navigation.navigate("Login")}
-        title="Login"
-      ></Button>
-      <Button onPress={() => navigation.navigate("Home")} title="Home"></Button>
+    >
+      <View style={tailwind`w-11/12 mx-auto`}>
+        <View style={tailwind`absolute top-10`}>
+          {!light ? (
+            <MaterialIcons
+              name="wb-sunny"
+              size={24}
+              color="#F72585"
+              onPress={() => setLight(true)}
+            />
+          ) : (
+            <MaterialIcons
+              name="nightlight-round"
+              size={24}
+              color="#0d0f47"
+              onPress={() => setLight(false)}
+            />
+          )}
+        </View>
+        <View style={{ transform: [{ translateY: 100 }] }}>
+          <View
+            style={tailwind.style(
+              "border-l-8 border-b-8 rounded-md",
+              "bg-[#fdc500]"
+            )}
+          >
+            <Text
+              style={tailwind.style(
+                "text-2xl",
+                "italic",
+                "p-4",
+                "bg-[#f72585]",
+                "text-slate-50",
+                "text-center ",
+                "font-bold",
+                PostStyles.translate
+              )}
+            >
+              Qual é a dúvida de hoje?
+            </Text>
+          </View>
+
+          <TextInput
+            placeholder="Escreva aqui"
+            value={question}
+            onChangeText={(text) => setQuestion(text)}
+          ></TextInput>
+          {image && (
+            <Image
+              style={{ width: 100, height: 100 }}
+              source={{ uri: image.uri }}
+            ></Image>
+          )}
+          <Text>Sua pergunta é do tipo</Text>
+          {questionType.map((question, index) => (
+            <TouchableOpacity
+              onPress={() => setChoice(questionType[index])}
+              style={{ padding: 10 }}
+              key={index}
+            >
+              <Text>{question}</Text>
+            </TouchableOpacity>
+          ))}
+          {choice === "Enquete" && OptionMap()}
+          {choice === "Escala de 0 a 10" && ScaleLabel()}
+          <Text onPress={() => setHasSpoiler(!hasSpoiler)}>
+            Sua pergunta é um possível spoiler?
+          </Text>
+          {hasSpoiler ? <Text>Sim</Text> : <Text>Não</Text>}
+          <Text>Tags</Text>
+          <TextInput
+            placeholder="Ex:'pessoal, curiosidade, super heróis, netflix'"
+            value={tags}
+            onChangeText={(text) => setTags(text)}
+          ></TextInput>
+          <Button onPress={addQuestion} title="Perguntar"></Button>
+          <Button title="Imagem" onPress={addImage}></Button>
+          {success && <Text>Postado!</Text>}
+          <Button
+            onPress={() => navigation.navigate("Login")}
+            title="Login"
+          ></Button>
+          <Button
+            onPress={() => navigation.navigate("Home")}
+            title="Home"
+          ></Button>
+        </View>
+      </View>
       <BottomNav />
     </View>
   );
