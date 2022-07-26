@@ -16,6 +16,7 @@ import { db, storage } from "../firebase_config";
 import * as ImagePicker from "expo-image-picker";
 import moment from "moment";
 import tailwind from "twrnc";
+import { BottomNav } from "../Components/bottom_nav";
 
 function NewPost() {
   const { user } = useContext(AppContext);
@@ -279,6 +280,7 @@ function NewPost() {
         title="Login"
       ></Button>
       <Button onPress={() => navigation.navigate("Home")} title="Home"></Button>
+      <BottomNav />
     </View>
   );
 }

@@ -13,6 +13,7 @@ import { Button } from "native-base";
 import { signOut } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
+import { BottomNav } from "../Components/bottom_nav";
 
 function Profile() {
   const { user } = useContext(AppContext);
@@ -108,6 +109,7 @@ function Profile() {
       {questions && (
         <FlatList data={questions} renderItem={qstComponent}></FlatList>
       )}
+      <BottomNav />
     </View>
   );
 }

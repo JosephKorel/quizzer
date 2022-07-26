@@ -9,7 +9,6 @@ import {
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Button,
   Image,
   StatusBar,
   StyleSheet,
@@ -24,14 +23,10 @@ import { propsStack } from "./RootStackParams";
 import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
 import tailwind from "twrnc";
-import {
-  ArrowForwardIcon,
-  Avatar,
-  CheckCircleIcon,
-  Icon,
-  IconButton,
-} from "native-base";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Avatar, Box, Button, IconButton, Input, Slide } from "native-base";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
+import { BottomNav } from "../Components/bottom_nav";
 
 function Home() {
   const { user, scaleTxt } = useContext(AppContext);
@@ -43,6 +38,7 @@ function Home() {
   const [search, setSearch] = useState("");
   const [myQuestions, setMyQuestions] = useState(false);
   const [allQuestions, setAllQuestions] = useState<Questions[] | null>(null);
+  const [tagSearch, setTagSearch] = useState(false);
 
   const navigation = useNavigation<propsStack>();
 
@@ -295,21 +291,59 @@ function Home() {
     myQuestions ? showMyQuestions() : showAllQuestions();
   }, [myQuestions]);
 
+  const YesNoButtons = (): JSX.Element => {
+    return (
+      <View style={tailwind`flex-row justify-around items-center`}>
+        <View style={tailwind`bg-stone-900`}>
+          <TouchableOpacity onPress={() => onVote("yes")} style={styles.text}>
+            <Text style={tailwind`text-slate-50 font-bold text-2xl`}>
+              SIM {questions![index].votes?.yes.length}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={tailwind`bg-stone-900`}>
+          <TouchableOpacity onPress={() => onVote("no")} style={styles.text}>
+            <Text
+              style={tailwind`text-slate-50 font-bold text-2xl translate-y-6`}
+            >
+              NÃO {questions![index].votes?.no.length}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const styles = StyleSheet.create({
+    text: {
+      backgroundColor: "#F72585",
+      padding: 5,
+      transform: [{ translateX: 7 }, { translateY: -7 }],
+    },
+  });
+
   const qstComponent = (index: number) => {
     return questions?.length ? (
       <View style={tailwind`mt-12`}>
-        <View style={tailwind`flex flex-col items-center`}>
-          <Avatar source={{ uri: user?.avatar ? user.avatar : undefined }} />
-          <Text style={tailwind`text-stone-600 text-base`}>
-            {questions[index].author.name}
-          </Text>
+        <View style={tailwind`flex-row justify-center`}>
+          <View style={tailwind`flex flex-col items-center`}>
+            <Avatar source={{ uri: user?.avatar ? user.avatar : undefined }} />
+            <Text style={tailwind`text-slate-300 text-base`}>
+              {questions[index].author.name}
+            </Text>
+          </View>
+          <IconButton
+            style={tailwind`absolute right-0 rounded-full`}
+            icon={<MaterialIcons name="refresh" size={24} color="#2ecfc0" />}
+          />
         </View>
+
         <View style={tailwind`mt-6 flex flex-row justify-between items-center`}>
           <View
-            style={tailwind`w-[46%] p-1 bg-indigo-500 rounded-br-lg rounded-tl-lg`}
+            style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8] rounded-br-lg rounded-tl-lg`}
           ></View>
           <View
-            style={tailwind`w-[46%] p-1 bg-indigo-500  rounded-bl-lg rounded-tr-lg`}
+            style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8]  rounded-bl-lg rounded-tr-lg`}
           ></View>
         </View>
         {questions[index].hasSpoiler === true && reveal === false ? (
@@ -326,9 +360,11 @@ function Home() {
             </TouchableOpacity>
           </View>
         ) : (
-          <View style={tailwind`mt-4  bg-indigo-500 p-2 rounded-lg shadow-xl`}>
-            <Text style={tailwind`text-2xl text-slate-50 text-center`}>
-              {questions[index].question}
+          <View style={tailwind`mt-4 p-2`}>
+            <Text
+              style={tailwind`text-4xl italic text-[#F72585] text-center font-bold`}
+            >
+              Feijão é bom?
             </Text>
             {questions[index].media && (
               <Image
@@ -337,13 +373,8 @@ function Home() {
               ></Image>
             )}
             {questions[index].votes && (
-              <View>
-                <TouchableOpacity onPress={() => onVote("yes")}>
-                  <Text>Sim:{questions[index].votes?.yes.length}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => onVote("no")}>
-                  <Text>Não:{questions[index].votes?.no.length}</Text>
-                </TouchableOpacity>
+              <View style={tailwind`mt-8`}>
+                <YesNoButtons />
               </View>
             )}
             {questions[index].options && (
@@ -374,10 +405,16 @@ function Home() {
             )}
           </View>
         )}
-        <View style={tailwind`mt-2 flex-row `}>
+        <View style={tailwind`mt-2 flex-row items-center`}>
+          <AntDesign
+            name="tags"
+            size={24}
+            color="gray"
+            style={tailwind`mr-3`}
+          />
           {questions[index].tags.map((tag, i, arr) => (
-            <Text key={i} style={tailwind` text-slate-500 mr-2`}>
-              {tag}
+            <Text key={i} style={tailwind`text-slate-500 text-xs mr-2`}>
+              {tag.toUpperCase()}
               {i === arr.length - 1 ? "" : ","}
             </Text>
           ))}
@@ -385,6 +422,31 @@ function Home() {
       </View>
     ) : (
       <View></View>
+    );
+  };
+
+  const SearchInput = () => {
+    return (
+      <Slide in={tagSearch} placement="top">
+        <Box p={5} pt={20} color="white" bg="#212529">
+          <Input
+            placeholder="Procurar por tag"
+            mb={2}
+            color="white"
+            rightElement={
+              <MaterialIcons
+                name="search"
+                size={24}
+                color="#F72585"
+                onPress={() => setTagSearch(true)}
+                style={tailwind`mr-2`}
+              />
+            }
+            value={search}
+            onChangeText={(text) => setSearch(text)}
+          />
+        </Box>
+      </Slide>
     );
   };
 
@@ -399,51 +461,29 @@ function Home() {
   };
 
   return (
-    <View style={tailwind`bg-[#f3f4f6] h-full w-11/12 mx-auto`}>
-      <StatusBar barStyle="dark-content" />
-      {questions?.length ? qstComponent(index) : <View></View>}
-
-      <View style={tailwind`flex-row justify-between items-center`}>
-        <MaterialIcons
-          name="navigate-before"
-          size={42}
-          color="white"
-          onPress={prevQuestion}
-          style={tailwind`rounded-full bg-indigo-400`}
-        />
-        <MaterialIcons
-          name="navigate-next"
-          size={42}
-          color="white"
-          onPress={nextQuestion}
-          style={tailwind`rounded-full bg-indigo-400`}
-        />
+    <View style={tailwind.style("bg-[#0d0f47]", "w-full", "h-full")}>
+      <View style={tailwind`w-11/12 mx-auto`}>
+        <StatusBar barStyle="light-content" />
+        <View style={tailwind`flex-col justify-center items-center h-2/3`}>
+          {questions?.length ? qstComponent(index) : <View></View>}
+        </View>
+        <View style={tailwind`flex-row justify-between items-center mt-10`}>
+          <MaterialIcons
+            name="navigate-before"
+            size={42}
+            color="#F72585"
+            onPress={prevQuestion}
+          />
+          <MaterialIcons
+            name="navigate-next"
+            size={42}
+            color="#2ecfc0"
+            onPress={nextQuestion}
+          />
+        </View>
       </View>
-
-      <TextInput
-        placeholder="Procurar pergunta por tag"
-        value={search}
-        onChangeText={(text) => setSearch(text)}
-      ></TextInput>
-      <TouchableOpacity onPress={searchForTag}>
-        <Text>Procurar</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => setMyQuestions(!myQuestions)}>
-        <Text>
-          {myQuestions ? "Ver todas perguntas" : "Ver minhas perguntas"}
-        </Text>
-      </TouchableOpacity>
-      <Button
-        onPress={() => navigation.navigate("NewPost")}
-        title="Perguntar"
-      ></Button>
-      <Button
-        onPress={() => navigation.navigate("Profile")}
-        title="Perfil"
-      ></Button>
-      <TouchableOpacity onPress={retrieveCollection}>
-        <Text>Atualizar</Text>
-      </TouchableOpacity>
+      <SearchInput />
+      <BottomNav tagSearch={tagSearch} setTagSearch={setTagSearch} />
     </View>
   );
 }
