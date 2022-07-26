@@ -17,7 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { db } from "../firebase_config";
+import { auth, db } from "../firebase_config";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import { Slider } from "@miblanchard/react-native-slider";
@@ -39,6 +39,7 @@ function Home() {
   const [myQuestions, setMyQuestions] = useState(false);
   const [allQuestions, setAllQuestions] = useState<Questions[] | null>(null);
   const [tagSearch, setTagSearch] = useState(false);
+  const [light, setLight] = useState(false);
 
   const navigation = useNavigation<propsStack>();
 
@@ -292,21 +293,26 @@ function Home() {
   }, [myQuestions]);
 
   const YesNoButtons = (): JSX.Element => {
+    const hasVoted = (): boolean => {
+      const filter = questions![index].hasVoted.includes(
+        auth.currentUser?.uid!
+      );
+      return filter;
+    };
+
     return (
       <View style={tailwind`flex-row justify-around items-center`}>
         <View style={tailwind`bg-stone-900`}>
           <TouchableOpacity onPress={() => onVote("yes")} style={styles.text}>
             <Text style={tailwind`text-slate-50 font-bold text-2xl`}>
-              SIM {questions![index].votes?.yes.length}
+              SIM {hasVoted() && questions![index].votes?.yes.length}
             </Text>
           </TouchableOpacity>
         </View>
         <View style={tailwind`bg-stone-900`}>
           <TouchableOpacity onPress={() => onVote("no")} style={styles.text}>
-            <Text
-              style={tailwind`text-slate-50 font-bold text-2xl translate-y-6`}
-            >
-              NÃO {questions![index].votes?.no.length}
+            <Text style={tailwind`text-slate-50 font-bold text-2xl`}>
+              NÃO {hasVoted() && questions![index].votes?.no.length}
             </Text>
           </TouchableOpacity>
         </View>
@@ -325,17 +331,13 @@ function Home() {
   const qstComponent = (index: number) => {
     return questions?.length ? (
       <View style={tailwind`mt-12`}>
-        <View style={tailwind`flex-row justify-center`}>
+        <View style={tailwind`flex-row justify-center items-center`}>
           <View style={tailwind`flex flex-col items-center`}>
             <Avatar source={{ uri: user?.avatar ? user.avatar : undefined }} />
             <Text style={tailwind`text-slate-300 text-base`}>
               {questions[index].author.name}
             </Text>
           </View>
-          <IconButton
-            style={tailwind`absolute right-0 rounded-full`}
-            icon={<MaterialIcons name="refresh" size={24} color="#2ecfc0" />}
-          />
         </View>
 
         <View style={tailwind`mt-6 flex flex-row justify-between items-center`}>
@@ -364,7 +366,7 @@ function Home() {
             <Text
               style={tailwind`text-4xl italic text-[#F72585] text-center font-bold`}
             >
-              Feijão é bom?
+              {questions[index].question}
             </Text>
             {questions[index].media && (
               <Image
@@ -460,9 +462,46 @@ function Home() {
     index === 0 ? null : setIndex((prev) => prev - 1);
   };
 
+  const HomeStyles = StyleSheet.create({
+    main: {
+      backgroundColor: "black",
+      opacity: 7,
+    },
+  });
+
   return (
-    <View style={tailwind.style("bg-[#0d0f47]", "w-full", "h-full")}>
+    <View
+      style={tailwind.style(
+        light ? "bg-red-200" : "bg-[#0d0f47]",
+        "w-full",
+        "h-full"
+      )}
+    >
       <View style={tailwind`w-11/12 mx-auto`}>
+        <View
+          style={tailwind`absolute top-10 flex-row w-full justify-between items-center`}
+        >
+          {!light ? (
+            <MaterialIcons
+              name="wb-sunny"
+              size={24}
+              color="#F72585"
+              onPress={() => setLight(true)}
+            />
+          ) : (
+            <MaterialIcons
+              name="nightlight-round"
+              size={24}
+              color="#0d0f47"
+              onPress={() => setLight(false)}
+            />
+          )}
+          <IconButton
+            style={tailwind` rounded-full`}
+            icon={<MaterialIcons name="refresh" size={24} color="#2ecfc0" />}
+            onPress={retrieveCollection}
+          />
+        </View>
         <StatusBar barStyle="light-content" />
         <View style={tailwind`flex-col justify-center items-center h-2/3`}>
           {questions?.length ? qstComponent(index) : <View></View>}
@@ -482,6 +521,7 @@ function Home() {
           />
         </View>
       </View>
+
       <SearchInput />
       <BottomNav tagSearch={tagSearch} setTagSearch={setTagSearch} />
     </View>
