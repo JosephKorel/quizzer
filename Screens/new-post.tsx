@@ -1,13 +1,5 @@
-import React, { useContext, useState } from "react";
-import {
-  Button,
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import { AppContext } from "../Context";
@@ -19,7 +11,13 @@ import moment from "moment";
 import tailwind from "twrnc";
 import { BottomNav } from "../Components/bottom_nav";
 import { MaterialIcons } from "@expo/vector-icons";
-import { IconButton } from "native-base";
+import {
+  Button,
+  IconButton,
+  Input,
+  PresenceTransition,
+  TextArea,
+} from "native-base";
 
 function NewPost() {
   const { user, light, setLight } = useContext(AppContext);
@@ -32,14 +30,20 @@ function NewPost() {
   const [tags, setTags] = useState("");
   const [hasSpoiler, setHasSpoiler] = useState(false);
   const [scaleLabel, setScaleLabel] = useState(["Meh", "Cool", "Awesome"]);
-
-  const navigation = useNavigation<propsStack>();
+  const [hasChoosen, setHasChoosen] = useState(false);
+  const [enq, setEnq] = useState(false);
 
   const questionType = ["Sim ou Não", "Enquete", "Escala de 0 a 10"];
 
   const clearMsg = () => {
     setSuccess(false);
   };
+
+  useEffect(() => {
+    choice === "" || choice === "Sim ou Não"
+      ? setHasChoosen(false)
+      : setHasChoosen(true);
+  }, [choice]);
 
   const addImage = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -187,32 +191,65 @@ function NewPost() {
     };
     return (
       <View>
-        {options.map((item, index) => (
-          <View key={index}>
-            <View style={{ display: "flex", flexDirection: "row" }}>
-              <TextInput
-                placeholder={"Opção" + (index + 1).toString()}
-                value={item}
-                maxLength={18}
-                onChangeText={(text) => {
-                  setOptions(
-                    options.map((value, i) => (index === i ? text : value))
-                  );
-                }}
-              ></TextInput>
-              {options.length > 2 && index === options.length - 1 && (
-                <TouchableOpacity onPress={removeOption}>
-                  <Text>Remover</Text>
+        <View style={tailwind`bg-slate-100 mb-1 bg-[#F72585]`}>
+          <Text
+            style={tailwind.style(
+              "text-lg",
+              "italic",
+              "py-1",
+              "bg-[#4fea74]",
+              "text-slate-50",
+              "text-center",
+              "font-bold",
+              PostStyles.smallTranslate
+            )}
+          >
+            ENQUETE
+          </Text>
+        </View>
+        <View style={tailwind`flex-row justify-around`}>
+          {options.map((item, index) => (
+            <View key={index}>
+              <View style={tailwind`flex-row justify-around items-center mt-2`}>
+                <Input
+                  placeholder={"Opção" + (index + 1).toString()}
+                  value={item}
+                  w="1/2"
+                  style={tailwind`bg-slate-100 text-stone-900`}
+                  maxLength={18}
+                  onChangeText={(text) => {
+                    setOptions(
+                      options.map((value, i) => (index === i ? text : value))
+                    );
+                  }}
+                ></Input>
+                {options.length > 2 && index === options.length - 1 && (
+                  <TouchableOpacity onPress={removeOption}>
+                    <Text>Remover</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              {index >= options.length - 1 && index < 3 && (
+                <TouchableOpacity onPress={addOption}>
+                  <Text>Adicionar</Text>
                 </TouchableOpacity>
               )}
             </View>
-            {index >= options.length - 1 && index < 3 && (
-              <TouchableOpacity onPress={addOption}>
-                <Text>Adicionar</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        ))}
+          ))}
+        </View>
+        <View style={tailwind`flex-row-reverse`}>
+          <Button
+            style={tailwind`w-1/4 relative`}
+            bg="#c86bfa"
+            _pressed={{ background: "#5c0099" }}
+            leftIcon={
+              <MaterialIcons name="arrow-back-ios" size={20} color="white" />
+            }
+            onPress={() => setChoice("")}
+          >
+            Voltar
+          </Button>
+        </View>
       </View>
     );
   };
@@ -223,7 +260,7 @@ function NewPost() {
         style={tailwind`flex flex-row bg-blue-300 justify-between text-xl italic`}
       >
         {scaleLabel.map((label, i) => (
-          <TextInput
+          <Input
             style={tailwind`border-2 border-blue-500 pr-5`}
             maxLength={8}
             key={i}
@@ -246,7 +283,45 @@ function NewPost() {
     translate: {
       transform: [{ translateX: 4 }, { translateY: -4 }],
     },
+    smallTranslate: {
+      transform: [{ translateX: 2 }, { translateY: -2 }],
+    },
   });
+
+  const QuestionTypeComponent = ({
+    question,
+    index,
+  }: {
+    question: string;
+    index: number;
+  }): JSX.Element => {
+    return (
+      <View style={tailwind`mt-4`}>
+        <View style={tailwind`bg-[#F72585]`}>
+          <TouchableOpacity
+            onPress={() => {
+              setChoice(question);
+              question === "Enquete" && setEnq(true);
+            }}
+            style={PostStyles.translate}
+          >
+            <Text
+              style={tailwind.style(
+                "text-2xl",
+                "italic",
+                "text-center",
+                choice === question ? "bg-[#4fea74]" : "bg-[#fad643]",
+                choice === question ? "text-slate-100" : "text-stone-800",
+                "font-bold"
+              )}
+            >
+              {question}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View
@@ -278,7 +353,8 @@ function NewPost() {
           <View
             style={tailwind.style(
               "border-l-8 border-b-8 rounded-md",
-              "bg-[#fdc500]"
+              "bg-[#fdc500]",
+              "mb-5"
             )}
           >
             <Text
@@ -296,51 +372,98 @@ function NewPost() {
               Qual é a dúvida de hoje?
             </Text>
           </View>
+          {hasChoosen == true && choice !== "Sim ou Não" ? (
+            <>
+              {choice === "Enquete" && (
+                <PresenceTransition
+                  visible={enq}
+                  initial={{
+                    opacity: 0,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    transition: {
+                      duration: 350,
+                    },
+                  }}
+                >
+                  {OptionMap()}
+                </PresenceTransition>
+              )}
+              {choice === "Escala de 0 a 10" && ScaleLabel()}
+            </>
+          ) : (
+            <>
+              <PresenceTransition
+                visible={!hasChoosen}
+                initial={{
+                  opacity: 0,
+                  scale: 0,
+                }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  transition: {
+                    duration: 150,
+                  },
+                }}
+              >
+                <TextArea
+                  autoCompleteType={true}
+                  placeholder="Escreva aqui"
+                  color="black"
+                  h="12"
+                  value={question}
+                  style={tailwind`bg-slate-100`}
+                  onChangeText={(text) => setQuestion(text)}
+                ></TextArea>
 
-          <TextInput
-            placeholder="Escreva aqui"
-            value={question}
-            onChangeText={(text) => setQuestion(text)}
-          ></TextInput>
-          {image && (
-            <Image
-              style={{ width: 100, height: 100 }}
-              source={{ uri: image.uri }}
-            ></Image>
+                {image && (
+                  <Image
+                    style={{ width: 100, height: 100 }}
+                    source={{ uri: image.uri }}
+                  ></Image>
+                )}
+                <View style={tailwind`bg-slate-100 w-2/3 my-4 mt-6`}>
+                  <Text
+                    style={tailwind.style(
+                      "text-xl",
+                      "italic",
+                      "p-2",
+                      "bg-[#c86bfa]",
+                      "text-slate-50",
+                      "font-bold",
+                      PostStyles.translate
+                    )}
+                  >
+                    Sua pergunta é do tipo
+                  </Text>
+                </View>
+                <View style={tailwind``}>
+                  {questionType.map((question, index) => (
+                    <QuestionTypeComponent
+                      question={question}
+                      index={index}
+                      key={index}
+                    />
+                  ))}
+                </View>
+              </PresenceTransition>
+            </>
           )}
-          <Text>Sua pergunta é do tipo</Text>
-          {questionType.map((question, index) => (
-            <TouchableOpacity
-              onPress={() => setChoice(questionType[index])}
-              style={{ padding: 10 }}
-              key={index}
-            >
-              <Text>{question}</Text>
-            </TouchableOpacity>
-          ))}
-          {choice === "Enquete" && OptionMap()}
-          {choice === "Escala de 0 a 10" && ScaleLabel()}
           <Text onPress={() => setHasSpoiler(!hasSpoiler)}>
             Sua pergunta é um possível spoiler?
           </Text>
           {hasSpoiler ? <Text>Sim</Text> : <Text>Não</Text>}
           <Text>Tags</Text>
-          <TextInput
+          <Input
             placeholder="Ex:'pessoal, curiosidade, super heróis, netflix'"
             value={tags}
             onChangeText={(text) => setTags(text)}
-          ></TextInput>
-          <Button onPress={addQuestion} title="Perguntar"></Button>
-          <Button title="Imagem" onPress={addImage}></Button>
+          ></Input>
+          <Button onPress={addQuestion}>Perguntar</Button>
+          <Button onPress={addImage}>Imagem</Button>
           {success && <Text>Postado!</Text>}
-          <Button
-            onPress={() => navigation.navigate("Login")}
-            title="Login"
-          ></Button>
-          <Button
-            onPress={() => navigation.navigate("Home")}
-            title="Home"
-          ></Button>
         </View>
       </View>
       <BottomNav />
