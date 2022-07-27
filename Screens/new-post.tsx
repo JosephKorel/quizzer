@@ -12,21 +12,23 @@ import tailwind from "twrnc";
 import { BottomNav } from "../Components/bottom_nav";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
+  Box,
   Button,
   Icon,
   IconButton,
   Input,
   PresenceTransition,
   TextArea,
+  Toast,
+  useToast,
 } from "native-base";
-import EnqueteScreen from "./enquete";
+import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 
 function NewPost() {
   const { user, light, setLight, question, setQuestion } =
     useContext(AppContext);
   const [choice, setChoice] = useState("");
   const [options, setOptions] = useState<string[]>(["", ""]);
-  const [success, setSuccess] = useState(false);
   const [image, setImage] = useState<null | any>(null);
   const [imgUrl, setImgUrl] = useState("");
   const [tags, setTags] = useState("");
@@ -34,14 +36,42 @@ function NewPost() {
   const [scaleLabel, setScaleLabel] = useState(["Meh", "Cool", "Awesome"]);
   const [hasChoosen, setHasChoosen] = useState(false);
   const [enq, setEnq] = useState(false);
+  const [alert, setAlert] = useState("");
+  const [success, setSuccess] = useState("");
 
   const questionType = ["Sim ou Não", "Enquete", "Escala de 0 a 10"];
 
   const navigation = useNavigation<propsStack>();
+  const toast = useToast();
 
-  const clearMsg = () => {
-    setSuccess(false);
-  };
+  useEffect(() => {
+    if (success !== "") {
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="emerald.500" px="2" py="1" rounded="sm" mb={5}>
+              <Text>{success}</Text>
+            </Box>
+          );
+        },
+      });
+    } else if (alert !== "") {
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="red.500" px="2" py="1" rounded="sm" mb={5}>
+              <Text style={tailwind`text-slate-100`}>{alert}</Text>
+            </Box>
+          );
+        },
+      });
+    }
+
+    setTimeout(() => {
+      setAlert("");
+      setSuccess("");
+    }, 2000);
+  }, [alert, success]);
 
   useEffect(() => {
     choice === "" || choice === "Sim ou Não"
@@ -85,9 +115,10 @@ function NewPost() {
 
     const url = await getDownloadURL(imgRef);
     try {
-      setImgUrl(url);
+      return url;
     } catch (error) {
-      console.log(error);
+      setAlert("Erro ao carregar imagem, tente novamente");
+      return null;
     }
   };
 
@@ -103,13 +134,13 @@ function NewPost() {
 
     if (image !== null) {
       try {
-        await uploadImageAsync(image.uri);
+        const url = await uploadImageAsync(image.uri);
 
         await setDoc(doc(db, "questionsdb", id), {
           id,
           author: { name: user!.name, uid: user!.uid, avatar: user?.avatar },
           question,
-          media: imgUrl,
+          media: url,
           votes,
           options,
           scale,
@@ -121,8 +152,8 @@ function NewPost() {
           date,
         });
 
-        setSuccess(true);
-        setTimeout(clearMsg, 2000);
+        setSuccess("Sucesso");
+
         setChoice("");
       } catch (error) {
         console.log(error);
@@ -144,8 +175,8 @@ function NewPost() {
           views: 0,
           date,
         });
-        setSuccess(true);
-        setTimeout(clearMsg, 2000);
+        setSuccess("Sucesso");
+
         setChoice("");
       } catch (error) {
         console.log(error);
@@ -323,7 +354,7 @@ function NewPost() {
           </View>
           <View style={tailwind`flex flex-row justify-between`}>
             {scaleLabel.map((label, i) => (
-              <View style={tailwind`flex-col items-center w-1/4`}>
+              <View style={tailwind`flex-col items-center w-1/4`} key={i}>
                 <Input
                   style={tailwind`bg-slate-50`}
                   maxLength={8}
@@ -377,13 +408,18 @@ function NewPost() {
   });
 
   const QuestionTypeComponent = ({ qst }: { qst: string }): JSX.Element => {
+    const onChoose = (qst: string): void | null => {
+      if (question === "") {
+        setAlert("Primeiro escreva sua pergunta");
+        return null;
+      }
+      setChoice(qst);
+    };
     return (
       <View style={tailwind`mt-4`}>
         <View style={tailwind`bg-[#F72585]`}>
           <TouchableOpacity
-            onPress={() => {
-              question !== "" && setChoice(qst);
-            }}
+            onPress={() => onChoose(qst)}
             style={PostStyles.translate}
           >
             <Text
@@ -433,7 +469,7 @@ function NewPost() {
         <View style={{ transform: [{ translateY: 100 }] }}>
           <View
             style={tailwind.style(
-              "border-l-8 border-b-8 rounded-md",
+              "border-l-8 border-b-8 rounded-lg",
               "bg-[#fdc500]",
               "mb-5"
             )}
@@ -477,6 +513,7 @@ function NewPost() {
                 <TextArea
                   autoCompleteType={true}
                   placeholder="Escreva aqui"
+                  borderColor="#f72585"
                   color="black"
                   h="12"
                   value={question}
@@ -484,13 +521,58 @@ function NewPost() {
                   onChangeText={(text) => setQuestion(text)}
                 ></TextArea>
 
-                {image && (
-                  <Image
-                    style={{ width: 100, height: 100 }}
-                    source={{ uri: image.uri }}
-                  ></Image>
+                {image ? (
+                  <View style={tailwind.style("flex-row justify-center mt-1")}>
+                    <Image
+                      style={tailwind.style(
+                        { width: 100, height: 100 },
+                        "rounded-md border-2 border-[#F72585]"
+                      )}
+                      source={{ uri: image.uri }}
+                    ></Image>
+                    <IconButton
+                      style={tailwind`absolute left-[53%]`}
+                      onPress={() => setImage(null)}
+                      _pressed={{ bg: "#edc531" }}
+                      py={1}
+                      size="sm"
+                      icon={
+                        <MaterialCommunityIcons
+                          name="close-box-multiple"
+                          size={24}
+                          color="#fad643"
+                        />
+                      }
+                    />
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    style={tailwind`bg-[#F72585] self-start mt-2`}
+                    onPress={addImage}
+                  >
+                    <Text
+                      style={tailwind.style(
+                        "text-sm",
+                        "italic",
+                        "px-2",
+                        "bg-[#fad643]",
+                        "text-stone-900",
+                        "font-bold",
+                        PostStyles.smallTranslate
+                      )}
+                    >
+                      IMAGEM{" "}
+                      {
+                        <MaterialCommunityIcons
+                          name="upload"
+                          size={18}
+                          color="black"
+                        />
+                      }
+                    </Text>
+                  </TouchableOpacity>
                 )}
-                <View style={tailwind`bg-slate-100 w-2/3 my-4 mt-6`}>
+                <View style={tailwind`bg-slate-100 w-2/3 mt-6`}>
                   <Text
                     style={tailwind.style(
                       "text-xl",
@@ -513,19 +595,86 @@ function NewPost() {
               </PresenceTransition>
             </>
           )}
-          <Text onPress={() => setHasSpoiler(!hasSpoiler)}>
-            Sua pergunta é um possível spoiler?
-          </Text>
-          {hasSpoiler ? <Text>Sim</Text> : <Text>Não</Text>}
-          <Text>Tags</Text>
+          <View style={tailwind`bg-slate-50 self-start mt-2`}>
+            <TouchableOpacity
+              onPress={() => setHasSpoiler(!hasSpoiler)}
+              style={tailwind.style(PostStyles.smallTranslate, "flex-row")}
+            >
+              <Text
+                style={tailwind.style(
+                  "text-base",
+                  "px-2",
+                  "italic",
+                  "text-center",
+                  hasSpoiler ? "bg-[#4fea74]" : "bg-[#e71d36]",
+                  hasSpoiler ? "text-slate-100" : "text-slate-100",
+                  "font-bold"
+                )}
+              >
+                {hasSpoiler ? "Não contém spoiler  " : "Marcar como spoiler  "}
+                {hasSpoiler ? (
+                  <MaterialCommunityIcons
+                    name="shield-off"
+                    size={20}
+                    color="white"
+                  />
+                ) : (
+                  <MaterialCommunityIcons
+                    name="shield"
+                    size={20}
+                    color="white"
+                  />
+                )}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={tailwind`self-start mt-6 bg-slate-100`}>
+            <Text
+              style={tailwind.style(
+                "text-sm",
+                "px-2",
+                "italic",
+                "text-center",
+                "bg-[#c86bfa]",
+                "text-slate-100",
+                "font-bold",
+                PostStyles.smallTranslate
+              )}
+            >
+              TAGS{" "}
+              {
+                <MaterialCommunityIcons
+                  name="tag-multiple"
+                  size={18}
+                  color="white"
+                />
+              }
+            </Text>
+          </View>
           <Input
-            placeholder="Ex:'pessoal, curiosidade, super heróis, netflix'"
+            mt={1}
+            borderColor="#f72585"
+            placeholder="Ex: pessoal, curiosidade, super heróis, netflix"
             value={tags}
+            color="black"
+            style={tailwind`bg-slate-100`}
             onChangeText={(text) => setTags(text)}
           ></Input>
-          <Button onPress={addQuestion}>Perguntar</Button>
-          <Button onPress={addImage}>Imagem</Button>
-          {success && <Text>Postado!</Text>}
+          <TouchableOpacity
+            style={tailwind.style(
+              "text-slate-100 bg-[#fad643] self-start mx-auto mt-10"
+            )}
+            onPress={addQuestion}
+          >
+            <Text
+              style={tailwind.style(
+                "text-slate-100 bg-[#f72585] font-bold text-3xl italic px-2",
+                PostStyles.translate
+              )}
+            >
+              ENVIAR {<FontAwesome name="send-o" size={24} color="white" />}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
       <BottomNav />

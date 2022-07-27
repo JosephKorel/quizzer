@@ -24,7 +24,7 @@ import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
 import tailwind from "twrnc";
 import { Avatar, Box, Button, IconButton, Input, Slide } from "native-base";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { BottomNav } from "../Components/bottom_nav";
 
@@ -421,24 +421,7 @@ function Home() {
 
   const qstComponent = (index: number) => {
     return questions?.length ? (
-      <View style={tailwind`mt-12`}>
-        <View style={tailwind`text-center`}>
-          <View style={tailwind`flex flex-col items-center`}>
-            <Avatar source={{ uri: user?.avatar ? user.avatar : undefined }} />
-            <Text style={tailwind`text-slate-300 text-base`}>
-              {questions[index].author.name}
-            </Text>
-          </View>
-        </View>
-
-        <View style={tailwind`mt-6 flex flex-row justify-between items-center`}>
-          <View
-            style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8] rounded-br-lg rounded-tl-lg`}
-          ></View>
-          <View
-            style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8]  rounded-bl-lg rounded-tr-lg`}
-          ></View>
-        </View>
+      <View style={tailwind``}>
         {questions[index].hasSpoiler === true && reveal === false ? (
           <View style={tailwind`mt-8`}>
             <Text>
@@ -460,10 +443,12 @@ function Home() {
               {questions[index].question}
             </Text>
             {questions[index].media && (
-              <Image
-                style={{ width: 100, height: 100 }}
-                source={{ uri: questions[index].media }}
-              ></Image>
+              <View style={tailwind`flex-row justify-center`}>
+                <Image
+                  style={{ width: 300, height: 300, borderRadius: 2 }}
+                  source={{ uri: questions[index].media }}
+                ></Image>
+              </View>
             )}
             {questions[index].votes && (
               <View style={tailwind`mt-8`}>
@@ -554,7 +539,7 @@ function Home() {
     >
       <View style={tailwind`w-11/12 mx-auto`}>
         <View
-          style={tailwind`absolute top-10 flex-row w-full justify-between items-center`}
+          style={tailwind`absolute top-10 flex-row w-full justify-between items-center z-10`}
         >
           {!light ? (
             <MaterialIcons
@@ -578,10 +563,36 @@ function Home() {
           />
         </View>
         <StatusBar barStyle="light-content" />
-        <View style={tailwind`flex-col justify-center items-center h-2/3`}>
-          {questions?.length ? qstComponent(index) : <View></View>}
+        <View style={tailwind`text-center`}>
+          {questions?.length ? (
+            <View style={tailwind`mt-20`}>
+              <View style={tailwind`text-center`}>
+                <View style={tailwind`flex flex-col items-center`}>
+                  <Avatar
+                    source={{ uri: user?.avatar ? user.avatar : undefined }}
+                  />
+                  <Text style={tailwind`text-slate-300 text-base`}>
+                    {questions[index].author.name}
+                  </Text>
+                </View>
+                <View
+                  style={tailwind`mt-6 flex flex-row justify-between items-center`}
+                >
+                  <View
+                    style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8] rounded-br-lg rounded-tl-lg`}
+                  ></View>
+                  <View
+                    style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8]  rounded-bl-lg rounded-tr-lg`}
+                  ></View>
+                </View>
+              </View>
+              <View style={tailwind`h-[75%]`}>{qstComponent(index)}</View>
+            </View>
+          ) : (
+            <View></View>
+          )}
         </View>
-        <View style={tailwind`flex-row justify-between items-center mt-10`}>
+        <View style={tailwind`flex-row justify-between items-center`}>
           <MaterialIcons
             name="navigate-before"
             size={42}
