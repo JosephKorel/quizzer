@@ -13,17 +13,14 @@ import { BottomNav } from "../Components/bottom_nav";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
   Button,
-  Icon,
   IconButton,
   Input,
   PresenceTransition,
   TextArea,
 } from "native-base";
-import EnqueteScreen from "./enquete";
 
-function NewPost() {
-  const { user, light, setLight, question, setQuestion } =
-    useContext(AppContext);
+function EnqueteScreen() {
+  const { user, light, setLight, question } = useContext(AppContext);
   const [choice, setChoice] = useState("");
   const [options, setOptions] = useState<string[]>(["", ""]);
   const [success, setSuccess] = useState(false);
@@ -34,10 +31,6 @@ function NewPost() {
   const [scaleLabel, setScaleLabel] = useState(["Meh", "Cool", "Awesome"]);
   const [hasChoosen, setHasChoosen] = useState(false);
   const [enq, setEnq] = useState(false);
-
-  const questionType = ["Sim ou Não", "Enquete", "Escala de 0 a 10"];
-
-  const navigation = useNavigation<propsStack>();
 
   const clearMsg = () => {
     setSuccess(false);
@@ -285,81 +278,23 @@ function NewPost() {
   };
 
   const ScaleLabel = (): JSX.Element => {
-    const icons: JSX.Element[] = [
-      <MaterialIcons name="thumb-down" size={24} color="#F72585" />,
-      <MaterialIcons name="thumb-up" size={24} color="#F72585" />,
-      <MaterialIcons name="auto-awesome" size={24} color="#F72585" />,
-    ];
     return (
-      <View>
-        <PresenceTransition
-          visible={hasChoosen}
-          initial={{
-            opacity: 0,
-            scale: 0,
-          }}
-          animate={{
-            opacity: 1,
-            scale: 1,
-            transition: {
-              duration: 150,
-            },
-          }}
-        >
-          <View style={tailwind`bg-[#F72585] mb-2`}>
-            <Text
-              style={tailwind.style(
-                "text-2xl",
-                "italic",
-                "text-center",
-                "bg-[#fad643]",
-                "text-stone-800",
-                "font-bold",
-                PostStyles.smallTranslate
-              )}
-            >
-              Personalize as tags
-            </Text>
-          </View>
-          <View style={tailwind`flex flex-row justify-between`}>
-            {scaleLabel.map((label, i) => (
-              <View style={tailwind`flex-col items-center w-1/4`}>
-                <Input
-                  style={tailwind`bg-slate-50`}
-                  maxLength={8}
-                  w="full"
-                  mb={2}
-                  key={i}
-                  value={label}
-                  onChangeText={(text) =>
-                    setScaleLabel(
-                      scaleLabel.map((item, index) =>
-                        index === i ? text : item
-                      )
-                    )
-                  }
-                />
-                {icons[i]}
-              </View>
-            ))}
-          </View>
-          <View style={tailwind`flex-row-reverse`}>
-            <Button
-              style={tailwind`w-1/4 mt-4`}
-              _text={{ color: "black" }}
-              bg="#fad643"
-              _pressed={{ background: "#fdc500" }}
-              leftIcon={
-                <MaterialIcons name="arrow-back-ios" size={20} color="black" />
-              }
-              onPress={() => {
-                setChoice("");
-              }}
-            >
-              Voltar
-            </Button>
-          </View>
-        </PresenceTransition>
+      <View
+        style={tailwind`flex flex-row bg-blue-300 justify-between text-xl italic`}
+      >
+        {scaleLabel.map((label, i) => (
+          <Input
+            style={tailwind`border-2 border-blue-500 pr-5`}
+            maxLength={8}
+            key={i}
+            value={label}
+            onChangeText={(text) =>
+              setScaleLabel(
+                scaleLabel.map((item, index) => (index === i ? text : item))
+              )
+            }
+          />
+        ))}
       </View>
     );
   };
@@ -376,13 +311,14 @@ function NewPost() {
     },
   });
 
-  const QuestionTypeComponent = ({ qst }: { qst: string }): JSX.Element => {
+  const QuestionTypeComponent = (): JSX.Element => {
     return (
       <View style={tailwind`mt-4`}>
         <View style={tailwind`bg-[#F72585]`}>
           <TouchableOpacity
             onPress={() => {
-              question !== "" && setChoice(qst);
+              setChoice(question);
+              question === "Enquete" && setEnq(true);
             }}
             style={PostStyles.translate}
           >
@@ -391,12 +327,12 @@ function NewPost() {
                 "text-2xl",
                 "italic",
                 "text-center",
-                choice === qst ? "bg-[#4fea74]" : "bg-[#fad643]",
-                choice === qst ? "text-slate-100" : "text-stone-800",
+                choice === question ? "bg-[#4fea74]" : "bg-[#fad643]",
+                choice === question ? "text-slate-100" : "text-stone-800",
                 "font-bold"
               )}
             >
-              {qst}
+              {question}
             </Text>
           </TouchableOpacity>
         </View>
@@ -450,82 +386,10 @@ function NewPost() {
                 PostStyles.translate
               )}
             >
-              {hasChoosen ? question : "Qual é a dúvida de hoje?"}
+              {question}
             </Text>
           </View>
-          {hasChoosen == true && choice !== "Sim ou Não" ? (
-            <>
-              {choice === "Enquete" && OptionMap()}
-              {choice === "Escala de 0 a 10" && ScaleLabel()}
-            </>
-          ) : (
-            <>
-              <PresenceTransition
-                visible={!hasChoosen}
-                initial={{
-                  opacity: 0,
-                  scale: 0,
-                }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                  transition: {
-                    duration: 150,
-                  },
-                }}
-              >
-                <TextArea
-                  autoCompleteType={true}
-                  placeholder="Escreva aqui"
-                  color="black"
-                  h="12"
-                  value={question}
-                  style={tailwind`bg-slate-100`}
-                  onChangeText={(text) => setQuestion(text)}
-                ></TextArea>
-
-                {image && (
-                  <Image
-                    style={{ width: 100, height: 100 }}
-                    source={{ uri: image.uri }}
-                  ></Image>
-                )}
-                <View style={tailwind`bg-slate-100 w-2/3 my-4 mt-6`}>
-                  <Text
-                    style={tailwind.style(
-                      "text-xl",
-                      "italic",
-                      "p-2",
-                      "bg-[#c86bfa]",
-                      "text-slate-50",
-                      "font-bold",
-                      PostStyles.translate
-                    )}
-                  >
-                    Sua pergunta é do tipo
-                  </Text>
-                </View>
-                <View style={tailwind``}>
-                  {questionType.map((question, index) => (
-                    <QuestionTypeComponent qst={question} key={index} />
-                  ))}
-                </View>
-              </PresenceTransition>
-            </>
-          )}
-          <Text onPress={() => setHasSpoiler(!hasSpoiler)}>
-            Sua pergunta é um possível spoiler?
-          </Text>
-          {hasSpoiler ? <Text>Sim</Text> : <Text>Não</Text>}
-          <Text>Tags</Text>
-          <Input
-            placeholder="Ex:'pessoal, curiosidade, super heróis, netflix'"
-            value={tags}
-            onChangeText={(text) => setTags(text)}
-          ></Input>
-          <Button onPress={addQuestion}>Perguntar</Button>
-          <Button onPress={addImage}>Imagem</Button>
-          {success && <Text>Postado!</Text>}
+          {OptionMap()}
         </View>
       </View>
       <BottomNav />
@@ -533,4 +397,4 @@ function NewPost() {
   );
 }
 
-export default NewPost;
+export default EnqueteScreen;

@@ -9,6 +9,7 @@ import Home from "./Screens/home";
 import Profile from "./Screens/profile";
 import { NativeBaseProvider } from "native-base";
 import tailwind, { useDeviceContext } from "twrnc";
+import EnqueteScreen from "./Screens/enquete";
 
 const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();
 
@@ -25,6 +26,7 @@ export default function App() {
             <Screen name="Login" component={Login}></Screen>
             <Screen name="Home" component={Home}></Screen>
             <Screen name="NewPost" component={NewPost}></Screen>
+            <Screen name="Enquete" component={EnqueteScreen}></Screen>
             <Screen name="Profile" component={Profile}></Screen>
           </Navigator>
         </NavigationContainer>

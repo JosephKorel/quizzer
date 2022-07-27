@@ -38,6 +38,8 @@ type ContextType = {
   setScaleTxt: (data: string[]) => void;
   light: boolean;
   setLight: (data: boolean) => void;
+  question: string;
+  setQuestion: (data: string) => void;
 };
 
 const initialValue = {
@@ -49,6 +51,8 @@ const initialValue = {
   setScaleTxt: () => {},
   light: false,
   setLight: () => {},
+  question: "",
+  setQuestion: () => {},
 };
 
 export const AppContext = createContext<ContextType>(initialValue);
@@ -56,7 +60,7 @@ export const AppContext = createContext<ContextType>(initialValue);
 export const AppContextProvider = ({ children }: Props) => {
   const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState<null | user>(null);
-
+  const [question, setQuestion] = useState("");
   const [scaleTxt, setScaleTxt] = useState(["Meh", "Cool", "Amazing"]);
   const [light, setLight] = useState(false);
 
@@ -71,6 +75,8 @@ export const AppContextProvider = ({ children }: Props) => {
         setScaleTxt,
         light,
         setLight,
+        question,
+        setQuestion,
       }}
     >
       {children}
