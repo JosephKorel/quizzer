@@ -9,7 +9,7 @@ import { db, storage } from "../firebase_config";
 import * as ImagePicker from "expo-image-picker";
 import moment from "moment";
 import tailwind from "twrnc";
-import { BottomNav } from "../Components/bottom_nav";
+import { BottomNav } from "../Components/nativeBase_Components";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
   Box,

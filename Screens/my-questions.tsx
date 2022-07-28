@@ -1,37 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { propsStack } from "./RootStackParams";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { AppContext, Questions } from "../Context";
 import {
   collection,
+  deleteDoc,
   doc,
   DocumentData,
   getDocs,
   query,
-  setDoc,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { auth, db, storage } from "../firebase_config";
-import * as ImagePicker from "expo-image-picker";
+import { auth, db } from "../firebase_config";
 import moment from "moment";
 import tailwind from "twrnc";
-import { BottomNav, QuestionModal } from "../Components/bottom_nav";
+import { BottomNav, QuestionModal } from "../Components/nativeBase_Components";
 import { MaterialIcons } from "@expo/vector-icons";
-import {
-  Box,
-  Button,
-  FormControl,
-  Icon,
-  IconButton,
-  Input,
-  Modal,
-  PresenceTransition,
-  TextArea,
-  Toast,
-  useToast,
-} from "native-base";
-import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 
 function MyQuestions() {
   const { user, light, setLight } = useContext(AppContext);
@@ -67,6 +49,22 @@ function MyQuestions() {
   useEffect(() => {
     retrieveCollection();
   }, []);
+
+  const deleteQuestion = async () => {
+    const myQuestions = questions?.slice();
+    const qstId = questions![qstIndex].id;
+    const docRef = doc(db, "questiondb", qstId);
+
+    //Remove a pergunta selecionada
+    myQuestions?.splice(qstIndex, 1);
+
+    try {
+      await deleteDoc(docRef);
+      console.log("Success");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const MyQstStyles = StyleSheet.create({
     main: {

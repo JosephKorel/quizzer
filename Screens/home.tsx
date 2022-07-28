@@ -26,7 +26,7 @@ import tailwind from "twrnc";
 import { Avatar, Box, Button, IconButton, Input, Slide } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { BottomNav } from "../Components/bottom_nav";
+import { BottomNav } from "../Components/nativeBase_Components";
 
 function Home() {
   const { user, light, setLight } = useContext(AppContext);

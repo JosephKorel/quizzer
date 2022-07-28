@@ -14,6 +14,7 @@ import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
 import tailwind from "twrnc";
 import {
+  Alert,
   AlertDialog,
   Box,
   Button,
@@ -82,6 +83,35 @@ export const QuestionModal = ({ props, question }: QuestionModal) => {
               )}
             >
               NÃO {question.votes?.no.length}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const OptionsComponent = ({
+    qstkey,
+    value,
+  }: {
+    qstkey: string;
+    value: string[];
+  }): JSX.Element => {
+    return (
+      <View style={tailwind`mt-4`}>
+        <View style={tailwind`bg-slate-100`}>
+          <TouchableOpacity style={ModalStyle.translate}>
+            <Text
+              style={tailwind.style(
+                "text-2xl",
+                "italic",
+                "text-center",
+                "bg-[#F72585]",
+                "text-slate-100",
+                "font-bold"
+              )}
+            >
+              {qstkey}: {value.length}
             </Text>
           </TouchableOpacity>
         </View>
@@ -204,62 +234,115 @@ export const QuestionModal = ({ props, question }: QuestionModal) => {
               </View>
             )}
             {question.options && (
-              <View style={tailwind`flex-col justify-center`}></View>
+              <View style={tailwind``}>
+                {Object.entries(question.options).map(
+                  ([qstKey, value], index) => (
+                    <OptionsComponent
+                      qstkey={qstKey}
+                      value={value}
+                      key={index}
+                    />
+                  )
+                )}
+              </View>
             )}
             {question.scale && <>{ScaleComponent()}</>}
           </View>
         </Modal.Body>
-        <Modal.Footer bg="amber.300">
-          <DeleteDialog />
-        </Modal.Footer>
       </Modal.Content>
     </Modal>
   );
 };
 
-const DeleteDialog = () => {
+export const DeleteDialog = ({
+  deleteQuestion,
+  id,
+}: {
+  deleteQuestion: (id: string) => void;
+  id: string;
+}) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const onClose = () => setIsOpen(false);
 
   const cancelRef = React.useRef(null);
+
+  const handleDelete = async () => {
+    deleteQuestion(id);
+    onClose();
+  };
   return (
     <Center>
-      <Button
-        colorScheme="danger"
+      <IconButton
+        icon={<MaterialIcons name="delete" size={20} color="#212529" />}
+        size="xs"
+        py={1}
+        _pressed={{ bg: "#edc531" }}
         onPress={() => setIsOpen(!isOpen)}
-        rightIcon={<MaterialIcons name="delete" size={20} color="white" />}
-      >
-        Excluir
-      </Button>
+      />
+
       <AlertDialog
         leastDestructiveRef={cancelRef}
         isOpen={isOpen}
         onClose={onClose}
       >
-        <AlertDialog.Content>
+        <AlertDialog.Content
+          _light={{
+            bg: "green",
+          }}
+        >
           <AlertDialog.CloseButton />
-          <AlertDialog.Header>Excluir pergunta</AlertDialog.Header>
-          <AlertDialog.Body>
-            Tem certeza de que deseja excluir esta pergunta?
+          <AlertDialog.Header style={tailwind`bg-[#0d0f47]`}>
+            <Text style={tailwind.style("text-[#B9FAF8] font-bold text-lg")}>
+              Excluir pergunta
+            </Text>
+          </AlertDialog.Header>
+          <AlertDialog.Body style={tailwind`bg-[#0d0f47]`}>
+            <Text style={tailwind.style("text-[#B9FAF8]")}>
+              Tem certeza de que deseja excluir esta pergunta?
+            </Text>
           </AlertDialog.Body>
-          <AlertDialog.Footer>
+          <AlertDialog.Footer style={tailwind`bg-[#0d0f47]`}>
             <Button.Group space={2}>
               <Button
                 variant="unstyled"
                 colorScheme="coolGray"
                 onPress={onClose}
                 ref={cancelRef}
+                _text={{ color: "#B9FAF8" }}
               >
                 Cancelar
               </Button>
-              <Button colorScheme="danger" onPress={onClose}>
+              <Button colorScheme="danger" onPress={handleDelete}>
                 Confirmar
               </Button>
             </Button.Group>
           </AlertDialog.Footer>
         </AlertDialog.Content>
       </AlertDialog>
+    </Center>
+  );
+};
+
+export const AlertComponent = ({
+  success,
+  error,
+}: {
+  success: string;
+  error: string;
+}): JSX.Element => {
+  return (
+    <Center>
+      {success !== "" && (
+        <Alert status="success">
+          <Text>{success}</Text>
+        </Alert>
+      )}
+      {error !== "" && (
+        <Alert status="error">
+          <Text>{error}</Text>
+        </Alert>
+      )}
     </Center>
   );
 };
