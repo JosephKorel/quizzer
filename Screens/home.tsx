@@ -394,10 +394,7 @@ function Home() {
         {questions![index].hasVoted.includes(user?.uid!) && (
           <View>
             <View style={tailwind`bg-stone-900 mt-8`}>
-              <TouchableOpacity
-                onPress={() => onVote("yes")}
-                style={styles.text}
-              >
+              <TouchableOpacity style={styles.text}>
                 <Text
                   style={tailwind`text-slate-50 font-bold text-xl text-center italic`}
                 >

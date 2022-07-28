@@ -25,17 +25,15 @@ import {
 import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 
 function NewPost() {
-  const { user, light, setLight, question, setQuestion } =
-    useContext(AppContext);
+  const { user, light, setLight } = useContext(AppContext);
   const [choice, setChoice] = useState("");
+  const [question, setQuestion] = useState("");
   const [options, setOptions] = useState<string[]>(["", ""]);
   const [image, setImage] = useState<null | any>(null);
-  const [imgUrl, setImgUrl] = useState("");
   const [tags, setTags] = useState("");
   const [hasSpoiler, setHasSpoiler] = useState(false);
   const [scaleLabel, setScaleLabel] = useState(["Meh", "Cool", "Awesome"]);
   const [hasChoosen, setHasChoosen] = useState(false);
-  const [enq, setEnq] = useState(false);
   const [alert, setAlert] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -305,7 +303,6 @@ function NewPost() {
             }
             onPress={() => {
               setChoice("");
-              setEnq(false);
             }}
           >
             Voltar
@@ -428,7 +425,7 @@ function NewPost() {
                 "italic",
                 "text-center",
                 choice === qst ? "bg-[#4fea74]" : "bg-[#fad643]",
-                choice === qst ? "text-slate-100" : "text-stone-800",
+                choice === qst ? "text-slate-100" : "text-stone-700",
                 "font-bold"
               )}
             >
@@ -556,7 +553,7 @@ function NewPost() {
                         "italic",
                         "px-2",
                         "bg-[#fad643]",
-                        "text-stone-900",
+                        "text-stone-700",
                         "font-bold",
                         PostStyles.smallTranslate
                       )}
@@ -566,7 +563,7 @@ function NewPost() {
                         <MaterialCommunityIcons
                           name="upload"
                           size={18}
-                          color="black"
+                          color="#212529"
                         />
                       }
                     </Text>

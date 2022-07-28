@@ -4,7 +4,7 @@ export type RootStackParamList = {
     Login: undefined;
     Home:undefined;
     NewPost:undefined;
-    Enquete:undefined;
+    MyQuestions:undefined;
     Profile:undefined;
     };
 
