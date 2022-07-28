@@ -45,7 +45,7 @@ import { signOut } from "firebase/auth";
 function Profile() {
   const { user, light, setLight } = useContext(AppContext);
   const [questions, setQuestions] = useState<Questions[] | null>(null);
-  const [index, setIndex] = useState(0);
+  const [answCount, setAnswCount] = useState(0);
   const [show, setShow] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -62,6 +62,7 @@ function Profile() {
   const retrieveCollection = async () => {
     //Array que recebe cada documento
     let questionDocs: Questions[] = [];
+    let myAnswers: number = 0;
 
     //Query da coleção
     const questionCol = collection(db, "questionsdb");
@@ -74,6 +75,10 @@ function Profile() {
       (item) => item.author.uid === auth.currentUser?.uid
     );
 
+    questionDocs.forEach((item) => {
+      item.hasVoted.includes(user?.uid!) && (myAnswers += 1);
+    });
+
     //Sort pelas mais recentes
     myQuestions.sort((a, b) => {
       if (moment(a.date, "DD/MM/YYYY") > moment(b.date, "DD/MM/YYYY"))
@@ -82,6 +87,7 @@ function Profile() {
     });
 
     setQuestions(myQuestions);
+    setAnswCount(myAnswers);
   };
 
   useEffect(() => {
@@ -216,7 +222,9 @@ function Profile() {
             {auth.currentUser?.displayName}
           </Text>
         </View>
-        <View style={tailwind.style()}>
+        <View
+          style={tailwind.style("flex-row justify-around items-center mt-4")}
+        >
           <TouchableOpacity
             style={tailwind.style("bg-[#f72585]")}
             onPress={() => {
@@ -235,7 +243,51 @@ function Profile() {
                 ProfileStyles.smallTranslate
               )}
             >
-              Ver perguntas
+              RESPOSTAS: {answCount}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={tailwind.style("bg-[#05f2d2]")}
+            onPress={() => {
+              setShow(!show);
+            }}
+          >
+            <Text
+              style={tailwind.style(
+                "text-lg",
+                "italic",
+                "p-2",
+                "bg-[#6c00e0]",
+                "text-stone-100",
+                "text-center ",
+                "font-bold",
+                ProfileStyles.smallTranslate
+              )}
+            >
+              PERGUNTAS FEITAS: {questions?.length}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={tailwind.style("mt-10")}>
+          <TouchableOpacity
+            style={tailwind.style("bg-[#fad643]")}
+            onPress={() => {
+              setShow(!show);
+            }}
+          >
+            <Text
+              style={tailwind.style(
+                "text-lg",
+                "italic",
+                "p-2",
+                "bg-[#f72585] ",
+                "text-slate-100",
+                "text-center ",
+                "font-bold",
+                ProfileStyles.smallTranslate
+              )}
+            >
+              VER PERGUNTAS
             </Text>
           </TouchableOpacity>
           {questions?.map((question, index) => (

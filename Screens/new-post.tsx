@@ -9,7 +9,7 @@ import { db, storage } from "../firebase_config";
 import * as ImagePicker from "expo-image-picker";
 import moment from "moment";
 import tailwind from "twrnc";
-import { BottomNav } from "../Components/nativeBase_Components";
+import { AlertComponent, BottomNav } from "../Components/nativeBase_Components";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
   Box,
@@ -34,7 +34,7 @@ function NewPost() {
   const [hasSpoiler, setHasSpoiler] = useState(false);
   const [scaleLabel, setScaleLabel] = useState(["Meh", "Cool", "Awesome"]);
   const [hasChoosen, setHasChoosen] = useState(false);
-  const [alert, setAlert] = useState("");
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const questionType = ["Sim ou Não", "Enquete", "Escala de 0 a 10"];
@@ -42,7 +42,7 @@ function NewPost() {
   const navigation = useNavigation<propsStack>();
   const toast = useToast();
 
-  useEffect(() => {
+  /*   useEffect(() => {
     if (success !== "") {
       toast.show({
         render: () => {
@@ -69,7 +69,14 @@ function NewPost() {
       setAlert("");
       setSuccess("");
     }, 2000);
-  }, [alert, success]);
+  }, [alert, success]); */
+
+  useEffect(() => {
+    setTimeout(() => {
+      setError("");
+      setSuccess("");
+    }, 2000);
+  }, [error, success]);
 
   useEffect(() => {
     choice === "" || choice === "Sim ou Não"
@@ -115,7 +122,7 @@ function NewPost() {
     try {
       return url;
     } catch (error) {
-      setAlert("Erro ao carregar imagem, tente novamente");
+      setError("Erro ao carregar imagem, tente novamente");
       return null;
     }
   };
@@ -150,11 +157,14 @@ function NewPost() {
           date,
         });
 
-        setSuccess("Sucesso");
+        setSuccess("Pergunta enviada!");
 
+        setQuestion("");
+        setImage(null);
+        setTags("");
         setChoice("");
       } catch (error) {
-        console.log(error);
+        setError("Erro ao carregar imagem, tente novamente");
         return null;
       }
     } else
@@ -173,16 +183,28 @@ function NewPost() {
           views: 0,
           date,
         });
-        setSuccess("Sucesso");
 
+        setSuccess("Pergunta enviada!");
+
+        setTags("");
+        setQuestion("");
         setChoice("");
       } catch (error) {
-        console.log(error);
+        setError("Houve algum erro, tente novamente");
         return null;
       }
   };
 
-  const addQuestion = async () => {
+  const addQuestion = async (): Promise<void | null> => {
+    if (!user) return null;
+    else if (question === "") {
+      setError("Escreva sua pergunta");
+      return null;
+    } else if (tags === "") {
+      setError("Adicione pelo menos uma tag à pergunta");
+      return null;
+    }
+
     if (user && question && tags) {
       //Põe as tags num array
       const inputTags = tags.toLowerCase().split(",");
@@ -407,7 +429,7 @@ function NewPost() {
   const QuestionTypeComponent = ({ qst }: { qst: string }): JSX.Element => {
     const onChoose = (qst: string): void | null => {
       if (question === "") {
-        setAlert("Primeiro escreva sua pergunta");
+        setError("Primeiro escreva sua pergunta");
         return null;
       }
       setChoice(qst);
@@ -674,6 +696,8 @@ function NewPost() {
           </TouchableOpacity>
         </View>
       </View>
+      {error !== "" && <AlertComponent success={success} error={error} />}
+      {success !== "" && <AlertComponent success={success} error={error} />}
       <BottomNav />
     </View>
   );

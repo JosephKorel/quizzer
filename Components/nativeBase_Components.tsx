@@ -332,15 +332,23 @@ export const AlertComponent = ({
   error: string;
 }): JSX.Element => {
   return (
-    <Center>
+    <Center style={tailwind.style("absolute bottom-20 w-full ")}>
       {success !== "" && (
-        <Alert status="success">
-          <Text>{success}</Text>
+        <Alert
+          status="success"
+          style={tailwind.style("flex-row justify-between items-center")}
+        >
+          <Alert.Icon />
+          <Text style={tailwind.style("ml-4")}>{success}</Text>
         </Alert>
       )}
       {error !== "" && (
-        <Alert status="error">
-          <Text>{error}</Text>
+        <Alert
+          status="error"
+          style={tailwind.style("flex-row justify-between items-center")}
+        >
+          <Alert.Icon />
+          <Text style={tailwind.style("ml-4")}>{error}</Text>
         </Alert>
       )}
     </Center>

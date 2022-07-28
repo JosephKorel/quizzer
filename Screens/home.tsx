@@ -420,25 +420,78 @@ function Home() {
     return questions?.length ? (
       <View style={tailwind``}>
         {questions[index].hasSpoiler === true && reveal === false ? (
-          <View style={tailwind`mt-8`}>
-            <Text>
+          <View style={tailwind.style("mt-8 p-4 bg-[#F72585]")}>
+            <Text
+              style={tailwind.style("text-slate-100 font-bold italic text-3xl")}
+            >
               Cuidado! Esta pergunta contém spoiler, tem certeza de que quer
               ver?
             </Text>
-            <TouchableOpacity onPress={() => setReveal(true)}>
-              <Text>Sim</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={nextQuestion}>
-              <Text>Não, passar pergunta</Text>
-            </TouchableOpacity>
+            <View
+              style={tailwind.style(
+                "flex-row justify-between items-center mt-4"
+              )}
+            >
+              <TouchableOpacity
+                style={tailwind.style("bg-stone-800")}
+                onPress={() => {
+                  setReveal(true);
+                }}
+              >
+                <Text
+                  style={tailwind.style(
+                    "text-lg",
+                    "italic",
+                    "p-2",
+                    "px-3",
+                    "bg-[#4fea74]",
+                    "text-stone-700",
+                    "text-center ",
+                    "font-bold",
+                    HomeStyles.smallTranslate
+                  )}
+                >
+                  SIM
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={tailwind.style("bg-stone-800")}
+                onPress={nextQuestion}
+              >
+                <Text
+                  style={tailwind.style(
+                    "text-lg",
+                    "italic",
+                    "p-2",
+                    "bg-[#fad643]",
+                    "text-stone-700",
+                    "text-center ",
+                    "font-bold",
+                    HomeStyles.smallTranslate
+                  )}
+                >
+                  NÃO, PASSAR PERGUNTA
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         ) : (
           <View style={tailwind`mt-4 p-2`}>
-            <Text
-              style={tailwind`text-4xl italic text-[#F72585] text-center font-bold`}
-            >
-              {questions[index].question}
-            </Text>
+            <View style={tailwind`flex-col justify-center items-center`}>
+              <Text
+                style={tailwind`absolute text-4xl italic text-[#4361ee] font-bold`}
+              >
+                {questions[index].question}
+              </Text>
+              <Text
+                style={tailwind.style(
+                  "text-4xl italic text-[#F72585] font-bold",
+                  HomeStyles.xsTranslate
+                )}
+              >
+                {questions[index].question}
+              </Text>
+            </View>
             {questions[index].media && (
               <View style={tailwind`flex-row justify-center`}>
                 <Image
@@ -518,11 +571,18 @@ function Home() {
   const prevQuestion = () => {
     index === 0 ? null : setIndex((prev) => prev - 1);
   };
-
   const HomeStyles = StyleSheet.create({
     main: {
-      backgroundColor: "black",
-      opacity: 7,
+      transform: [{ translateY: -5 }],
+    },
+    translate: {
+      transform: [{ translateX: 4 }, { translateY: -4 }],
+    },
+    smallTranslate: {
+      transform: [{ translateX: 2 }, { translateY: -2 }],
+    },
+    xsTranslate: {
+      transform: [{ translateX: 1 }, { translateY: -1 }],
     },
   });
 
