@@ -23,7 +23,16 @@ import { propsStack } from "./RootStackParams";
 import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
 import tailwind from "twrnc";
-import { Avatar, Box, Button, IconButton, Input, Slide } from "native-base";
+import {
+  Avatar,
+  Box,
+  Button,
+  IconButton,
+  Input,
+  Modal,
+  PresenceTransition,
+  Slide,
+} from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { BottomNav } from "../Components/nativeBase_Components";
@@ -53,6 +62,7 @@ function Home() {
   const [myQuestions, setMyQuestions] = useState(false);
   const [allQuestions, setAllQuestions] = useState<Questions[] | null>(null);
   const [tagSearch, setTagSearch] = useState(false);
+  const [show, setShow] = useState(false);
 
   const navigation = useNavigation<propsStack>();
 
@@ -457,13 +467,12 @@ function Home() {
     onActive: ({ translationX, translationY, x }) => {
       translateX.value = translationX;
       translateY.value = translationY;
-      /* opacity.value = opacity.value * (Math.abs(translationX) / 200); */
-      opacity.value = 1 - Math.abs(translationX) / 300;
+      opacity.value = 1 - Math.abs(translationX) / 250;
     },
     onEnd: ({ translationX, translationY }) => {
-      if (translateX.value < -200) {
+      if (translateX.value < -100) {
         runOnJS(nextQuestion)();
-      } else if (translateX.value > 200) {
+      } else if (translateX.value > 100) {
         runOnJS(prevQuestion)();
       }
       translateX.value = 0;
@@ -600,10 +609,24 @@ function Home() {
   const SearchInput = () => {
     return (
       <Slide in={tagSearch} placement="top">
-        <Box p={5} pt={20} color="white" bg="#212529">
+        <View style={tailwind.style("bg-[#212529] pt-15 pb-5")}>
+          <View style={tailwind.style("self-end mb-4")}>
+            <IconButton
+              icon={
+                <MaterialIcons
+                  name="close"
+                  size={24}
+                  color="white"
+                  onPress={() => setTagSearch(false)}
+                />
+              }
+            />
+          </View>
           <Input
             placeholder="Procurar por tag"
             mb={2}
+            w="92%"
+            alignSelf="center"
             color="white"
             rightElement={
               <MaterialIcons
@@ -617,7 +640,7 @@ function Home() {
             value={search}
             onChangeText={(text) => setSearch(text)}
           />
-        </Box>
+        </View>
       </Slide>
     );
   };
