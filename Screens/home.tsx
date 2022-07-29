@@ -27,6 +27,17 @@ import { Avatar, Box, Button, IconButton, Input, Slide } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { BottomNav } from "../Components/nativeBase_Components";
+import {
+  GestureHandlerRootView,
+  PanGestureHandler,
+  PanGestureHandlerGestureEvent,
+} from "react-native-gesture-handler";
+import Animated, {
+  cos,
+  useAnimatedGestureHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 
 function Home() {
   const { user, light, setLight } = useContext(AppContext);
@@ -416,6 +427,40 @@ function Home() {
     },
   });
 
+  type Context = {
+    translateX: number;
+    translateY: number;
+  };
+
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const opacity = useSharedValue(1);
+
+  const GestureHandler = useAnimatedGestureHandler<
+    PanGestureHandlerGestureEvent,
+    Context
+  >({
+    onStart: (event, context) => {},
+    onActive: ({ translationX, translationY }) => {
+      translateX.value = translationX;
+      translateY.value = translationY;
+      if (translationX > 100) {
+        opacity.value = 0.5;
+      }
+      console.log(opacity.value);
+      console.log(translationX);
+      //A partir de -100 ou -150
+    },
+    onEnd: ({ translationX, translationY }) => {
+      translateX.value = 0;
+      translateY.value = 0;
+      opacity.value = 1;
+    },
+  });
+
+  const rStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
   const qstComponent = (index: number) => {
     return questions?.length ? (
       <View style={tailwind``}>
@@ -477,7 +522,7 @@ function Home() {
           </View>
         ) : (
           <View style={tailwind`mt-4 p-2`}>
-            <View style={tailwind`flex-col justify-center items-center`}>
+            <View>
               <Text
                 style={tailwind`absolute text-4xl italic text-[#4361ee] font-bold`}
               >
@@ -622,29 +667,41 @@ function Home() {
         <StatusBar barStyle="light-content" />
         <View style={tailwind`text-center`}>
           {questions?.length ? (
-            <View style={tailwind`mt-20`}>
-              <View style={tailwind`text-center`}>
-                <View style={tailwind`flex flex-col items-center`}>
-                  <Avatar
-                    source={{ uri: user?.avatar ? user.avatar : undefined }}
-                  />
-                  <Text style={tailwind`text-slate-300 text-base`}>
-                    {questions[index].author.name}
-                  </Text>
-                </View>
-                <View
-                  style={tailwind`mt-6 flex flex-row justify-between items-center`}
-                >
+            <GestureHandlerRootView>
+              <PanGestureHandler onGestureEvent={GestureHandler}>
+                <Animated.View style={rStyle}>
                   <View
-                    style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8] rounded-br-lg rounded-tl-lg`}
-                  ></View>
-                  <View
-                    style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8]  rounded-bl-lg rounded-tr-lg`}
-                  ></View>
-                </View>
-              </View>
-              <View style={tailwind`h-[75%]`}>{qstComponent(index)}</View>
-            </View>
+                    style={tailwind.style("mt-20", { opacity: opacity.value })}
+                  >
+                    <View style={tailwind.style("text-center")}>
+                      <View style={tailwind`flex flex-col items-center`}>
+                        <Avatar
+                          source={{
+                            uri: user?.avatar ? user.avatar : undefined,
+                          }}
+                          style={rStyle}
+                        />
+
+                        <Text style={tailwind`text-slate-300 text-base`}>
+                          {questions[index].author.name}
+                        </Text>
+                      </View>
+                      <View
+                        style={tailwind`mt-6 flex flex-row justify-between items-center`}
+                      >
+                        <View
+                          style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8] rounded-br-lg rounded-tl-lg`}
+                        ></View>
+                        <View
+                          style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8]  rounded-bl-lg rounded-tr-lg`}
+                        ></View>
+                      </View>
+                    </View>
+                    <View style={tailwind`h-[75%]`}>{qstComponent(index)}</View>
+                  </View>
+                </Animated.View>
+              </PanGestureHandler>
+            </GestureHandlerRootView>
           ) : (
             <View></View>
           )}
