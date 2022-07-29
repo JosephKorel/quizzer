@@ -34,9 +34,12 @@ import {
 } from "react-native-gesture-handler";
 import Animated, {
   cos,
+  runOnJS,
   useAnimatedGestureHandler,
   useAnimatedStyle,
+  useCode,
   useSharedValue,
+  Value,
 } from "react-native-reanimated";
 
 function Home() {
@@ -427,6 +430,16 @@ function Home() {
     },
   });
 
+  const nextQuestion = () => {
+    const qstLen = questions?.length;
+    index === qstLen! - 1 ? setIndex(0) : setIndex((prev) => prev + 1);
+    setReveal(false);
+  };
+
+  const prevQuestion = () => {
+    index === 0 ? null : setIndex((prev) => prev - 1);
+  };
+
   type Context = {
     translateX: number;
     translateY: number;
@@ -441,17 +454,18 @@ function Home() {
     Context
   >({
     onStart: (event, context) => {},
-    onActive: ({ translationX, translationY }) => {
+    onActive: ({ translationX, translationY, x }) => {
       translateX.value = translationX;
       translateY.value = translationY;
-      if (translationX > 100) {
-        opacity.value = 0.5;
-      }
-      console.log(opacity.value);
-      console.log(translationX);
-      //A partir de -100 ou -150
+      /* opacity.value = opacity.value * (Math.abs(translationX) / 200); */
+      opacity.value = 1 - Math.abs(translationX) / 300;
     },
     onEnd: ({ translationX, translationY }) => {
+      if (translateX.value < -200) {
+        runOnJS(nextQuestion)();
+      } else if (translateX.value > 200) {
+        runOnJS(prevQuestion)();
+      }
       translateX.value = 0;
       translateY.value = 0;
       opacity.value = 1;
@@ -460,6 +474,7 @@ function Home() {
 
   const rStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
+    opacity: opacity.value,
   }));
   const qstComponent = (index: number) => {
     return questions?.length ? (
@@ -522,15 +537,15 @@ function Home() {
           </View>
         ) : (
           <View style={tailwind`mt-4 p-2`}>
-            <View>
+            <View style={tailwind`flex-col justify-center items-center`}>
               <Text
-                style={tailwind`absolute text-4xl italic text-[#4361ee] font-bold`}
+                style={tailwind`absolute text-4xl italic text-center text-[#4361ee] font-bold`}
               >
                 {questions[index].question}
               </Text>
               <Text
                 style={tailwind.style(
-                  "text-4xl italic text-[#F72585] font-bold",
+                  "text-4xl italic text-[#F72585] font-bold text-center",
                   HomeStyles.xsTranslate
                 )}
               >
@@ -607,15 +622,6 @@ function Home() {
     );
   };
 
-  const nextQuestion = () => {
-    const qstLen = questions?.length;
-    index === qstLen! - 1 ? setIndex(0) : setIndex((prev) => prev + 1);
-    setReveal(false);
-  };
-
-  const prevQuestion = () => {
-    index === 0 ? null : setIndex((prev) => prev - 1);
-  };
   const HomeStyles = StyleSheet.create({
     main: {
       transform: [{ translateY: -5 }],
@@ -670,9 +676,7 @@ function Home() {
             <GestureHandlerRootView>
               <PanGestureHandler onGestureEvent={GestureHandler}>
                 <Animated.View style={rStyle}>
-                  <View
-                    style={tailwind.style("mt-20", { opacity: opacity.value })}
-                  >
+                  <View style={tailwind.style("mt-20")}>
                     <View style={tailwind.style("text-center")}>
                       <View style={tailwind`flex flex-col items-center`}>
                         <Avatar
@@ -705,20 +709,6 @@ function Home() {
           ) : (
             <View></View>
           )}
-        </View>
-        <View style={tailwind`flex-row justify-between items-center`}>
-          <MaterialIcons
-            name="navigate-before"
-            size={42}
-            color="#F72585"
-            onPress={prevQuestion}
-          />
-          <MaterialIcons
-            name="navigate-next"
-            size={42}
-            color="#2ecfc0"
-            onPress={nextQuestion}
-          />
         </View>
       </View>
 
