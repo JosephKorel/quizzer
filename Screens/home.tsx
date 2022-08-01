@@ -23,19 +23,10 @@ import { propsStack } from "./RootStackParams";
 import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
 import tailwind from "twrnc";
-import {
-  Avatar,
-  Box,
-  Button,
-  IconButton,
-  Input,
-  Modal,
-  PresenceTransition,
-  Slide,
-} from "native-base";
+import { Avatar, IconButton, Slide } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { BottomNav } from "../Components/nativeBase_Components";
+import { AlertComponent, BottomNav } from "../Components/nativeBase_Components";
 import {
   GestureHandlerRootView,
   PanGestureHandler,
@@ -62,7 +53,8 @@ function Home() {
   const [myQuestions, setMyQuestions] = useState(false);
   const [allQuestions, setAllQuestions] = useState<Questions[] | null>(null);
   const [tagSearch, setTagSearch] = useState(false);
-  const [show, setShow] = useState(false);
+  const [error, setError] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const navigation = useNavigation<propsStack>();
 
@@ -94,6 +86,12 @@ function Home() {
   useEffect(() => {
     retrieveCollection();
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setError("");
+    }, 2000);
+  }, [error]);
 
   //Voto de Sim ou Não
   const onVote = async (choice: string): Promise<void | null> => {
@@ -281,11 +279,21 @@ function Home() {
     }
   };
 
-  const searchForTag = () => {
-    const questionFilter = questions?.filter((item) =>
+  const searchForTag = (): void | null => {
+    const questionFilter = allQuestions?.filter((item) =>
       item.tags.includes(search.trim().toLowerCase())
     );
-    questionFilter?.length && setQuestions(questionFilter);
+
+    if (questionFilter?.length) {
+      setQuestions(questionFilter);
+      setTagSearch(false);
+      setIsSearching(true);
+    } else {
+      setError(
+        "Nenhuma pergunta com esta tag foi encontrada, mostrando todas as perguntas"
+      );
+      return null;
+    }
   };
 
   const custom = (value: number | Array<number>, index: number) => {
@@ -529,13 +537,7 @@ function Home() {
               >
                 <Text
                   style={tailwind.style(
-                    "text-lg",
-                    "italic",
-                    "p-2",
-                    "bg-[#fad643]",
-                    "text-stone-700",
-                    "text-center ",
-                    "font-bold",
+                    "text-lg italic p-2 bg-[#fad643] text-stone-700 text-center font-bold",
                     HomeStyles.smallTranslate
                   )}
                 >
@@ -606,6 +608,12 @@ function Home() {
     );
   };
 
+  const clearSearch = () => {
+    retrieveCollection();
+    setIsSearching(false);
+    setSearch("");
+  };
+
   const SearchInput = () => {
     return (
       <Slide in={tagSearch} placement="top">
@@ -622,24 +630,29 @@ function Home() {
               }
             />
           </View>
-          <Input
-            placeholder="Procurar por tag"
-            mb={2}
-            w="92%"
-            alignSelf="center"
-            color="white"
-            rightElement={
+          <View style={tailwind.style("w-11/12 mx-auto")}>
+            <Text style={tailwind.style("mb-2 text-slate-100 text-lg")}>
+              Procure por até três tags
+            </Text>
+            <View
+              style={tailwind.style(
+                "flex-row items-center justify-between p-1 rounded-md bg-slate-200"
+              )}
+            >
+              <TextInput
+                placeholder="Tag"
+                value={search}
+                onChangeText={(text) => setSearch(text)}
+              />
               <MaterialIcons
                 name="search"
                 size={24}
                 color="#F72585"
-                onPress={() => setTagSearch(true)}
+                onPress={searchForTag}
                 style={tailwind`mr-2`}
               />
-            }
-            value={search}
-            onChangeText={(text) => setSearch(text)}
-          />
+            </View>
+          </View>
         </View>
       </Slide>
     );
@@ -699,7 +712,14 @@ function Home() {
             <GestureHandlerRootView>
               <PanGestureHandler onGestureEvent={GestureHandler}>
                 <Animated.View style={rStyle}>
-                  <View style={tailwind.style("mt-20")}>
+                  <View
+                    style={
+                      (tailwind.style(""),
+                      {
+                        transform: [{ translateY: 80 }],
+                      })
+                    }
+                  >
                     <View style={tailwind.style("text-center")}>
                       <View style={tailwind`flex flex-col items-center`}>
                         <Avatar
@@ -724,7 +744,7 @@ function Home() {
                         ></View>
                       </View>
                     </View>
-                    <View style={tailwind`h-[75%]`}>{qstComponent(index)}</View>
+                    <View style={tailwind``}>{qstComponent(index)}</View>
                   </View>
                 </Animated.View>
               </PanGestureHandler>
@@ -734,8 +754,75 @@ function Home() {
           )}
         </View>
       </View>
+      {error !== "" && <AlertComponent success={""} error={error} />}
+      {SearchInput()}
+      {isSearching && (
+        <View
+          style={tailwind.style("absolute bottom-1/4 w-full ml-2", {
+            zIndex: -10,
+          })}
+        >
+          <View
+            style={tailwind.style("bg-[#05f2d2] self-start bottom-0", {
+              transform: [{ rotateZ: "-12deg" }],
+              position: "relative",
+            })}
+          >
+            <View
+              style={tailwind.style(
+                "flex-row items-center bg-[#6c00e0] px-2",
+                HomeStyles.smallTranslate
+              )}
+            >
+              <AntDesign
+                name="tags"
+                size={32}
+                color="#FAD643"
+                style={tailwind`mr-3`}
+              />
 
-      <SearchInput />
+              <Text
+                style={tailwind.style(
+                  "text-slate-100 text-[#FAD643] text-base font-bold"
+                )}
+              >
+                {search}
+              </Text>
+
+              <Text
+                style={tailwind.style(
+                  "text-slate-100 text-[#FAD643] text-lg font-bold ml-4"
+                )}
+              >
+                {index + 1}/{questions?.length}
+              </Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={tailwind.style("bg-[#F72585] self-start mt-4", {
+              transform: [{ rotateZ: "-12deg" }],
+            })}
+            onPress={clearSearch}
+          >
+            <View
+              style={tailwind.style(
+                "flex-row items-center  bg-[#FAD643]",
+                HomeStyles.smallTranslate
+              )}
+            >
+              <Text
+                style={tailwind.style(
+                  "text-slate-100 text-stone-800 text-lg font-bold px-2 flex-row items-center "
+                )}
+              >
+                LIMPAR FILTROS
+              </Text>
+              <MaterialIcons name="close" size={24} color="black" />
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
       <BottomNav tagSearch={tagSearch} setTagSearch={setTagSearch} />
     </View>
   );
