@@ -7,31 +7,46 @@ import {
   onAuthStateChanged,
   signInWithCredential,
 } from "firebase/auth";
-import { auth } from "../firebase_config";
+import { auth, db } from "../firebase_config";
 import { AppContext } from "../Context";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import tailwind from "twrnc";
-import { Button, FavouriteIcon, Icon } from "native-base";
+import { Button } from "native-base";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function Login() {
-  const { user, setUser, setIsAuth, isAuth } = useContext(AppContext);
+  const { setUser, setIsAuth } = useContext(AppContext);
   const navigation = useNavigation<propsStack>();
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId:
       "494904537547-jmd1np75cd9dab6cla7jculb9gketsre.apps.googleusercontent.com",
   });
 
+  const newUser = async (name: string, uid: string, avatar: string) => {
+    const docRef = doc(db, "users", uid);
+    const docSnap = await getDoc(docRef);
+
+    //Se o usuário já tá cadastrado
+    if (docSnap.exists()) {
+      setIsAuth(true);
+      setUser({
+        name,
+        uid,
+        avatar,
+      });
+      navigation.navigate("Home");
+    } else {
+      const newDocument = { name, uid, avatar, followers: [], following: [] };
+
+      await setDoc(docRef, newDocument);
+    }
+  };
+
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        setIsAuth(true);
-        setUser({
-          name: user.displayName,
-          uid: user.uid,
-          avatar: user.photoURL,
-        });
-        navigation.navigate("Home");
+        newUser(user.displayName!, user.uid, user.photoURL!);
       }
     });
   }, [onAuthStateChanged]);

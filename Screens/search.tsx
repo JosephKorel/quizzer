@@ -3,7 +3,17 @@ import {
   MaterialIcons,
   SimpleLineIcons,
 } from "@expo/vector-icons";
-import { collection, DocumentData, getDocs, query } from "firebase/firestore";
+import {
+  arrayRemove,
+  arrayUnion,
+  collection,
+  doc,
+  DocumentData,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { Avatar } from "native-base";
 import React, { useContext, useEffect, useState } from "react";
 import {
@@ -18,12 +28,17 @@ import {
 import tw from "../Components/tailwind_config";
 import { BottomNav, Translate } from "../Components/nativeBase_Components";
 import { QuestionComponent } from "../Components/questions_components";
-import { AppContext, Questions } from "../Context";
+import { AppContext, Questions, UserInt } from "../Context";
 import { db } from "../firebase_config";
+import { useNavigation } from "@react-navigation/native";
+import { propsStack } from "./RootStackParams";
 
 interface UsersInt {
   name: string;
+  uid: string;
   avatar: string;
+  followers: UserInt[];
+  following: UserInt[];
 }
 
 function Search() {
@@ -34,6 +49,8 @@ function Search() {
   const [tagFilter, setTagFilter] = useState<Questions[]>([]);
   const [search, setSearch] = useState("");
   const [showQst, setShowQst] = useState(false);
+
+  const navigation = useNavigation<propsStack>();
 
   const retrieveCollection = async (
     sortViews: boolean,
@@ -109,7 +126,32 @@ function Search() {
     searchForTag();
   }, [search]);
 
+  const handleFollow = async (
+    uid: string,
+    isFollowing: boolean,
+    item: UsersInt
+  ) => {
+    console.log(isFollowing);
+    if (!isFollowing) {
+      const userDoc = doc(db, "users", uid);
+      await updateDoc(userDoc, { followers: arrayUnion(user) });
+
+      //Atualizar o front
+      getUsers();
+    } else {
+      const userDoc = doc(db, "users", uid);
+      const filter = item.followers.filter((item) => item.uid !== user!.uid);
+      await updateDoc(userDoc, { followers: filter });
+
+      //Atualizar o front
+      getUsers();
+    }
+  };
+
   const userComponent = ({ item }: { item: UsersInt }) => {
+    const filter = item.followers.filter((item) => item.uid === user!.uid);
+    const isFollowing = filter.length ? true : false;
+
     return (
       <View style={tw.style("flex-row items-center mt-2")}>
         <Avatar source={{ uri: item.avatar }} />
@@ -125,17 +167,38 @@ function Search() {
             >
               {item.name}
             </Text>
-            <View style={tw.style("flex-row items-center")}>
-              <TouchableOpacity>
+            <View
+              style={tw.style("flex-row items-center justify-between w-1/6")}
+            >
+              <TouchableOpacity style={tw.style("bg-red-200")}>
                 <MaterialCommunityIcons
                   name="guy-fawkes-mask"
                   size={24}
                   color="black"
-                  style={tw.style("mr-4")}
+                  style={tw.style("")}
+                  onPress={() =>
+                    navigation.navigate("UsersProfile", {
+                      userRef: "Some Name",
+                    })
+                  }
                 />
               </TouchableOpacity>
               <TouchableOpacity>
-                <SimpleLineIcons name="user-follow" size={24} color="black" />
+                {isFollowing ? (
+                  <SimpleLineIcons
+                    name="user-following"
+                    size={24}
+                    color="green"
+                    onPress={() => handleFollow(item.uid, isFollowing, item)}
+                  />
+                ) : (
+                  <SimpleLineIcons
+                    name="user-follow"
+                    size={24}
+                    color="black"
+                    onPress={() => handleFollow(item.uid, isFollowing, item)}
+                  />
+                )}
               </TouchableOpacity>
             </View>
           </View>

@@ -4,11 +4,11 @@ type Props = {
   children: ReactNode;
 };
 
-type user = {
+export interface UserInt {
   name: string | null;
   uid: string;
   avatar?: string | null;
-};
+}
 
 export type Questions = {
   id: string;
@@ -32,8 +32,8 @@ export type Questions = {
 type ContextType = {
   isAuth: boolean;
   setIsAuth: (data: boolean) => void;
-  user: null | user;
-  setUser: (data: user) => void;
+  user: null | UserInt;
+  setUser: (data: UserInt) => void;
   scaleTxt: string[];
   setScaleTxt: (data: string[]) => void;
   theme: string;
@@ -59,7 +59,7 @@ export const AppContext = createContext<ContextType>(initialValue);
 
 export const AppContextProvider = ({ children }: Props) => {
   const [isAuth, setIsAuth] = useState(false);
-  const [user, setUser] = useState<null | user>(null);
+  const [user, setUser] = useState<null | UserInt>(null);
   const [question, setQuestion] = useState("");
   const [scaleTxt, setScaleTxt] = useState(["Meh", "Cool", "Amazing"]);
   const [theme, setTheme] = useState("dark");

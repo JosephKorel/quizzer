@@ -6,9 +6,11 @@ export type RootStackParamList = {
     NewPost:undefined;
     MyQuestions:undefined;
     Profile:undefined;
-    Search:undefined
-    };
-
+    Search:undefined;
+    UsersProfile:{
+       userRef:string
+    }
+};
 
 export type propsStack = NativeStackNavigationProp<RootStackParamList>
 
