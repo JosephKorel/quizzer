@@ -387,7 +387,10 @@ function Home() {
     return (
       <View>
         <View style={tailwind`bg-stone-900 mt-5`}>
-          <TouchableOpacity onPress={() => onVote("yes")} style={styles.text}>
+          <TouchableOpacity
+            onPress={() => onChoose(objkey)}
+            style={styles.text}
+          >
             <Text
               style={tailwind`text-slate-50 font-bold text-2xl text-center italic`}
             >

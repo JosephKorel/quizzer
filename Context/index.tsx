@@ -49,7 +49,7 @@ const initialValue = {
   setUser: () => {},
   scaleTxt: ["Meh", "Cool", "Amazing"],
   setScaleTxt: () => {},
-  theme: "light",
+  theme: "dark",
   setTheme: () => {},
   questions: null,
   setQuestions: () => {},
@@ -62,7 +62,7 @@ export const AppContextProvider = ({ children }: Props) => {
   const [user, setUser] = useState<null | user>(null);
   const [question, setQuestion] = useState("");
   const [scaleTxt, setScaleTxt] = useState(["Meh", "Cool", "Amazing"]);
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("dark");
   const [questions, setQuestions] = useState<Questions[] | null>(null);
 
   return (

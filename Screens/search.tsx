@@ -1,5 +1,9 @@
-import { MaterialIcons } from "@expo/vector-icons";
-import { collection, getDocs, query } from "firebase/firestore";
+import {
+  MaterialCommunityIcons,
+  MaterialIcons,
+  SimpleLineIcons,
+} from "@expo/vector-icons";
+import { collection, DocumentData, getDocs, query } from "firebase/firestore";
 import { Avatar } from "native-base";
 import React, { useContext, useEffect, useState } from "react";
 import {
@@ -11,7 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import tailwind from "twrnc";
+import tw from "../Components/tailwind_config";
 import { BottomNav, Translate } from "../Components/nativeBase_Components";
 import { QuestionComponent } from "../Components/questions_components";
 import { AppContext, Questions } from "../Context";
@@ -27,9 +31,38 @@ function Search() {
     useContext(AppContext);
 
   const [users, setUsers] = useState<UsersInt[] | null>(null);
+  const [tagFilter, setTagFilter] = useState<Questions[]>([]);
   const [search, setSearch] = useState("");
   const [showQst, setShowQst] = useState(false);
-  const [reveal, setReveal] = useState(false);
+
+  const retrieveCollection = async (
+    sortViews: boolean,
+    sortAnswered: boolean
+  ) => {
+    //Array que recebe cada documento
+    let questionDocs: Questions[] = [];
+
+    //Query da coleção
+    const questionCol = collection(db, "questionsdb");
+    const colQuery = query(questionCol);
+    const querySnapshot = await getDocs(colQuery);
+    querySnapshot.forEach((doc: DocumentData) => questionDocs.push(doc.data()));
+
+    if (sortViews) {
+      //Sort pelo número de votos
+      questionDocs.sort((a, b) => {
+        if (a.views > b.views) return -1;
+        else return 1;
+      });
+    } else if (sortAnswered) {
+      //Sort pelas perguntas ainda não respondidas
+      questionDocs.sort((a, b) => {
+        if (a.hasVoted.includes(user!.uid)) return 1;
+        else return -1;
+      });
+    }
+    setQuestions(questionDocs);
+  };
 
   const getUsers = async () => {
     let usersArr: UsersInt[] = [];
@@ -47,7 +80,7 @@ function Search() {
     getUsers();
   }, []);
 
-  const searchForTag = (): Questions[] | [] => {
+  const searchForTag = (): void => {
     let tags: string[] = [];
     const tagArr = search.toLocaleLowerCase().split(",");
 
@@ -58,7 +91,11 @@ function Search() {
       return item.tags.some((tag) => tags.includes(tag));
     });
 
-    return questionFilter?.length ? questionFilter : [];
+    if (questionFilter?.length) {
+      setTagFilter(questionFilter);
+    } else {
+      setTagFilter([]);
+    }
   };
 
   const usersFilter: UsersInt[] | undefined =
@@ -68,32 +105,65 @@ function Search() {
         )
       : [];
 
-  const tagFilter = search.length > 2 ? searchForTag() : [];
+  useEffect(() => {
+    searchForTag();
+  }, [search]);
 
   const userComponent = ({ item }: { item: UsersInt }) => {
     return (
-      <View style={tailwind.style("flex-row items-center")}>
+      <View style={tw.style("flex-row items-center mt-2")}>
         <Avatar source={{ uri: item.avatar }} />
-        <Text style={tailwind.style("text-slate-100 text-lg font-semibold")}>
-          {item.name}
-        </Text>
+        <View style={tw.style("bg-persian w-full")}>
+          <View
+            style={tw.style(
+              "flex-row items-center bg-sun w-full",
+              Translate.smallTranslate
+            )}
+          >
+            <Text
+              style={tw.style("text-stone-700 text-lg font-semibold p-1 w-2/3")}
+            >
+              {item.name}
+            </Text>
+            <View style={tw.style("flex-row items-center")}>
+              <TouchableOpacity>
+                <MaterialCommunityIcons
+                  name="guy-fawkes-mask"
+                  size={24}
+                  color="black"
+                  style={tw.style("mr-4")}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <SimpleLineIcons name="user-follow" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </View>
     );
   };
 
   const renderQuestions = ({ item }: { item: Questions }) => {
-    return <QuestionComponent item={item} questions={tagFilter} />;
+    return (
+      <QuestionComponent
+        item={item}
+        filter={tagFilter}
+        setFilter={setTagFilter}
+        getQst={retrieveCollection}
+      />
+    );
   };
 
   return (
     <View
-      style={tailwind.style(
+      style={tw.style(
         theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
         "w-full h-full"
       )}
     >
-      <View style={tailwind`w-11/12 mx-auto`}>
-        <View style={tailwind`absolute top-10 w-full z-10`}>
+      <View style={tw`w-11/12 mx-auto`}>
+        <View style={tw`absolute top-10 w-full z-10`}>
           {theme === "dark" ? (
             <MaterialIcons
               name="wb-sunny"
@@ -111,10 +181,10 @@ function Search() {
           )}
         </View>
         <View style={{ transform: [{ translateY: 80 }] }}>
-          <View style={tailwind.style("bg-[#FAD643]")}>
+          <View style={tw.style("bg-[#FAD643]")}>
             <Text
-              style={tailwind.style(
-                "text-slate-100 bg-[#F72585] font-bold text-lg p-1 italic",
+              style={tw.style(
+                "text-slate-100 bg-persian font-bold text-lg p-1 italic",
                 Translate.smallTranslate
               )}
             >
@@ -122,8 +192,8 @@ function Search() {
             </Text>
           </View>
           <View
-            style={tailwind.style(
-              "flex-row items-center justify-between p-1 rounded-md bg-slate-200"
+            style={tw.style(
+              "flex-row items-center justify-between p-1 rounded-md bg-slate-200 mt-2"
             )}
           >
             <TextInput
@@ -132,22 +202,30 @@ function Search() {
               value={search}
               onChangeText={(text) => setSearch(text)}
             />
-            <MaterialIcons
-              name="search"
-              size={24}
-              color="#F72585"
-              style={tailwind`mr-2`}
-            />
+            {search.length ? (
+              <MaterialIcons
+                name="close"
+                size={24}
+                color="black"
+                style={tw`mr-2`}
+                onPress={() => setSearch("")}
+              />
+            ) : (
+              <MaterialIcons
+                name="search"
+                size={24}
+                color="#F72585"
+                style={tw`mr-2`}
+              />
+            )}
           </View>
-          <View
-            style={tailwind.style("mt-2 flex-row justify-between items-center")}
-          >
+          <View style={tw.style("mt-2 flex-row justify-between items-center")}>
             <TouchableOpacity
               onPress={() => setShowQst(false)}
-              style={tailwind.style("bg-stone-800")}
+              style={tw.style("bg-stone-800")}
             >
               <Text
-                style={tailwind.style(
+                style={tw.style(
                   "text-slate-100 bg-[#F72585] font-bold text-lg p-1 italic",
                   Translate.smallTranslate
                 )}
@@ -157,11 +235,11 @@ function Search() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setShowQst(true)}
-              style={tailwind.style("bg-stone-800")}
+              style={tw.style("bg-stone-800")}
             >
               <Text
-                style={tailwind.style(
-                  "text-slate-100 bg-[#F72585] font-bold text-lg p-1 italic",
+                style={tw.style(
+                  "text-slate-100 bg-persian font-bold text-lg p-1 italic",
                   Translate.smallTranslate
                 )}
               >
@@ -177,7 +255,7 @@ function Search() {
             </View>
           ) : (
             <View>
-              <FlatList data={questions} renderItem={renderQuestions} />
+              <FlatList data={tagFilter} renderItem={renderQuestions} />
             </View>
           )}
         </View>

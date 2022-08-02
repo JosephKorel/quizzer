@@ -23,6 +23,7 @@ import {
   useToast,
 } from "native-base";
 import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
+import { retrieveCollection } from "../Components/questions_components";
 
 function NewPost() {
   const { user, theme, setTheme } = useContext(AppContext);
@@ -185,7 +186,8 @@ function NewPost() {
 
       if (choice === "Sim ou Não") {
         const votes = { yes: [], no: [] };
-        addDoc(newTags, votes, null, null, null);
+        await addDoc(newTags, votes, null, null, null);
+
         return;
       }
       if (choice === "Enquete") {
@@ -195,10 +197,14 @@ function NewPost() {
         options.forEach(
           (option) => (allOptions = { ...allOptions, [option]: [] })
         );
-        addDoc(newTags, null, allOptions, null, null);
+        await addDoc(newTags, null, allOptions, null, null);
+
+        return;
       }
       if (choice === "Escala de 0 a 10") {
-        addDoc(newTags, null, null, [], scaleLabel);
+        await addDoc(newTags, null, null, [], scaleLabel);
+
+        return;
       }
     }
   };
