@@ -2,10 +2,19 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { collection, getDocs, query } from "firebase/firestore";
 import { Avatar } from "native-base";
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import tailwind from "twrnc";
 import { BottomNav, Translate } from "../Components/nativeBase_Components";
-import { AppContext } from "../Context";
+import { QuestionComponent } from "../Components/questions_components";
+import { AppContext, Questions } from "../Context";
 import { db } from "../firebase_config";
 
 interface UsersInt {
@@ -19,6 +28,8 @@ function Search() {
 
   const [users, setUsers] = useState<UsersInt[] | null>(null);
   const [search, setSearch] = useState("");
+  const [showQst, setShowQst] = useState(false);
+  const [reveal, setReveal] = useState(false);
 
   const getUsers = async () => {
     let usersArr: UsersInt[] = [];
@@ -36,6 +47,20 @@ function Search() {
     getUsers();
   }, []);
 
+  const searchForTag = (): Questions[] | [] => {
+    let tags: string[] = [];
+    const tagArr = search.toLocaleLowerCase().split(",");
+
+    //Depois de separar por vírgula, retira os espaços
+    tagArr.forEach((item) => tags.push(item.trim()));
+
+    const questionFilter = questions?.filter((item) => {
+      return item.tags.some((tag) => tags.includes(tag));
+    });
+
+    return questionFilter?.length ? questionFilter : [];
+  };
+
   const usersFilter: UsersInt[] | undefined =
     search.length > 2
       ? users?.filter((user) =>
@@ -43,12 +68,7 @@ function Search() {
         )
       : [];
 
-  const Item = ({ avatar, name }: UsersInt) => (
-    <View style={tailwind.style("flex-row items-center")}>
-      <Avatar source={{ uri: avatar }} />
-      <Text>{name}</Text>
-    </View>
-  );
+  const tagFilter = search.length > 2 ? searchForTag() : [];
 
   const userComponent = ({ item }: { item: UsersInt }) => {
     return (
@@ -61,7 +81,9 @@ function Search() {
     );
   };
 
-  const handleSearch = async () => {};
+  const renderQuestions = ({ item }: { item: Questions }) => {
+    return <QuestionComponent item={item} questions={tagFilter} />;
+  };
 
   return (
     <View
@@ -99,17 +121,65 @@ function Search() {
               PESQUISE POR TAGS OU PESSOAS
             </Text>
           </View>
-          <TextInput
-            placeholder="Digite aqui"
-            style={tailwind.style("bg-slate-200 mt-2")}
-            value={search}
-            onChangeText={(text) => setSearch(text)}
-          />
-          <View>
-            {search.length > 2 && (
-              <FlatList data={usersFilter} renderItem={userComponent} />
+          <View
+            style={tailwind.style(
+              "flex-row items-center justify-between p-1 rounded-md bg-slate-200"
             )}
+          >
+            <TextInput
+              autoComplete="off"
+              placeholder="Comece a digitar"
+              value={search}
+              onChangeText={(text) => setSearch(text)}
+            />
+            <MaterialIcons
+              name="search"
+              size={24}
+              color="#F72585"
+              style={tailwind`mr-2`}
+            />
           </View>
+          <View
+            style={tailwind.style("mt-2 flex-row justify-between items-center")}
+          >
+            <TouchableOpacity
+              onPress={() => setShowQst(false)}
+              style={tailwind.style("bg-stone-800")}
+            >
+              <Text
+                style={tailwind.style(
+                  "text-slate-100 bg-[#F72585] font-bold text-lg p-1 italic",
+                  Translate.smallTranslate
+                )}
+              >
+                PESSOAS: {usersFilter?.length}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setShowQst(true)}
+              style={tailwind.style("bg-stone-800")}
+            >
+              <Text
+                style={tailwind.style(
+                  "text-slate-100 bg-[#F72585] font-bold text-lg p-1 italic",
+                  Translate.smallTranslate
+                )}
+              >
+                PERGUNTAS: {tagFilter.length}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {!showQst ? (
+            <View>
+              {search.length > 2 && (
+                <FlatList data={usersFilter} renderItem={userComponent} />
+              )}
+            </View>
+          ) : (
+            <View>
+              <FlatList data={questions} renderItem={renderQuestions} />
+            </View>
+          )}
         </View>
       </View>
       <BottomNav />
