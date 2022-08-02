@@ -33,18 +33,16 @@ import {
   PanGestureHandlerGestureEvent,
 } from "react-native-gesture-handler";
 import Animated, {
-  cos,
   runOnJS,
   useAnimatedGestureHandler,
   useAnimatedStyle,
-  useCode,
   useSharedValue,
-  Value,
 } from "react-native-reanimated";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 function Home() {
-  const { user, light, setLight } = useContext(AppContext);
-  const [questions, setQuestions] = useState<Questions[] | null>(null);
+  const { user, theme, setTheme, questions, setQuestions } =
+    useContext(AppContext);
   const [index, setIndex] = useState(0);
   const [reveal, setReveal] = useState(false);
   const [scaleVal, setScaleVal] = useState<number | number[]>([]);
@@ -280,9 +278,15 @@ function Home() {
   };
 
   const searchForTag = (): void | null => {
-    const questionFilter = allQuestions?.filter((item) =>
-      item.tags.includes(search.trim().toLowerCase())
-    );
+    let tags: string[] = [];
+    const tagArr = search.toLocaleLowerCase().split(",");
+
+    //Depois de separar por vírgula, retira os espaços
+    tagArr.forEach((item) => tags.push(item.trim()));
+
+    const questionFilter = allQuestions?.filter((item) => {
+      return item.tags.some((tag) => tags.includes(tag));
+    });
 
     if (questionFilter?.length) {
       setQuestions(questionFilter);
@@ -634,24 +638,30 @@ function Home() {
             <Text style={tailwind.style("mb-2 text-slate-100 text-lg")}>
               Procure por até três tags
             </Text>
-            <View
-              style={tailwind.style(
-                "flex-row items-center justify-between p-1 rounded-md bg-slate-200"
-              )}
+            <KeyboardAwareScrollView
+              resetScrollToCoords={{ x: 0, y: 0 }}
+              scrollEnabled={false}
             >
-              <TextInput
-                placeholder="Tag"
-                value={search}
-                onChangeText={(text) => setSearch(text)}
-              />
-              <MaterialIcons
-                name="search"
-                size={24}
-                color="#F72585"
-                onPress={searchForTag}
-                style={tailwind`mr-2`}
-              />
-            </View>
+              <View
+                style={tailwind.style(
+                  "flex-row items-center justify-between p-1 rounded-md bg-slate-200"
+                )}
+              >
+                <TextInput
+                  autoComplete="off"
+                  placeholder="Tag"
+                  value={search}
+                  onChangeText={(text) => setSearch(text)}
+                />
+                <MaterialIcons
+                  name="search"
+                  size={24}
+                  color="#F72585"
+                  onPress={searchForTag}
+                  style={tailwind`mr-2`}
+                />
+              </View>
+            </KeyboardAwareScrollView>
           </View>
         </View>
       </Slide>
@@ -676,28 +686,27 @@ function Home() {
   return (
     <View
       style={tailwind.style(
-        light ? "bg-red-200" : "bg-[#0d0f47]",
-        "w-full",
-        "h-full"
+        theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
+        "w-full h-full"
       )}
     >
       <View style={tailwind`w-11/12 mx-auto`}>
         <View
           style={tailwind`absolute top-10 flex-row w-full justify-between items-center z-10`}
         >
-          {!light ? (
+          {theme === "dark" ? (
             <MaterialIcons
               name="wb-sunny"
               size={24}
               color="#F72585"
-              onPress={() => setLight(true)}
+              onPress={() => setTheme("light")}
             />
           ) : (
             <MaterialIcons
               name="nightlight-round"
               size={24}
               color="#0d0f47"
-              onPress={() => setLight(false)}
+              onPress={() => setTheme("dark")}
             />
           )}
           <IconButton
@@ -755,7 +764,10 @@ function Home() {
         </View>
       </View>
       {error !== "" && <AlertComponent success={""} error={error} />}
-      {SearchInput()}
+
+      <View style={tailwind`absolute bottom-10 w-full`}>{SearchInput()}</View>
+
+      <BottomNav />
       {isSearching && (
         <View
           style={tailwind.style("absolute bottom-1/4 w-full ml-2", {
@@ -823,7 +835,6 @@ function Home() {
           </TouchableOpacity>
         </View>
       )}
-      <BottomNav tagSearch={tagSearch} setTagSearch={setTagSearch} />
     </View>
   );
 }

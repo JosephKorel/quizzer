@@ -6,7 +6,7 @@ export type RootStackParamList = {
     NewPost:undefined;
     MyQuestions:undefined;
     Profile:undefined;
-    Gesture:undefined
+    Search:undefined
     };
 
 

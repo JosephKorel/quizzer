@@ -10,7 +10,8 @@ import Profile from "./Screens/profile";
 import { NativeBaseProvider } from "native-base";
 import tailwind, { useDeviceContext } from "twrnc";
 import MyQuestions from "./Screens/my-questions";
-import Gesture from "./Screens/gesture";
+import Gesture from "./Screens/search";
+import Search from "./Screens/search";
 
 const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();
 
@@ -29,7 +30,7 @@ export default function App() {
             <Screen name="NewPost" component={NewPost}></Screen>
             <Screen name="MyQuestions" component={MyQuestions}></Screen>
             <Screen name="Profile" component={Profile}></Screen>
-            <Screen name="Gesture" component={Gesture}></Screen>
+            <Screen name="Search" component={Search}></Screen>
           </Navigator>
         </NavigationContainer>
       </NativeBaseProvider>

@@ -36,10 +36,10 @@ type ContextType = {
   setUser: (data: user) => void;
   scaleTxt: string[];
   setScaleTxt: (data: string[]) => void;
-  light: boolean;
-  setLight: (data: boolean) => void;
-  question: string;
-  setQuestion: (data: string) => void;
+  theme: string;
+  setTheme: (data: string) => void;
+  questions: Questions[] | null;
+  setQuestions: (data: Questions[]) => void;
 };
 
 const initialValue = {
@@ -49,10 +49,10 @@ const initialValue = {
   setUser: () => {},
   scaleTxt: ["Meh", "Cool", "Amazing"],
   setScaleTxt: () => {},
-  light: false,
-  setLight: () => {},
-  question: "",
-  setQuestion: () => {},
+  theme: "light",
+  setTheme: () => {},
+  questions: null,
+  setQuestions: () => {},
 };
 
 export const AppContext = createContext<ContextType>(initialValue);
@@ -62,7 +62,8 @@ export const AppContextProvider = ({ children }: Props) => {
   const [user, setUser] = useState<null | user>(null);
   const [question, setQuestion] = useState("");
   const [scaleTxt, setScaleTxt] = useState(["Meh", "Cool", "Amazing"]);
-  const [light, setLight] = useState(false);
+  const [theme, setTheme] = useState("light");
+  const [questions, setQuestions] = useState<Questions[] | null>(null);
 
   return (
     <AppContext.Provider
@@ -73,10 +74,10 @@ export const AppContextProvider = ({ children }: Props) => {
         setUser,
         scaleTxt,
         setScaleTxt,
-        light,
-        setLight,
-        question,
-        setQuestion,
+        theme,
+        setTheme,
+        questions,
+        setQuestions,
       }}
     >
       {children}

@@ -16,7 +16,7 @@ import { BottomNav, QuestionModal } from "../Components/nativeBase_Components";
 import { MaterialIcons } from "@expo/vector-icons";
 
 function MyQuestions() {
-  const { user, light, setLight } = useContext(AppContext);
+  const { user, theme, setTheme } = useContext(AppContext);
   const [questions, setQuestions] = useState<Questions[] | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [qstIndex, setQstIndex] = useState(0);
@@ -80,26 +80,26 @@ function MyQuestions() {
   return (
     <View
       style={tailwind.style(
-        light ? "bg-red-200" : "bg-[#0d0f47]",
+        theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
         "w-full",
         "h-full"
       )}
     >
       <View style={tailwind`w-11/12 mx-auto`}>
         <View style={tailwind`absolute top-10`}>
-          {!light ? (
+          {theme === "dark" ? (
             <MaterialIcons
               name="wb-sunny"
               size={24}
               color="#F72585"
-              onPress={() => setLight(true)}
+              onPress={() => setTheme("light")}
             />
           ) : (
             <MaterialIcons
               name="nightlight-round"
               size={24}
               color="#0d0f47"
-              onPress={() => setLight(false)}
+              onPress={() => setTheme("dark")}
             />
           )}
         </View>

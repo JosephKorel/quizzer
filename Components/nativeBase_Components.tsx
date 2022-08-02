@@ -355,17 +355,9 @@ export const AlertComponent = ({
   );
 };
 
-interface BottomNav {
-  setTagSearch: (data: boolean) => void;
-}
+interface BottomNav {}
 
-export const BottomNav = ({
-  tagSearch,
-  setTagSearch,
-}: {
-  tagSearch?: boolean;
-  setTagSearch?: (data: boolean) => void;
-}): JSX.Element => {
+export const BottomNav = (): JSX.Element => {
   const navigation = useNavigation<propsStack>();
   const route = useRoute();
 
@@ -382,7 +374,7 @@ export const BottomNav = ({
               name="search"
               size={24}
               color="#F72585"
-              onPress={() => setTagSearch && setTagSearch(!tagSearch)}
+              onPress={() => navigation.navigate("Search")}
             />
           ) : (
             <MaterialCommunityIcons
@@ -430,3 +422,15 @@ export const BottomNav = ({
     </View>
   );
 };
+
+export const Translate = StyleSheet.create({
+  translate: {
+    transform: [{ translateX: 4 }, { translateY: -4 }],
+  },
+  smallTranslate: {
+    transform: [{ translateX: 2 }, { translateY: -2 }],
+  },
+  xsTranslate: {
+    transform: [{ translateX: 1 }, { translateY: -1 }],
+  },
+});

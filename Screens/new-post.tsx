@@ -25,7 +25,7 @@ import {
 import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 
 function NewPost() {
-  const { user, light, setLight } = useContext(AppContext);
+  const { user, theme, setTheme } = useContext(AppContext);
   const [choice, setChoice] = useState("");
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState<string[]>(["", ""]);
@@ -40,36 +40,6 @@ function NewPost() {
   const questionType = ["Sim ou Não", "Enquete", "Escala de 0 a 10"];
 
   const navigation = useNavigation<propsStack>();
-  const toast = useToast();
-
-  /*   useEffect(() => {
-    if (success !== "") {
-      toast.show({
-        render: () => {
-          return (
-            <Box bg="emerald.500" px="2" py="1" rounded="sm" mb={5}>
-              <Text>{success}</Text>
-            </Box>
-          );
-        },
-      });
-    } else if (alert !== "") {
-      toast.show({
-        render: () => {
-          return (
-            <Box bg="red.500" px="2" py="1" rounded="sm" mb={5}>
-              <Text style={tailwind`text-slate-100`}>{alert}</Text>
-            </Box>
-          );
-        },
-      });
-    }
-
-    setTimeout(() => {
-      setAlert("");
-      setSuccess("");
-    }, 2000);
-  }, [alert, success]); */
 
   useEffect(() => {
     setTimeout(() => {
@@ -462,26 +432,26 @@ function NewPost() {
   return (
     <View
       style={tailwind.style(
-        light ? "bg-red-200" : "bg-[#0d0f47]",
+        theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
         "w-full",
         "h-full"
       )}
     >
       <View style={tailwind`w-11/12 mx-auto`}>
         <View style={tailwind`absolute top-10`}>
-          {!light ? (
+          {theme === "dark" ? (
             <MaterialIcons
               name="wb-sunny"
               size={24}
               color="#F72585"
-              onPress={() => setLight(true)}
+              onPress={() => setTheme("light")}
             />
           ) : (
             <MaterialIcons
               name="nightlight-round"
               size={24}
               color="#0d0f47"
-              onPress={() => setLight(false)}
+              onPress={() => setTheme("dark")}
             />
           )}
         </View>
