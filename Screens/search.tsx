@@ -178,7 +178,9 @@ function Search() {
                   style={tw.style("")}
                   onPress={() =>
                     navigation.navigate("UsersProfile", {
-                      userRef: "Some Name",
+                      name: item.name,
+                      userUid: item.uid,
+                      avatar: item.avatar,
                     })
                   }
                 />

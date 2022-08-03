@@ -2,12 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { propsStack, RootStackParamList } from "./RootStackParams";
-import { AppContext, Questions } from "../Context";
+import { AppContext, Questions, UserInt } from "../Context";
 import {
   collection,
   deleteDoc,
   doc,
   DocumentData,
+  getDoc,
   getDocs,
   query,
   setDoc,
@@ -28,17 +29,24 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { Avatar } from "native-base";
 import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
-import { signOut } from "firebase/auth";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-const UsersProfile = () => {
+type ScreenProps = NativeStackScreenProps<RootStackParamList, "UsersProfile">;
+
+const UsersProfile = ({ route }: ScreenProps) => {
   const { user, theme, setTheme, questions } = useContext(AppContext);
   const [userQuestions, setUserQuestions] = useState<Questions[] | null>(null);
+
+  const [answers, setAnswers] = useState(0);
+  const [profileImg, setProfileImg] = useState("");
   const [show, setShow] = useState(false);
+
+  const { name, userUid, avatar } = route.params;
 
   const retrieveCollection = async () => {
     //Array que recebe cada documento
     let questionDocs: Questions[] = [];
-    let myAnswers: number = 0;
+    let totalAnswers: number = 0;
 
     //Query da coleção
     const questionCol = collection(db, "questionsdb");
@@ -46,23 +54,23 @@ const UsersProfile = () => {
     const querySnapshot = await getDocs(colQuery);
     querySnapshot.forEach((doc: DocumentData) => questionDocs.push(doc.data()));
 
-    //Filtra apenas as minhas perguntas
+    //Query do doc
+    const docRef = doc(db, "users", userUid);
+    const docSnap = await getDoc(docRef);
+    const data = docSnap.data() as UserInt;
+
+    //Filtra as perguntas do usuário
     const myQuestions = questionDocs.filter(
-      (item) => item.author.uid === auth.currentUser?.uid
+      (item) => item.author.uid === userUid
     );
 
     questionDocs.forEach((item) => {
-      item.hasVoted.includes(user?.uid!) && (myAnswers += 1);
-    });
-
-    //Sort pelas mais recentes
-    myQuestions.sort((a, b) => {
-      if (moment(a.date, "DD/MM/YYYY") > moment(b.date, "DD/MM/YYYY"))
-        return -1;
-      else return 1;
+      item.hasVoted.includes(userUid) && (totalAnswers += 1);
     });
 
     setUserQuestions(myQuestions);
+    setAnswers(totalAnswers);
+    setProfileImg(data.avatar!);
   };
 
   useEffect(() => {
@@ -95,10 +103,7 @@ const UsersProfile = () => {
           )}
         </View>
         <View style={tailwind`self-center mt-24`}>
-          <Avatar
-            source={{ uri: user?.avatar ? user.avatar : undefined }}
-            size="xl"
-          />
+          <Avatar source={{ uri: avatar }} size="xl" />
         </View>
         <View
           style={tailwind.style(
@@ -117,7 +122,7 @@ const UsersProfile = () => {
               Translate.translate
             )}
           >
-            NOME
+            {name}
           </Text>
         </View>
         <View
@@ -141,7 +146,7 @@ const UsersProfile = () => {
                 Translate.smallTranslate
               )}
             >
-              RESPOSTAS: 2
+              RESPOSTAS: {answers}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -162,7 +167,7 @@ const UsersProfile = () => {
                 Translate.smallTranslate
               )}
             >
-              PERGUNTAS FEITAS: {questions?.length}
+              PERGUNTAS FEITAS: {userQuestions?.length}
             </Text>
           </TouchableOpacity>
         </View>

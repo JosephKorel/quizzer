@@ -8,7 +8,7 @@ import {
   signInWithCredential,
 } from "firebase/auth";
 import { auth, db } from "../firebase_config";
-import { AppContext } from "../Context";
+import { AppContext, UserInt } from "../Context";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import tailwind from "twrnc";
@@ -29,11 +29,14 @@ export default function Login() {
 
     //Se o usuário já tá cadastrado
     if (docSnap.exists()) {
+      const data = docSnap.data() as UserInt;
       setIsAuth(true);
       setUser({
         name,
         uid,
         avatar,
+        followers: data.followers,
+        following: data.following,
       });
       navigation.navigate("Home");
     } else {
@@ -55,16 +58,13 @@ export default function Login() {
     if (response?.type === "success") {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
+
       signInWithCredential(auth, credential)
         .then((res) => {
           setIsAuth(true);
-          setUser({
-            name: res.user.displayName,
-            uid: res.user.uid,
-            avatar: res.user.photoURL,
-          });
+          const currUser = res.user;
+          newUser(currUser.displayName!, currUser.uid, currUser.photoURL!);
           navigation.navigate("Home");
-          console.log("Success");
         })
         .catch((err) => {
           setIsAuth(false);

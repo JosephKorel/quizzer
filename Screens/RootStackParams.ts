@@ -8,7 +8,9 @@ export type RootStackParamList = {
     Profile:undefined;
     Search:undefined;
     UsersProfile:{
-       userRef:string
+       name:string
+       userUid:string
+       avatar:string;
     }
 };
 

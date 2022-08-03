@@ -32,7 +32,11 @@ export default function App() {
             <Screen name="MyQuestions" component={MyQuestions}></Screen>
             <Screen name="Profile" component={Profile}></Screen>
             <Screen name="Search" component={Search}></Screen>
-            <Screen name="UsersProfile" component={UsersProfile}></Screen>
+            <Screen
+              name="UsersProfile"
+              component={UsersProfile}
+              initialParams={{ name: "", avatar: "" }}
+            ></Screen>
           </Navigator>
         </NavigationContainer>
       </NativeBaseProvider>

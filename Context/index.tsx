@@ -8,6 +8,8 @@ export interface UserInt {
   name: string | null;
   uid: string;
   avatar?: string | null;
+  followers: UserInt[];
+  following: UserInt[];
 }
 
 export type Questions = {
