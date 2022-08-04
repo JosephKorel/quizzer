@@ -50,22 +50,6 @@ function MyQuestions() {
     retrieveCollection();
   }, []);
 
-  const deleteQuestion = async () => {
-    const myQuestions = questions?.slice();
-    const qstId = questions![qstIndex].id;
-    const docRef = doc(db, "questiondb", qstId);
-
-    //Remove a pergunta selecionada
-    myQuestions?.splice(qstIndex, 1);
-
-    try {
-      await deleteDoc(docRef);
-      console.log("Success");
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const MyQstStyles = StyleSheet.create({
     main: {
       transform: [{ translateY: -5 }],

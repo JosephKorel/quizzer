@@ -4,6 +4,12 @@ type Props = {
   children: ReactNode;
 };
 
+export interface BaseInfo {
+  name: string;
+  uid: string;
+  avatar: string;
+}
+
 export interface UserInt {
   name: string | null;
   uid: string;

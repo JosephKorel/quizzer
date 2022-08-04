@@ -170,7 +170,7 @@ function Search() {
             <View
               style={tw.style("flex-row items-center justify-between w-1/6")}
             >
-              <TouchableOpacity style={tw.style("bg-red-200")}>
+              <TouchableOpacity style={tw.style("")}>
                 <MaterialCommunityIcons
                   name="guy-fawkes-mask"
                   size={24}

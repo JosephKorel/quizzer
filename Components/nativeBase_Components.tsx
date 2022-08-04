@@ -355,7 +355,29 @@ export const AlertComponent = ({
   );
 };
 
-interface BottomNav {}
+export const UsersModal = ({
+  showModal,
+  setShowModal,
+}: {
+  showModal: boolean;
+  setShowModal: (e: boolean) => void;
+}) => {
+  return (
+    <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+      <Modal.Content
+        size="lg"
+        _light={{
+          bg: "amber.300",
+        }}
+      >
+        <Modal.CloseButton />
+        <Modal.Body h="md">
+          <View style={tailwind`h-full p-2 flex-col justify-center`}></View>
+        </Modal.Body>
+      </Modal.Content>
+    </Modal>
+  );
+};
 
 export const BottomNav = (): JSX.Element => {
   const navigation = useNavigation<propsStack>();
