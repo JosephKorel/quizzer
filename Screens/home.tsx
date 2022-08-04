@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import {
+  FlatList,
   Image,
   StatusBar,
   StyleSheet,
@@ -22,7 +23,7 @@ import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
-import tailwind from "twrnc";
+import tw from "../Components/tailwind_config";
 import { Avatar, IconButton, Slide } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
@@ -39,6 +40,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { QuestionComponent } from "../Components/questions_components";
 
 function Home() {
   const { user, theme, setTheme, questions, setQuestions } =
@@ -305,21 +307,15 @@ function Home() {
     if (Array.isArray(value)) {
       if (value[0] < 2)
         return (
-          <Text style={tailwind`italic text-lg text-slate-50`}>
-            {labels[0]}
-          </Text>
+          <Text style={tw`italic text-lg text-slate-50`}>{labels[0]}</Text>
         );
       if (value[0] < 6)
         return (
-          <Text style={tailwind`italic text-lg text-slate-50`}>
-            {labels[1]}
-          </Text>
+          <Text style={tw`italic text-lg text-slate-50`}>{labels[1]}</Text>
         );
       if (value[0] > 6)
         return (
-          <Text style={tailwind`italic text-lg text-slate-50`}>
-            {labels[2]}
-          </Text>
+          <Text style={tw`italic text-lg text-slate-50`}>{labels[2]}</Text>
         );
     }
   };
@@ -351,17 +347,17 @@ function Home() {
     };
 
     return (
-      <View style={tailwind`flex-row justify-around items-center`}>
-        <View style={tailwind`bg-stone-900`}>
+      <View style={tw`flex-row justify-around items-center`}>
+        <View style={tw`bg-stone-900`}>
           <TouchableOpacity onPress={() => onVote("yes")} style={styles.text}>
-            <Text style={tailwind`text-slate-50 font-bold text-2xl`}>
+            <Text style={tw`text-slate-50 font-bold text-2xl`}>
               SIM {hasVoted() && questions![index].votes?.yes.length}
             </Text>
           </TouchableOpacity>
         </View>
-        <View style={tailwind`bg-stone-900`}>
+        <View style={tw`bg-stone-900`}>
           <TouchableOpacity onPress={() => onVote("no")} style={styles.text}>
-            <Text style={tailwind`text-slate-50 font-bold text-2xl`}>
+            <Text style={tw`text-slate-50 font-bold text-2xl`}>
               NÃO {hasVoted() && questions![index].votes?.no.length}
             </Text>
           </TouchableOpacity>
@@ -386,13 +382,13 @@ function Home() {
 
     return (
       <View>
-        <View style={tailwind`bg-stone-900 mt-5`}>
+        <View style={tw`bg-stone-900 mt-5`}>
           <TouchableOpacity
             onPress={() => onChoose(objkey)}
             style={styles.text}
           >
             <Text
-              style={tailwind`text-slate-50 font-bold text-2xl text-center italic`}
+              style={tw`text-slate-50 font-bold text-2xl text-center italic`}
             >
               {objkey}
               {hasVoted() && ": " + value.length}
@@ -418,7 +414,7 @@ function Home() {
     const averageAnswer: number = valueSum / totalValues.length;
 
     return (
-      <View style={tailwind`mt-10`}>
+      <View style={tw`mt-10`}>
         <Slider
           minimumTrackTintColor="#F72585"
           thumbTintColor="#F72585"
@@ -432,10 +428,10 @@ function Home() {
         ></Slider>
         {questions![index].hasVoted.includes(user?.uid!) && (
           <View>
-            <View style={tailwind`bg-stone-900 mt-8`}>
+            <View style={tw`bg-stone-900 mt-8`}>
               <TouchableOpacity style={styles.text}>
                 <Text
-                  style={tailwind`text-slate-50 font-bold text-xl text-center italic`}
+                  style={tw`text-slate-50 font-bold text-xl text-center italic`}
                 >
                   RESPOSTA MÉDIA: {averageAnswer}
                 </Text>
@@ -502,28 +498,24 @@ function Home() {
   }));
   const qstComponent = (index: number) => {
     return questions?.length ? (
-      <View style={tailwind``}>
+      <View style={tw``}>
         {questions[index].hasSpoiler === true && reveal === false ? (
-          <View style={tailwind.style("mt-8 p-4 bg-[#F72585]")}>
-            <Text
-              style={tailwind.style("text-slate-100 font-bold italic text-3xl")}
-            >
+          <View style={tw.style("mt-8 p-4 bg-[#F72585]")}>
+            <Text style={tw.style("text-slate-100 font-bold italic text-3xl")}>
               Cuidado! Esta pergunta contém spoiler, tem certeza de que quer
               ver?
             </Text>
             <View
-              style={tailwind.style(
-                "flex-row justify-between items-center mt-4"
-              )}
+              style={tw.style("flex-row justify-between items-center mt-4")}
             >
               <TouchableOpacity
-                style={tailwind.style("bg-stone-800")}
+                style={tw.style("bg-stone-800")}
                 onPress={() => {
                   setReveal(true);
                 }}
               >
                 <Text
-                  style={tailwind.style(
+                  style={tw.style(
                     "text-lg",
                     "italic",
                     "p-2",
@@ -539,11 +531,11 @@ function Home() {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={tailwind.style("bg-stone-800")}
+                style={tw.style("bg-stone-800")}
                 onPress={nextQuestion}
               >
                 <Text
-                  style={tailwind.style(
+                  style={tw.style(
                     "text-lg italic p-2 bg-[#fad643] text-stone-700 text-center font-bold",
                     HomeStyles.smallTranslate
                   )}
@@ -554,15 +546,15 @@ function Home() {
             </View>
           </View>
         ) : (
-          <View style={tailwind`mt-4 p-2`}>
-            <View style={tailwind`flex-col justify-center items-center`}>
+          <View style={tw`mt-4 p-2`}>
+            <View style={tw`flex-col justify-center items-center`}>
               <Text
-                style={tailwind`absolute text-4xl italic text-center text-[#4361ee] font-bold`}
+                style={tw`absolute text-4xl italic text-center text-[#4361ee] font-bold`}
               >
                 {questions[index].question}
               </Text>
               <Text
-                style={tailwind.style(
+                style={tw.style(
                   "text-4xl italic text-[#F72585] font-bold text-center",
                   HomeStyles.xsTranslate
                 )}
@@ -571,7 +563,7 @@ function Home() {
               </Text>
             </View>
             {questions[index].media && (
-              <View style={tailwind`flex-row justify-center`}>
+              <View style={tw`flex-row justify-center`}>
                 <Image
                   style={{ width: 300, height: 300, borderRadius: 2 }}
                   source={{ uri: questions[index].media }}
@@ -579,12 +571,12 @@ function Home() {
               </View>
             )}
             {questions[index].votes && (
-              <View style={tailwind`mt-8`}>
+              <View style={tw`mt-8`}>
                 <YesNoButtons />
               </View>
             )}
             {questions[index].options && (
-              <View style={tailwind`flex-col justify-center`}>
+              <View style={tw`flex-col justify-center`}>
                 {Object.entries(questions[index].options!).map(
                   ([key, value], i) => (
                     <OptionsButtons key={i} objkey={key} value={value} />
@@ -595,15 +587,10 @@ function Home() {
             {questions[index].scale && <View>{ScaleComponent()}</View>}
           </View>
         )}
-        <View style={tailwind`mt-2 flex-row items-center`}>
-          <AntDesign
-            name="tags"
-            size={24}
-            color="gray"
-            style={tailwind`mr-3`}
-          />
+        <View style={tw`mt-2 flex-row items-center`}>
+          <AntDesign name="tags" size={24} color="gray" style={tw`mr-3`} />
           {questions[index].tags.map((tag, i, arr) => (
-            <Text key={i} style={tailwind`text-slate-500 text-xs mr-2`}>
+            <Text key={i} style={tw`text-slate-500 text-xs mr-2`}>
               {tag.toUpperCase()}
               {i === arr.length - 1 ? "" : ","}
             </Text>
@@ -624,8 +611,8 @@ function Home() {
   const SearchInput = () => {
     return (
       <Slide in={tagSearch} placement="top">
-        <View style={tailwind.style("bg-[#212529] pt-15 pb-5")}>
-          <View style={tailwind.style("self-end mb-4")}>
+        <View style={tw.style("bg-[#212529] pt-15 pb-5")}>
+          <View style={tw.style("self-end mb-4")}>
             <IconButton
               icon={
                 <MaterialIcons
@@ -637,8 +624,8 @@ function Home() {
               }
             />
           </View>
-          <View style={tailwind.style("w-11/12 mx-auto")}>
-            <Text style={tailwind.style("mb-2 text-slate-100 text-lg")}>
+          <View style={tw.style("w-11/12 mx-auto")}>
+            <Text style={tw.style("mb-2 text-slate-100 text-lg")}>
               Procure por até três tags
             </Text>
             <KeyboardAwareScrollView
@@ -646,7 +633,7 @@ function Home() {
               scrollEnabled={false}
             >
               <View
-                style={tailwind.style(
+                style={tw.style(
                   "flex-row items-center justify-between p-1 rounded-md bg-slate-200"
                 )}
               >
@@ -661,7 +648,7 @@ function Home() {
                   size={24}
                   color="#F72585"
                   onPress={searchForTag}
-                  style={tailwind`mr-2`}
+                  style={tw`mr-2`}
                 />
               </View>
             </KeyboardAwareScrollView>
@@ -686,16 +673,43 @@ function Home() {
     },
   });
 
+  const HomeQuestions = ({ item }: { item: Questions }) => {
+    return (
+      <View>
+        <View style={tw.style("text-center")}>
+          <View style={tw`flex flex-col items-center`}>
+            <Avatar
+              source={{
+                uri: item.author.avatar,
+              }}
+              style={rStyle}
+            />
+
+            <Text style={tw`text-slate-300 text-base`}>{item.author.name}</Text>
+          </View>
+        </View>
+        <QuestionComponent
+          item={item}
+          filter={questions!}
+          setFilter={setQuestions}
+        />
+        <View
+          style={tw`w-full mt-2 mb-5 p-[1px] bg-slate-300 rounded-br-lg rounded-tl-lg`}
+        ></View>
+      </View>
+    );
+  };
+
   return (
     <View
-      style={tailwind.style(
-        theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
+      style={tw.style(
+        theme === "light" ? "bg-red-200" : "bg-dark",
         "w-full h-full"
       )}
     >
-      <View style={tailwind`w-11/12 mx-auto`}>
+      <View style={tw`w-[98%] mx-auto`}>
         <View
-          style={tailwind`absolute top-10 flex-row w-full justify-between items-center z-10`}
+          style={tw`absolute top-10 flex-row w-full justify-between items-center z-10`}
         >
           {theme === "dark" ? (
             <MaterialIcons
@@ -713,27 +727,29 @@ function Home() {
             />
           )}
           <IconButton
-            style={tailwind` rounded-full`}
+            style={tw` rounded-full`}
             icon={<MaterialIcons name="refresh" size={24} color="#2ecfc0" />}
             onPress={retrieveCollection}
           />
         </View>
-        <StatusBar barStyle="light-content" />
-        <View style={tailwind`text-center`}>
-          {questions?.length ? (
+        <StatusBar
+          barStyle={theme === "light" ? "dark-content" : "light-content"}
+        />
+        <View style={tw`flex-col h-full justify-center items-center`}>
+          {/* {questions?.length ? (
             <GestureHandlerRootView>
               <PanGestureHandler onGestureEvent={GestureHandler}>
                 <Animated.View style={rStyle}>
                   <View
                     style={
-                      (tailwind.style(""),
+                      (tw.style(""),
                       {
                         transform: [{ translateY: 80 }],
                       })
                     }
                   >
-                    <View style={tailwind.style("text-center")}>
-                      <View style={tailwind`flex flex-col items-center`}>
+                    <View style={tw.style("text-center")}>
+                      <View style={tw`flex flex-col items-center`}>
                         <Avatar
                           source={{
                             uri: user?.avatar ? user.avatar : undefined,
@@ -741,15 +757,15 @@ function Home() {
                           style={rStyle}
                         />
 
-                        <Text style={tailwind`text-slate-300 text-base`}>
+                        <Text style={tw`text-slate-300 text-base`}>
                           {questions[index].author.name}
                         </Text>
                       </View>
                       <View
-                        style={tailwind`mt-6 flex flex-row justify-between items-center`}
+                        style={tw`mt-6 flex flex-row justify-between items-center`}
                       >
                         <View
-                          style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8] rounded-br-lg rounded-tl-lg`}
+                          style={tw`w-[46%] p-[2px] bg-[#B9FAF8] rounded-br-lg rounded-tl-lg`}
                         ></View>
                         <View
                           style={tailwind`w-[46%] p-[2px] bg-[#B9FAF8]  rounded-bl-lg rounded-tr-lg`}
@@ -763,81 +779,14 @@ function Home() {
             </GestureHandlerRootView>
           ) : (
             <View></View>
-          )}
+          )} */}
+          <View style={tw.style("h-5/6 ")}>
+            <FlatList data={questions} renderItem={HomeQuestions} />
+          </View>
         </View>
       </View>
       {error !== "" && <AlertComponent success={""} error={error} />}
-
-      <View style={tailwind`absolute bottom-10 w-full`}>{SearchInput()}</View>
-
       <BottomNav />
-      {isSearching && (
-        <View
-          style={tailwind.style("absolute bottom-1/4 w-full ml-2", {
-            zIndex: -10,
-          })}
-        >
-          <View
-            style={tailwind.style("bg-[#05f2d2] self-start bottom-0", {
-              transform: [{ rotateZ: "-12deg" }],
-              position: "relative",
-            })}
-          >
-            <View
-              style={tailwind.style(
-                "flex-row items-center bg-[#6c00e0] px-2",
-                HomeStyles.smallTranslate
-              )}
-            >
-              <AntDesign
-                name="tags"
-                size={32}
-                color="#FAD643"
-                style={tailwind`mr-3`}
-              />
-
-              <Text
-                style={tailwind.style(
-                  "text-slate-100 text-[#FAD643] text-base font-bold"
-                )}
-              >
-                {search}
-              </Text>
-
-              <Text
-                style={tailwind.style(
-                  "text-slate-100 text-[#FAD643] text-lg font-bold ml-4"
-                )}
-              >
-                {index + 1}/{questions?.length}
-              </Text>
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={tailwind.style("bg-[#F72585] self-start mt-4", {
-              transform: [{ rotateZ: "-12deg" }],
-            })}
-            onPress={clearSearch}
-          >
-            <View
-              style={tailwind.style(
-                "flex-row items-center  bg-[#FAD643]",
-                HomeStyles.smallTranslate
-              )}
-            >
-              <Text
-                style={tailwind.style(
-                  "text-slate-100 text-stone-800 text-lg font-bold px-2 flex-row items-center "
-                )}
-              >
-                LIMPAR FILTROS
-              </Text>
-              <MaterialIcons name="close" size={24} color="black" />
-            </View>
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 }

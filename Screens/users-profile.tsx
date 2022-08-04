@@ -49,7 +49,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
     const userData = docSnap.data() as UserInt;
 
     //Filtra as perguntas do usuário
-    const myQuestions = questions?.filter(
+    const targetUserQuestions = questions?.filter(
       (item) => item.author.uid === userUid
     );
 
@@ -57,7 +57,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
     questions?.forEach((item) => {
       item.hasVoted.includes(userUid) && (totalAnswers += 1);
     });
-    myQuestions?.length && setUserQuestions(myQuestions);
+    targetUserQuestions?.length && setUserQuestions(targetUserQuestions);
     setAnswers(totalAnswers);
     setCurrUser(userData);
   };
@@ -230,7 +230,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
         </View>
         <View style={tw.style("flex-row justify-around items-center mt-4")}>
           <TouchableOpacity
-            style={tw.style("bg-persian")}
+            style={tw.style("bg-persian w-[40%]")}
             onPress={() => {
               setShowModal(true);
               setGroup(currUser?.following!);
@@ -246,7 +246,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={tw.style("bg-[#05f2d2]")}
+            style={tw.style("bg-[#05f2d2]  w-[40%]")}
             onPress={() => {
               setShowModal(true);
               setGroup(currUser?.followers!);
@@ -264,39 +264,34 @@ const UsersProfile = ({ route }: ScreenProps) => {
         </View>
         <View style={tw.style("flex-row justify-around items-center mt-4")}>
           <TouchableOpacity
-            style={tw.style("bg-persian")}
+            style={tw.style("bg-turquoise w-[40%]")}
             onPress={() => {
               setShow(!show);
             }}
           >
             <Text
               style={tw.style(
-                "text-lg  italic p-2 text-stone-700 text-center font-bold bg-sun",
+                "text-lg  italic p-2 text-slate-100 text-center font-bold bg-violet",
                 Translate.smallTranslate
               )}
             >
               RESPOSTAS: {answers}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={tw.style("bg-[#05f2d2]")}
-            onPress={() => {
-              setShow(!show);
-            }}
-          >
+          <TouchableOpacity style={tw.style("bg-persian  w-[40%]")}>
             <Text
               style={tw.style(
-                "text-lg italic p-2 bg-violet text-stone-100 text-center font-bold",
+                "text-lg italic p-2 bg-sun text-stone-700 text-center font-bold",
                 Translate.smallTranslate
               )}
             >
-              PERGUNTAS FEITAS: {userQuestions?.length}
+              PERGUNTAS: {userQuestions?.length}
             </Text>
           </TouchableOpacity>
         </View>
         <View style={tw.style("mt-10")}>
           <TouchableOpacity
-            style={tw.style("bg-[#fad643]")}
+            style={tw.style("bg-sun")}
             onPress={() => {
               setShow(!show);
             }}
@@ -310,16 +305,20 @@ const UsersProfile = ({ route }: ScreenProps) => {
               VER PERGUNTAS
             </Text>
           </TouchableOpacity>
-          {questions?.map((question, index) => (
+          {userQuestions?.map((question, index) => (
             <View
               key={index}
-              style={tw.style("mt-4 bg-[#f72585]", !show && "hidden")}
+              style={tw.style("mt-4 bg-persian", !show && "hidden")}
             >
               <TouchableOpacity
                 style={tw.style(
-                  "bg-[#fad643] p-2 flex-row justify-between items-center",
+                  "bg-sun p-2 flex-row justify-between items-center",
                   Translate.smallTranslate
                 )}
+                onPress={() => {
+                  setIndex(index);
+                  setShowQst(true);
+                }}
               >
                 <Text
                   style={tw.style(
@@ -329,11 +328,11 @@ const UsersProfile = ({ route }: ScreenProps) => {
                   {question.question}
                 </Text>
               </TouchableOpacity>
-              <QuestionModal
+              {/* <QuestionModal
                 showModal={showQst}
                 setShowModal={setShowQst}
                 question={question}
-              />
+              /> */}
             </View>
           ))}
         </View>

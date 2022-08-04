@@ -16,18 +16,10 @@ import tailwind from "twrnc";
 import {
   Alert,
   AlertDialog,
-  Box,
   Button,
   Center,
-  FormControl,
-  Icon,
   IconButton,
-  Input,
   Modal,
-  PresenceTransition,
-  TextArea,
-  Toast,
-  useToast,
 } from "native-base";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";

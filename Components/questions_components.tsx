@@ -178,12 +178,12 @@ export const QuestionComponent = ({
       <View style={tw`flex-row justify-around items-center`}>
         <TouchableOpacity
           onPress={() => onVote("yes")}
-          style={tw.style("bg-stone-800")}
+          style={tw.style("bg-sun")}
         >
           <Text
             style={tw.style(
-              "text-slate-50 font-bold text-2xl bg-persian p-1",
-              Translate.translate
+              "text-slate-100 bg-persian font-bold text-2xl p-1",
+              Translate.smallTranslate
             )}
           >
             SIM {hasVoted() && item.votes?.yes.length}
@@ -192,12 +192,12 @@ export const QuestionComponent = ({
 
         <TouchableOpacity
           onPress={() => onVote("no")}
-          style={tw.style("bg-stone-800")}
+          style={tw.style("bg-sun")}
         >
           <Text
             style={tw.style(
-              "text-slate-50 font-bold text-2xl bg-persian p-1",
-              Translate.translate
+              "text-slate-100 bg-persian font-bold text-2xl p-1",
+              Translate.smallTranslate
             )}
           >
             NÃO {hasVoted() && item.votes?.no.length}
@@ -221,13 +221,13 @@ export const QuestionComponent = ({
 
     return (
       <View>
-        <View style={tw`bg-stone-900 mt-5`}>
+        <View style={tw`bg-persian mt-5`}>
           <TouchableOpacity
             onPress={() => onChoose(objkey)}
             style={Translate.smallTranslate}
           >
             <Text
-              style={tw`text-slate-50 font-bold text-2xl text-center italic`}
+              style={tw`text-stone-800 bg-sun font-bold text-2xl text-center italic`}
             >
               {objkey}
               {hasVoted() && ": " + value.length}
@@ -372,10 +372,10 @@ export const QuestionComponent = ({
         ></Slider>
         {item.hasVoted.includes(user?.uid!) && (
           <View>
-            <View style={tw`bg-stone-900 mt-8`}>
+            <View style={tw`bg-sun mt-8`}>
               <TouchableOpacity style={Translate.smallTranslate}>
                 <Text
-                  style={tw`text-slate-50 font-bold text-xl text-center italic`}
+                  style={tw`text-slate-100 bg-violet font-bold text-2xl text-center italic`}
                 >
                   RESPOSTA MÉDIA: {averageAnswer}
                 </Text>

@@ -20,7 +20,7 @@ export interface UserInt {
 
 export type Questions = {
   id: string;
-  author: { name: string; uid: string };
+  author: { name: string; uid: string; avatar: string };
   question: string;
   votes: {
     yes: { name: string | null }[];
