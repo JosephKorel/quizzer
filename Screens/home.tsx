@@ -495,6 +495,12 @@ function Home() {
   const rStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
     opacity: opacity.value,
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "scroll",
   }));
   const qstComponent = (index: number) => {
     return questions?.length ? (
@@ -688,8 +694,30 @@ function Home() {
         <StatusBar
           barStyle={theme === "light" ? "dark-content" : "light-content"}
         />
-        <View style={tw`flex-col h-full justify-center items-center`}>
-          {/* {questions?.length ? (
+        <View style={tw.style("h-full flex-col justify-center items-center")}>
+          {/* <GestureHandlerRootView>
+            <PanGestureHandler onGestureEvent={GestureHandler}>
+              <Animated.View style={tw.style("", rStyle)}>
+                <View style={tw.style("h-11/12")}>
+                  <FlatList data={questions} renderItem={HomeQuestions} />
+                </View>
+              </Animated.View>
+            </PanGestureHandler>
+          </GestureHandlerRootView> */}
+          <View style={tw.style("h-5/6")}>
+            <FlatList data={questions} renderItem={HomeQuestions} />
+          </View>
+        </View>
+      </View>
+      {error !== "" && <AlertComponent success={""} error={error} />}
+      <BottomNav />
+    </View>
+  );
+}
+
+export default Home;
+
+/* {questions?.length ? (
             <GestureHandlerRootView>
               <PanGestureHandler onGestureEvent={GestureHandler}>
                 <Animated.View style={rStyle}>
@@ -732,16 +760,4 @@ function Home() {
             </GestureHandlerRootView>
           ) : (
             <View></View>
-          )} */}
-          <View style={tw.style("h-5/6 ")}>
-            <FlatList data={questions} renderItem={HomeQuestions} />
-          </View>
-        </View>
-      </View>
-      {error !== "" && <AlertComponent success={""} error={error} />}
-      <BottomNav />
-    </View>
-  );
-}
-
-export default Home;
+          )} */
