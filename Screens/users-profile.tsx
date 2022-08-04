@@ -1,53 +1,47 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button, FlatList, Text, TouchableOpacity, View } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { Text, TouchableOpacity, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { propsStack, RootStackParamList } from "./RootStackParams";
-import { AppContext, BaseInfo, Questions, UserInt } from "../Context";
-import {
-  arrayUnion,
-  collection,
-  doc,
-  DocumentData,
-  getDoc,
-  getDocs,
-  query,
-  updateDoc,
-} from "firebase/firestore";
+import { AppContext, Questions, UserInt } from "../Context";
+import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase_config";
 import tw from "../Components/tailwind_config";
-import { BottomNav, Translate } from "../Components/nativeBase_Components";
+import {
+  BottomNav,
+  QuestionModal,
+  Translate,
+} from "../Components/nativeBase_Components";
 import { MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
-import { Avatar, PresenceTransition, useToken } from "native-base";
-import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
+import { Avatar } from "native-base";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { UserListModal } from "../Components/custom_components";
+import {
+  CustomQuestionModal,
+  UserListModal,
+} from "../Components/custom_components";
+import { QuestionComponent } from "../Components/questions_components";
+import MyQuestions from "./my-questions";
 
 type ScreenProps = NativeStackScreenProps<RootStackParamList, "UsersProfile">;
 
 const UsersProfile = ({ route }: ScreenProps) => {
   const { user, theme, setTheme, questions } = useContext(AppContext);
-  const [userQuestions, setUserQuestions] = useState<Questions[] | null>(null);
+  const [userQuestions, setUserQuestions] = useState<Questions[]>([]);
   const [currUser, setCurrUser] = useState<UserInt | null>(null);
   const [answers, setAnswers] = useState(0);
   const [show, setShow] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showQst, setShowQst] = useState(false);
   const [group, setGroup] = useState<UserInt[]>([]);
+  const [index, setIndex] = useState(0);
 
   const navigation = useNavigation<propsStack>();
 
   const { name, userUid, avatar } = route.params;
 
-  const retrieveCollection = async () => {
-    //Array que recebe cada documento
-    let questionDocs: Questions[] = [];
+  const getTargetUser = async () => {
+    //Número de respostas
     let totalAnswers: number = 0;
-
-    //Query da coleção
-    const questionCol = collection(db, "questionsdb");
-    const colQuery = query(questionCol);
-    const querySnapshot = await getDocs(colQuery);
-    querySnapshot.forEach((doc: DocumentData) => questionDocs.push(doc.data()));
 
     //Query do doc
     const docRef = doc(db, "users", userUid);
@@ -55,53 +49,54 @@ const UsersProfile = ({ route }: ScreenProps) => {
     const userData = docSnap.data() as UserInt;
 
     //Filtra as perguntas do usuário
-    const myQuestions = questionDocs.filter(
+    const myQuestions = questions?.filter(
       (item) => item.author.uid === userUid
     );
 
     //Quantidade de perguntas já respondidas
-    questionDocs.forEach((item) => {
+    questions?.forEach((item) => {
       item.hasVoted.includes(userUid) && (totalAnswers += 1);
     });
-
-    //Checa se segue o usuário
-    const follows = userData.followers.filter((item) => item.uid === user?.uid);
-
-    follows.length && setIsFollowing(true);
-    setUserQuestions(myQuestions);
+    myQuestions?.length && setUserQuestions(myQuestions);
     setAnswers(totalAnswers);
     setCurrUser(userData);
   };
 
   useEffect(() => {
-    retrieveCollection();
+    getTargetUser();
   }, []);
+
+  //Checa se está seguindo
+  const isFollowing = currUser?.followers.filter(
+    (item) => item.uid === user?.uid
+  ).length
+    ? true
+    : false;
 
   const handleFollow = async (
     uid: string,
-    isFollowing: boolean,
-    item: UserInt
+    follows: boolean,
+    target: UserInt
   ) => {
-    console.log(isFollowing);
-    if (!isFollowing) {
+    if (!follows) {
       const userDoc = doc(db, "users", uid);
       await updateDoc(userDoc, { followers: arrayUnion(user) });
 
       //Atualizar o front
-      /* getUsers() */
+      getTargetUser();
     } else {
       const userDoc = doc(db, "users", uid);
-      const filter = item.followers.filter((item) => item.uid !== user!.uid);
+      const filter = target.followers.filter((item) => item.uid !== user!.uid);
       await updateDoc(userDoc, { followers: filter });
 
       //Atualizar o front
-      /* getUsers() */
+      getTargetUser();
     }
   };
 
   const userList = ({ item }: { item: UserInt }) => {
     const filter = item.followers.filter((item) => item.uid === user!.uid);
-    const isFollowing = filter.length ? true : false;
+    const follows = filter.length ? true : false;
 
     return (
       <View style={tw.style("flex-row items-center mt-2")}>
@@ -137,19 +132,19 @@ const UsersProfile = ({ route }: ScreenProps) => {
                 />
               </TouchableOpacity>
               <TouchableOpacity>
-                {isFollowing ? (
+                {follows ? (
                   <SimpleLineIcons
                     name="user-following"
                     size={24}
                     color="green"
-                    onPress={() => handleFollow(item.uid, isFollowing, item)}
+                    onPress={() => handleFollow(item.uid, follows, item)}
                   />
                 ) : (
                   <SimpleLineIcons
                     name="user-follow"
                     size={24}
                     color="black"
-                    onPress={() => handleFollow(item.uid, isFollowing, item)}
+                    onPress={() => handleFollow(item.uid, follows, item)}
                   />
                 )}
               </TouchableOpacity>
@@ -160,54 +155,23 @@ const UsersProfile = ({ route }: ScreenProps) => {
     );
   };
 
-  const MyModal = ({ group }: { group: UserInt[] }): JSX.Element => {
-    return (
-      <TouchableOpacity
-        style={tw.style(
-          "absolute top-0 w-full h-full flex-col justify-center items-center",
-          { backgroundColor: "rgba(52, 52, 52, 0.8)" }
-        )}
-        onPress={() => setShowModal(false)}
-      >
-        <PresenceTransition
-          visible={showModal}
-          initial={{
-            opacity: 0,
-            scale: 0,
-          }}
-          animate={{
-            opacity: 1,
-            scale: 1,
-            transition: {
-              duration: 150,
-            },
-          }}
-        >
-          <TouchableOpacity
-            style={tw.style(
-              "relative z-10 h-2/3 w-5/6 min-h-2/3 min-w-5/6 bg-persian"
-            )}
-            onPress={() => setShowModal(true)}
-            activeOpacity={1}
-          >
-            <TouchableOpacity
-              style={tw.style("self-end")}
-              onPress={() => setShowModal(false)}
-            >
-              <MaterialIcons
-                name="close"
-                size={24}
-                color="black"
-                style={tw`mr-2`}
-              />
-            </TouchableOpacity>
-            <View>
-              <FlatList data={group} renderItem={userList}></FlatList>
-            </View>
-          </TouchableOpacity>
-        </PresenceTransition>
-      </TouchableOpacity>
-    );
+  const userFollow = async () => {
+    if (!isFollowing) {
+      const userDoc = doc(db, "users", currUser?.uid!);
+      await updateDoc(userDoc, { followers: arrayUnion(user) });
+
+      //Atualizar o front
+      getTargetUser();
+    } else {
+      const userDoc = doc(db, "users", currUser?.uid!);
+      const filter = currUser?.followers.filter(
+        (item) => item.uid !== user!.uid
+      );
+      await updateDoc(userDoc, { followers: filter });
+
+      //Atualizar o front
+      getTargetUser();
+    }
   };
 
   return (
@@ -239,22 +203,30 @@ const UsersProfile = ({ route }: ScreenProps) => {
         <View style={tw`self-center mt-24`}>
           <View style={tw`flex-row`}>
             <Avatar source={{ uri: avatar }} size="xl" />
-            <TouchableOpacity>
-              <Text>{isFollowing ? "SEGUINDO" : "SEGUIR"}</Text>
-            </TouchableOpacity>
           </View>
         </View>
         <View
           style={tw.style("border-l-8 border-b-8 rounded-lg bg-[#fdc500] mt-4")}
         >
-          <Text
+          <View
             style={tw.style(
-              "text-2xl italic p-4 text-slate-50 text-center font-bold bg-persian",
+              "p-4 bg-persian flex-row items-center justify-between",
               Translate.translate
             )}
           >
-            {name}
-          </Text>
+            <Text
+              style={tw.style(
+                "text-2xl italic text-slate-50 text-center font-bold"
+              )}
+            >
+              {name}
+            </Text>
+            <TouchableOpacity onPress={userFollow}>
+              <Text style={tw.style("text-base italic text-slate-50")}>
+                {isFollowing ? "Deixar de seguir" : "Seguir"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={tw.style("flex-row justify-around items-center mt-4")}>
           <TouchableOpacity
@@ -314,13 +286,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
           >
             <Text
               style={tw.style(
-                "text-lg",
-                "italic",
-                "p-2",
-                "bg-[#6c00e0]",
-                "text-stone-100",
-                "text-center ",
-                "font-bold",
+                "text-lg italic p-2 bg-violet text-stone-100 text-center font-bold",
                 Translate.smallTranslate
               )}
             >
@@ -337,13 +303,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
           >
             <Text
               style={tw.style(
-                "text-lg",
-                "italic",
-                "p-2",
-                "bg-[#f72585] ",
-                "text-slate-100",
-                "text-center ",
-                "font-bold",
+                "text-lg italic p-2 bg-persian text-slate-100 text-center font-bold",
                 Translate.smallTranslate
               )}
             >
@@ -369,10 +329,28 @@ const UsersProfile = ({ route }: ScreenProps) => {
                   {question.question}
                 </Text>
               </TouchableOpacity>
+              <QuestionModal
+                showModal={showQst}
+                setShowModal={setShowQst}
+                question={question}
+              />
             </View>
           ))}
         </View>
       </View>
+      {showQst && (
+        <CustomQuestionModal
+          showQst={showQst}
+          setShowQst={setShowQst}
+          children={
+            <QuestionComponent
+              item={userQuestions[index]}
+              filter={userQuestions}
+              setFilter={setUserQuestions}
+            />
+          }
+        />
+      )}
       {showModal && (
         <UserListModal props={{ group, userList, showModal, setShowModal }} />
       )}

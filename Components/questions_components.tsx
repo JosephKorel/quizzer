@@ -59,12 +59,10 @@ export const QuestionComponent = ({
   item,
   filter,
   setFilter,
-  getQst,
 }: {
   item: Questions;
   filter: Questions[];
   setFilter: (data: Questions[]) => void;
-  getQst: (sortViews: boolean, sortAnswered: boolean) => void;
 }) => {
   const { user } = useContext(AppContext);
   const [reveal, setReveal] = useState(false);

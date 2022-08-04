@@ -34,16 +34,16 @@ import { AntDesign } from "@expo/vector-icons";
 import { propsStack } from "../Screens/RootStackParams";
 
 interface QuestionModal {
-  props: {
-    showModal: boolean;
-    setShowModal: (e: boolean) => void;
-  };
+  showModal: boolean;
+  setShowModal: (e: boolean) => void;
   question: Questions;
 }
 
-export const QuestionModal = ({ props, question }: QuestionModal) => {
-  const { showModal, setShowModal } = props;
-
+export const QuestionModal = ({
+  showModal,
+  setShowModal,
+  question,
+}: QuestionModal) => {
   const ModalStyle = StyleSheet.create({
     main: {
       transform: [{ translateY: -5 }],

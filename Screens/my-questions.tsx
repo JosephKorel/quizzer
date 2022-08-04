@@ -133,7 +133,8 @@ function MyQuestions() {
               </Text>
             </TouchableOpacity>
             <QuestionModal
-              props={{ showModal, setShowModal }}
+              showModal={showModal}
+              setShowModal={setShowModal}
               question={questions[qstIndex]}
             />
           </View>

@@ -215,7 +215,6 @@ function Search() {
         item={item}
         filter={tagFilter}
         setFilter={setTagFilter}
-        getQst={retrieveCollection}
       />
     );
   };
