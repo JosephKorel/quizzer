@@ -2,45 +2,35 @@ import React, { useContext, useEffect, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
-import { AppContext, Questions } from "../Context";
+import { AppContext, Questions, UserInt } from "../Context";
 import {
+  arrayUnion,
   collection,
   deleteDoc,
   doc,
   DocumentData,
+  getDoc,
   getDocs,
   query,
-  setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { auth, db, storage } from "../firebase_config";
-import * as ImagePicker from "expo-image-picker";
+import { auth, db } from "../firebase_config";
 import moment from "moment";
-import tailwind from "twrnc";
+import tw from "../Components/tailwind_config";
 import {
   AlertComponent,
   BottomNav,
   DeleteDialog,
-  QuestionModal,
+  Translate,
 } from "../Components/nativeBase_Components";
-import { MaterialIcons } from "@expo/vector-icons";
 import {
-  Avatar,
-  Box,
-  Button,
-  FormControl,
-  Icon,
-  IconButton,
-  Input,
-  Modal,
-  PresenceTransition,
-  TextArea,
-  Toast,
-  useToast,
-} from "native-base";
-import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
+  MaterialCommunityIcons,
+  MaterialIcons,
+  SimpleLineIcons,
+} from "@expo/vector-icons";
+import { Avatar } from "native-base";
 import { signOut } from "firebase/auth";
+import { UserListModal } from "../Components/custom_components";
 
 function Profile() {
   const { user, theme, setTheme } = useContext(AppContext);
@@ -49,6 +39,9 @@ function Profile() {
   const [show, setShow] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [myProf, setMyProf] = useState<UserInt>();
+  const [showModal, setShowModal] = useState(false);
+  const [group, setGroup] = useState<UserInt[]>([]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -63,6 +56,11 @@ function Profile() {
     //Array que recebe cada documento
     let questionDocs: Questions[] = [];
     let myAnswers: number = 0;
+
+    //Query do usuário
+    const docRef = doc(db, "users", user?.uid!);
+    const docSnap = await getDoc(docRef);
+    const userData = docSnap.data() as UserInt;
 
     //Query da coleção
     const questionCol = collection(db, "questionsdb");
@@ -86,6 +84,7 @@ function Profile() {
       else return 1;
     });
 
+    setMyProf(userData);
     setQuestions(myQuestions);
     setAnswCount(myAnswers);
   };
@@ -98,52 +97,6 @@ function Profile() {
     signOut(auth).then(() => {
       navigation.navigate("Login");
     });
-  };
-
-  const qstComponent = ({ item }: { item: Questions }) => {
-    return questions ? (
-      <View>
-        <View>
-          <Text>{item.question}</Text>
-          {item.media && (
-            <Image
-              style={{ width: 100, height: 100 }}
-              source={{ uri: item.media }}
-            ></Image>
-          )}
-          <Text>Opções</Text>
-          {item.votes && (
-            <View>
-              <TouchableOpacity>
-                <Text>Sim:{item.votes?.yes.length}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Text>Não:{item.votes?.no.length}</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          {item.options && (
-            <View>
-              {Object.entries(item.options!).map(([key, value], i) => (
-                <TouchableOpacity key={i}>
-                  <Text>
-                    {key}:{value.length}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-          {item.scale && <View></View>}
-        </View>
-        <View>
-          {item.tags.map((tag, i) => (
-            <Text key={i}>{tag}</Text>
-          ))}
-        </View>
-      </View>
-    ) : (
-      <View></View>
-    );
   };
 
   const deleteQuestion = async (id: string): Promise<void> => {
@@ -159,27 +112,84 @@ function Profile() {
     }
   };
 
-  const ProfileStyles = StyleSheet.create({
-    main: {
-      transform: [{ translateY: -5 }],
-    },
-    translate: {
-      transform: [{ translateX: 4 }, { translateY: -4 }],
-    },
-    smallTranslate: {
-      transform: [{ translateX: 2 }, { translateY: -2 }],
-    },
-  });
+  const userList = ({ item }: { item: UserInt }) => {
+    const filter = item.followers.filter((item) => item.uid === user!.uid);
+    const follows = filter.length ? true : false;
+
+    return (
+      <View style={tw.style("flex-row justify-around items-center mt-2")}>
+        <Avatar source={{ uri: item.avatar! }} />
+        <View style={tw.style("bg-persian w-full w-[70%]")}>
+          <TouchableOpacity
+            style={tw.style(
+              "flex-row items-center bg-sun w-full",
+              Translate.smallTranslate
+            )}
+            onPress={() =>
+              navigation.navigate("UsersProfile", {
+                name: item.name!,
+                userUid: item.uid,
+                avatar: item.avatar!,
+              })
+            }
+          >
+            <Text
+              style={tw.style("text-stone-700 text-lg font-semibold p-1 w-2/3")}
+            >
+              {item.name}
+            </Text>
+            {/* <View
+              style={tw.style("flex-row items-center justify-between w-1/6")}
+            >
+              <TouchableOpacity style={tw.style("")}>
+                <MaterialCommunityIcons
+                  name="guy-fawkes-mask"
+                  size={24}
+                  color="black"
+                  style={tw.style("")}
+                  onPress={() =>
+                    navigation.navigate("UsersProfile", {
+                      name: item.name!,
+                      userUid: item.uid,
+                      avatar: item.avatar!,
+                    })
+                  }
+                />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                {follows ? (
+                  <SimpleLineIcons
+                    name="user-following"
+                    size={24}
+                    color="green"
+                    onPress={() => handleUnfollow(item.uid, follows, item)}
+                  />
+                ) : (
+                  <SimpleLineIcons
+                    name="user-follow"
+                    size={24}
+                    color="black"
+                    onPress={() => handleUnfollow(item.uid, follows, item)}
+                  />
+                )}
+              </TouchableOpacity>
+            </View> */}
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View
-      style={tailwind.style(
+      style={tw.style(
         theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
         "w-full",
         "h-full"
       )}
     >
-      <View style={tailwind`w-11/12 mx-auto`}>
-        <View style={tailwind`absolute top-10`}>
+      <View style={tw`w-11/12 mx-auto`}>
+        <View style={tw`absolute top-10`}>
           {theme === "dark" ? (
             <MaterialIcons
               name="wb-sunny"
@@ -196,87 +206,92 @@ function Profile() {
             />
           )}
         </View>
-        <View style={tailwind`self-center mt-24`}>
+        <View style={tw`self-center mt-24`}>
           <Avatar
             source={{ uri: user?.avatar ? user.avatar : undefined }}
             size="xl"
           />
         </View>
-        <View
-          style={tailwind.style(
-            "border-l-8 border-b-8 rounded-lg bg-[#fdc500] mt-4"
-          )}
-        >
+        <View style={tw.style("border-l-8 border-b-8 rounded-lg bg-sun mt-4")}>
           <Text
-            style={tailwind.style(
-              "text-2xl",
-              "italic",
-              "p-4",
-              "bg-[#f72585]",
-              "text-slate-50",
-              "text-center ",
-              "font-bold",
-              ProfileStyles.translate
+            style={tw.style(
+              "text-2xl italic p-4 bg-persian text-slate-50 text-center font-bold",
+              Translate.translate
             )}
           >
             {auth.currentUser?.displayName}
           </Text>
         </View>
-        <View
-          style={tailwind.style("flex-row justify-around items-center mt-4")}
-        >
+        <View style={tw.style("flex-row justify-around items-center mt-4")}>
           <TouchableOpacity
-            style={tailwind.style("bg-[#f72585]")}
+            style={tw.style("bg-persian w-[40%]")}
+            onPress={() => {
+              setShowModal(true);
+              setGroup(myProf?.following!);
+            }}
+          >
+            <Text
+              style={tw.style(
+                "text-lg  italic p-2 text-stone-700 text-center font-bold bg-sun",
+                Translate.smallTranslate
+              )}
+            >
+              SEGUINDO: {myProf?.following.length}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={tw.style("bg-[#05f2d2]  w-[40%]")}
+            onPress={() => {
+              setShowModal(true);
+              setGroup(myProf?.followers!);
+            }}
+          >
+            <Text
+              style={tw.style(
+                "text-lg italic p-2 bg-violet text-stone-100 text-center font-bold",
+                Translate.smallTranslate
+              )}
+            >
+              SEGUIDORES: {myProf?.followers.length}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={tw.style("flex-row justify-around items-center mt-4")}>
+          <TouchableOpacity
+            style={tw.style("bg-turquoise")}
             onPress={() => {
               setShow(!show);
             }}
           >
             <Text
-              style={tailwind.style(
-                "text-lg",
-                "italic",
-                "p-2",
-                "bg-[#fad643]",
-                "text-stone-700",
-                "text-center ",
-                "font-bold",
-                ProfileStyles.smallTranslate
+              style={tw.style(
+                "text-lg italic p-2 bg-violet text-stone-100 text-center font-bold",
+                Translate.smallTranslate
               )}
             >
               RESPOSTAS: {answCount}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={tailwind.style("bg-[#05f2d2]")}
-            onPress={() => {
-              setShow(!show);
-            }}
-          >
+          <TouchableOpacity style={tw.style("bg-persian")}>
             <Text
-              style={tailwind.style(
-                "text-lg",
-                "italic",
-                "p-2",
-                "bg-[#6c00e0]",
-                "text-stone-100",
-                "text-center ",
-                "font-bold",
-                ProfileStyles.smallTranslate
+              style={tw.style(
+                "text-lg italic p-2 bg-sun text-stone-700 text-center font-bold",
+                Translate.smallTranslate
               )}
             >
-              PERGUNTAS FEITAS: {questions?.length}
+              PERGUNTAS: {questions?.length}
             </Text>
           </TouchableOpacity>
         </View>
-        <View style={tailwind.style("mt-10")}>
+        <View style={tw.style("mt-10")}>
           <TouchableOpacity
-            style={tailwind.style("bg-[#fad643]")}
+            style={tw.style("bg-[#fad643]")}
             onPress={() => {
               setShow(!show);
             }}
           >
             <Text
-              style={tailwind.style(
+              style={tw.style(
                 "text-lg",
                 "italic",
                 "p-2",
@@ -284,7 +299,7 @@ function Profile() {
                 "text-slate-100",
                 "text-center ",
                 "font-bold",
-                ProfileStyles.smallTranslate
+                Translate.smallTranslate
               )}
             >
               VER PERGUNTAS
@@ -293,16 +308,16 @@ function Profile() {
           {questions?.map((question, index) => (
             <View
               key={index}
-              style={tailwind.style("mt-4 bg-[#f72585]", !show && "hidden")}
+              style={tw.style("mt-4 bg-[#f72585]", !show && "hidden")}
             >
               <TouchableOpacity
-                style={tailwind.style(
+                style={tw.style(
                   "bg-[#fad643] p-2 flex-row justify-between items-center",
-                  ProfileStyles.smallTranslate
+                  Translate.smallTranslate
                 )}
               >
                 <Text
-                  style={tailwind.style(
+                  style={tw.style(
                     "text-base italic text-stone-700 font-bold w-11/12"
                   )}
                 >
@@ -319,6 +334,9 @@ function Profile() {
       </View>
       {error !== "" && <AlertComponent success={success} error={error} />}
       {success !== "" && <AlertComponent success={success} error={error} />}
+      {showModal && (
+        <UserListModal props={{ group, userList, showModal, setShowModal }} />
+      )}
       <BottomNav />
     </View>
   );

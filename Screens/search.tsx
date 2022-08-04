@@ -155,36 +155,28 @@ function Search() {
     return (
       <View style={tw.style("flex-row items-center mt-2")}>
         <Avatar source={{ uri: item.avatar }} />
-        <View style={tw.style("bg-persian w-full")}>
-          <View
+        <View style={tw.style("bg-persian w-full ml-2")}>
+          <TouchableOpacity
             style={tw.style(
               "flex-row items-center bg-sun w-full",
               Translate.smallTranslate
             )}
+            onPress={() =>
+              navigation.navigate("UsersProfile", {
+                name: item.name!,
+                userUid: item.uid,
+                avatar: item.avatar!,
+              })
+            }
           >
             <Text
               style={tw.style("text-stone-700 text-lg font-semibold p-1 w-2/3")}
             >
               {item.name}
             </Text>
-            <View
+            {/* <View
               style={tw.style("flex-row items-center justify-between w-1/6")}
             >
-              <TouchableOpacity style={tw.style("")}>
-                <MaterialCommunityIcons
-                  name="guy-fawkes-mask"
-                  size={24}
-                  color="black"
-                  style={tw.style("")}
-                  onPress={() =>
-                    navigation.navigate("UsersProfile", {
-                      name: item.name,
-                      userUid: item.uid,
-                      avatar: item.avatar,
-                    })
-                  }
-                />
-              </TouchableOpacity>
               <TouchableOpacity>
                 {isFollowing ? (
                   <SimpleLineIcons
@@ -202,8 +194,8 @@ function Search() {
                   />
                 )}
               </TouchableOpacity>
-            </View>
-          </View>
+            </View> */}
+          </TouchableOpacity>
         </View>
       </View>
     );

@@ -174,16 +174,29 @@ export const QuestionComponent = ({
       return filter;
     };
 
+    const yesVote = (): boolean => {
+      const filter = item.votes?.yes.filter((item) => item.name === user?.name);
+      return filter?.length ? true : false;
+    };
+
+    const noVote = (): boolean => {
+      const filter = item.votes?.no.filter((item) => item.name === user?.name);
+      return filter?.length ? true : false;
+    };
+
     return (
       <View style={tw`flex-row justify-around items-center`}>
         <TouchableOpacity
           onPress={() => onVote("yes")}
-          style={tw.style("bg-sun")}
+          style={tw.style("bg-sun", yesVote() && "bg-violet")}
         >
           <Text
             style={tw.style(
-              "text-slate-100 bg-persian font-bold text-2xl p-1",
-              Translate.smallTranslate
+              "font-bold text-2xl p-1",
+              Translate.smallTranslate,
+              yesVote()
+                ? "bg-emerald text-stone-800"
+                : "bg-persian text-slate-100"
             )}
           >
             SIM {hasVoted() && item.votes?.yes.length}
@@ -192,12 +205,15 @@ export const QuestionComponent = ({
 
         <TouchableOpacity
           onPress={() => onVote("no")}
-          style={tw.style("bg-sun")}
+          style={tw.style("bg-sun", noVote() && "bg-violet")}
         >
           <Text
             style={tw.style(
-              "text-slate-100 bg-persian font-bold text-2xl p-1",
-              Translate.smallTranslate
+              " font-bold text-2xl p-1",
+              Translate.smallTranslate,
+              noVote()
+                ? "bg-emerald text-stone-800"
+                : "bg-persian text-slate-100"
             )}
           >
             NÃO {hasVoted() && item.votes?.no.length}
@@ -219,15 +235,24 @@ export const QuestionComponent = ({
       return filter;
     };
 
+    const voted = (): boolean => {
+      const filter = value.includes(user?.name!);
+      return filter;
+    };
+
     return (
       <View>
-        <View style={tw`bg-persian mt-5`}>
+        <View style={tw`mt-5`}>
           <TouchableOpacity
             onPress={() => onChoose(objkey)}
-            style={Translate.smallTranslate}
+            style={tw.style(voted() ? "bg-violet" : "bg-persian")}
           >
             <Text
-              style={tw`text-stone-800 bg-sun font-bold text-2xl text-center italic`}
+              style={tw.style(
+                "font-bold text-2xl text-center italic",
+                voted() ? "bg-emerald text-stone-800" : "text-stone-800 bg-sun",
+                Translate.smallTranslate
+              )}
             >
               {objkey}
               {hasVoted() && ": " + value.length}
@@ -403,7 +428,7 @@ export const QuestionComponent = ({
             >
               <Text
                 style={tw.style(
-                  "text-lg italic p-2 px-3 bg-[#4fea74] text-stone-700 text-center font-bold",
+                  "text-lg italic p-2 px-3 bg-emerald text-stone-700 text-center font-bold",
                   Translate.smallTranslate
                 )}
               >

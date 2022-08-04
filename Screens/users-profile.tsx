@@ -99,21 +99,28 @@ const UsersProfile = ({ route }: ScreenProps) => {
     const follows = filter.length ? true : false;
 
     return (
-      <View style={tw.style("flex-row items-center mt-2")}>
+      <View style={tw.style("flex-row justify-around items-center mt-2")}>
         <Avatar source={{ uri: item.avatar! }} />
-        <View style={tw.style("bg-persian w-full")}>
-          <View
+        <View style={tw.style("bg-persian w-full w-[70%]")}>
+          <TouchableOpacity
             style={tw.style(
               "flex-row items-center bg-sun w-full",
               Translate.smallTranslate
             )}
+            onPress={() =>
+              navigation.navigate("UsersProfile", {
+                name: item.name!,
+                userUid: item.uid,
+                avatar: item.avatar!,
+              })
+            }
           >
             <Text
               style={tw.style("text-stone-700 text-lg font-semibold p-1 w-2/3")}
             >
               {item.name}
             </Text>
-            <View
+            {/* <View
               style={tw.style("flex-row items-center justify-between w-1/6")}
             >
               <TouchableOpacity style={tw.style("")}>
@@ -148,8 +155,8 @@ const UsersProfile = ({ route }: ScreenProps) => {
                   />
                 )}
               </TouchableOpacity>
-            </View>
-          </View>
+            </View> */}
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -328,11 +335,6 @@ const UsersProfile = ({ route }: ScreenProps) => {
                   {question.question}
                 </Text>
               </TouchableOpacity>
-              {/* <QuestionModal
-                showModal={showQst}
-                setShowModal={setShowQst}
-                question={question}
-              /> */}
             </View>
           ))}
         </View>

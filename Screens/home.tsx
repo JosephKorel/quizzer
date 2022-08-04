@@ -602,62 +602,6 @@ function Home() {
     );
   };
 
-  const clearSearch = () => {
-    retrieveCollection();
-    setIsSearching(false);
-    setSearch("");
-  };
-
-  const SearchInput = () => {
-    return (
-      <Slide in={tagSearch} placement="top">
-        <View style={tw.style("bg-[#212529] pt-15 pb-5")}>
-          <View style={tw.style("self-end mb-4")}>
-            <IconButton
-              icon={
-                <MaterialIcons
-                  name="close"
-                  size={24}
-                  color="white"
-                  onPress={() => setTagSearch(false)}
-                />
-              }
-            />
-          </View>
-          <View style={tw.style("w-11/12 mx-auto")}>
-            <Text style={tw.style("mb-2 text-slate-100 text-lg")}>
-              Procure por até três tags
-            </Text>
-            <KeyboardAwareScrollView
-              resetScrollToCoords={{ x: 0, y: 0 }}
-              scrollEnabled={false}
-            >
-              <View
-                style={tw.style(
-                  "flex-row items-center justify-between p-1 rounded-md bg-slate-200"
-                )}
-              >
-                <TextInput
-                  autoComplete="off"
-                  placeholder="Tag"
-                  value={search}
-                  onChangeText={(text) => setSearch(text)}
-                />
-                <MaterialIcons
-                  name="search"
-                  size={24}
-                  color="#F72585"
-                  onPress={searchForTag}
-                  style={tw`mr-2`}
-                />
-              </View>
-            </KeyboardAwareScrollView>
-          </View>
-        </View>
-      </Slide>
-    );
-  };
-
   const HomeStyles = StyleSheet.create({
     main: {
       transform: [{ translateY: -5 }],
@@ -678,13 +622,22 @@ function Home() {
       <View>
         <View style={tw.style("text-center")}>
           <View style={tw`flex flex-col items-center`}>
-            <Avatar
-              source={{
-                uri: item.author.avatar,
-              }}
-              style={rStyle}
-            />
-
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("UsersProfile", {
+                  name: item.author.name,
+                  userUid: item.author.uid,
+                  avatar: item.author.avatar,
+                })
+              }
+            >
+              <Avatar
+                source={{
+                  uri: item.author.avatar,
+                }}
+                style={rStyle}
+              />
+            </TouchableOpacity>
             <Text style={tw`text-slate-300 text-base`}>{item.author.name}</Text>
           </View>
         </View>

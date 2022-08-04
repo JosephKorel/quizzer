@@ -41,7 +41,7 @@ export const UserListModal = ({ props }: MyModalInt): JSX.Element => {
       >
         <TouchableOpacity
           style={tw.style(
-            "relative z-10 h-2/3 w-5/6 min-h-2/3 min-w-5/6 bg-persian"
+            "relative z-10 h-2/3 w-5/6 min-h-2/3 min-w-5/6 bg-dark rounded-md"
           )}
           onPress={() => setShowModal(true)}
           activeOpacity={1}
@@ -53,8 +53,8 @@ export const UserListModal = ({ props }: MyModalInt): JSX.Element => {
             <MaterialIcons
               name="close"
               size={24}
-              color="black"
-              style={tw`mr-2`}
+              color="white"
+              style={tw`p-2`}
             />
           </TouchableOpacity>
           <View>
