@@ -14,7 +14,6 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -24,7 +23,7 @@ import { propsStack } from "./RootStackParams";
 import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
 import tw from "../Components/tailwind_config";
-import { Avatar, IconButton, Slide } from "native-base";
+import { Avatar, IconButton } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { AlertComponent, BottomNav } from "../Components/nativeBase_Components";
@@ -39,7 +38,6 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { QuestionComponent } from "../Components/questions_components";
 
 function Home() {

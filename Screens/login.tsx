@@ -1,6 +1,5 @@
 import { useContext, useEffect } from "react";
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StatusBar, Text, View } from "react-native";
 import * as Google from "expo-auth-session/providers/google";
 import {
   GoogleAuthProvider,
@@ -11,9 +10,10 @@ import { auth, db } from "../firebase_config";
 import { AppContext, UserInt } from "../Context";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
-import tailwind from "twrnc";
+import tw from "../Components/tailwind_config";
 import { Button } from "native-base";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { Translate } from "../Components/nativeBase_Components";
 
 export default function Login() {
   const { setUser, setIsAuth } = useContext(AppContext);
@@ -75,17 +75,55 @@ export default function Login() {
 
   return (
     <View
-      style={tailwind`absolute top-0 w-full text-center flex flex-col justify-center items-center bg-[#2c3e6d] h-full`}
+      style={tw`absolute top-0 w-full text-center flex flex-col justify-center items-center bg-dark h-full`}
     >
-      <StatusBar />
+      <StatusBar barStyle="light-content" backgroundColor="#0D0F47" />
       <Text
-        style={tailwind`absolute top-1/4 text-2xl text-center text-slate-50`}
+        style={tw.style(
+          "tracking-widest absolute top-1/4 text-6xl text-center text-persian font-bold"
+        )}
       >
-        Quizzer
+        QUI
+        <Text style={tw.style("italic text-6xl")}>ZZ</Text>
+        ER
+      </Text>
+      <Text
+        style={tw.style(
+          "tracking-widest absolute top-1/4 text-6xl text-center text-emerald font-bold",
+          Translate.translate
+        )}
+      >
+        QUI
+        <Text style={tw.style("italic text-6xl")}>ZZ</Text>
+        ER
+      </Text>
+      <Text
+        style={tw.style(
+          "tracking-widest absolute top-1/4 text-6xl text-center text-violet font-bold",
+          Translate.smallTranslate
+        )}
+      >
+        QUI
+        <Text style={tw.style("italic text-6xl")}>ZZ</Text>
+        ER
       </Text>
       <Button onPress={() => promptAsync()} colorScheme="indigo">
         ENTRAR COM O GOOGLE
       </Button>
+      <Text
+        style={tw.style(
+          "text-7xl text-emerald font-bold absolute top-1/6 right-10"
+        )}
+      >
+        ?
+      </Text>
+      <Text
+        style={tw.style(
+          "text-8xl text-emerald font-bold absolute top-1/3 left-10"
+        )}
+      >
+        ?
+      </Text>
     </View>
   );
 }

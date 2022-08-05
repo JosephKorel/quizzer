@@ -528,7 +528,7 @@ function NewPost() {
               </PresenceTransition>
             </>
           )}
-          <View style={tw`bg-slate-50 self-start mt-2`}>
+          <View style={tw`bg-violet self-start mt-2`}>
             <TouchableOpacity
               onPress={() => setHasSpoiler(!hasSpoiler)}
               style={tw.style(Translate.smallTranslate, "flex-row")}
@@ -576,21 +576,19 @@ function NewPost() {
           </View>
           <TextInput
             style={tw.style(
-              "bg-slate-100 rounded-sm p-1 text-xl border-persian border"
+              "bg-slate-100 rounded-sm text-base border-persian border mt-1"
             )}
             placeholder="Ex: pessoal, curiosidade, super heróis, netflix"
             value={tags}
             onChangeText={(text) => setTags(text)}
           ></TextInput>
           <TouchableOpacity
-            style={tw.style(
-              "text-slate-100 bg-[#fad643] self-start mx-auto mt-10"
-            )}
+            style={tw.style("text-slate-100 bg-sun self-start mx-auto mt-20")}
             onPress={addQuestion}
           >
             <Text
               style={tw.style(
-                "text-slate-100 bg-[#f72585] font-bold text-3xl italic px-2",
+                "text-slate-100 bg-persian font-bold text-3xl italic px-2",
                 Translate.translate
               )}
             >

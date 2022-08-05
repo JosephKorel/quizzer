@@ -1,17 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import { AppContext, Questions, UserInt } from "../Context";
 import {
-  arrayUnion,
   collection,
   deleteDoc,
   doc,
@@ -19,7 +11,6 @@ import {
   getDoc,
   getDocs,
   query,
-  updateDoc,
 } from "firebase/firestore";
 import { auth, db } from "../firebase_config";
 import moment from "moment";
@@ -30,17 +21,13 @@ import {
   DeleteDialog,
   Translate,
 } from "../Components/nativeBase_Components";
-import {
-  MaterialCommunityIcons,
-  MaterialIcons,
-  SimpleLineIcons,
-} from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Avatar } from "native-base";
 import { signOut } from "firebase/auth";
 import { UserListModal } from "../Components/custom_components";
 
 function Profile() {
-  const { user, theme, setTheme } = useContext(AppContext);
+  const { user, setUser, theme, setTheme } = useContext(AppContext);
   const [questions, setQuestions] = useState<Questions[] | null>(null);
   const [answCount, setAnswCount] = useState(0);
   const [show, setShow] = useState(false);
@@ -198,13 +185,23 @@ function Profile() {
             />
           )}
         </View>
-        <View style={tw`h-full flex-col justify-center`}>
+        <View style={tw`h-full flex-col justify-center w-[96%] mx-auto`}>
           <View style={tw`h-5/6`}>
-            <View style={tw`self-center`}>
+            <View style={tw`flex-row justify-center`}>
               <Avatar
                 source={{ uri: user?.avatar ? user.avatar : undefined }}
                 size="xl"
               />
+              <TouchableOpacity
+                style={tw`absolute w-full flex-row-reverse`}
+                onPress={logOut}
+              >
+                <MaterialCommunityIcons
+                  name="logout"
+                  size={30}
+                  color="#e71d36"
+                />
+              </TouchableOpacity>
             </View>
             <View
               style={tw.style("border-l-8 border-b-8 rounded-lg bg-sun mt-4")}
@@ -220,7 +217,7 @@ function Profile() {
             </View>
             <View style={tw.style("flex-row justify-around items-center mt-4")}>
               <TouchableOpacity
-                style={tw.style("bg-persian w-[40%]")}
+                style={tw.style("bg-persian w-[44%]")}
                 onPress={() => {
                   setShowModal(true);
                   setGroup(myProf?.following!);
@@ -236,7 +233,7 @@ function Profile() {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={tw.style("bg-[#05f2d2]  w-[40%]")}
+                style={tw.style("bg-[#05f2d2]  w-[44%]")}
                 onPress={() => {
                   setShowModal(true);
                   setGroup(myProf?.followers!);
@@ -254,7 +251,7 @@ function Profile() {
             </View>
             <View style={tw.style("flex-row justify-around items-center mt-4")}>
               <TouchableOpacity
-                style={tw.style("bg-turquoise")}
+                style={tw.style("bg-turquoise w-[44%]")}
                 onPress={() => {
                   setShow(!show);
                 }}
@@ -268,7 +265,7 @@ function Profile() {
                   RESPOSTAS: {answCount}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={tw.style("bg-persian")}>
+              <TouchableOpacity style={tw.style("bg-persian w-[44%]")}>
                 <Text
                   style={tw.style(
                     "text-lg italic p-2 bg-sun text-stone-700 text-center font-bold",
