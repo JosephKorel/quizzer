@@ -1,29 +1,20 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { propsStack } from "./RootStackParams";
+import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { AppContext } from "../Context";
 import { doc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storage } from "../firebase_config";
 import * as ImagePicker from "expo-image-picker";
 import moment from "moment";
-import tailwind from "twrnc";
-import { AlertComponent, BottomNav } from "../Components/nativeBase_Components";
-import { MaterialIcons } from "@expo/vector-icons";
+import tw from "../Components/tailwind_config";
 import {
-  Box,
-  Button,
-  Icon,
-  IconButton,
-  Input,
-  PresenceTransition,
-  TextArea,
-  Toast,
-  useToast,
-} from "native-base";
+  AlertComponent,
+  BottomNav,
+  Translate,
+} from "../Components/nativeBase_Components";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Button, IconButton, Input, PresenceTransition } from "native-base";
 import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
-import { retrieveCollection } from "../Components/questions_components";
 
 function NewPost() {
   const { user, theme, setTheme } = useContext(AppContext);
@@ -39,8 +30,6 @@ function NewPost() {
   const [success, setSuccess] = useState("");
 
   const questionType = ["Sim ou Não", "Enquete", "Escala de 0 a 10"];
-
-  const navigation = useNavigation<propsStack>();
 
   useEffect(() => {
     setTimeout(() => {
@@ -222,31 +211,25 @@ function NewPost() {
     };
     return (
       <View>
-        <View style={tailwind`bg-slate-100 mb-1 bg-[#F72585]`}>
+        <View style={tw`bg-slate-100 mb-1 bg-persian`}>
           <Text
-            style={tailwind.style(
-              "text-lg",
-              "italic",
-              "py-1",
-              "bg-[#4fea74]",
-              "text-slate-50",
-              "text-center",
-              "font-bold",
-              PostStyles.smallTranslate
+            style={tw.style(
+              "text-lg italic py-1 bg-emerald text-slate-50 text-center font-bold",
+              Translate.smallTranslate
             )}
           >
             ENQUETE
           </Text>
         </View>
-        <View style={tailwind`flex-col`}>
+        <View style={tw`flex-col`}>
           {options.map((item, index) => (
             <View key={index}>
-              <View style={tailwind`flex-row items-center mt-2`}>
+              <View style={tw`flex-row items-center mt-2`}>
                 <Input
                   placeholder={"Opção" + (index + 1).toString()}
                   value={item}
                   w="5/6"
-                  style={tailwind`bg-slate-100 text-stone-900`}
+                  style={tw`bg-slate-100 text-stone-900`}
                   maxLength={18}
                   onChangeText={(text) => {
                     setOptions(
@@ -269,18 +252,12 @@ function NewPost() {
               {index >= options.length - 1 && index < 3 && (
                 <TouchableOpacity
                   onPress={addOption}
-                  style={tailwind`bg-[#F72585] self-start mt-2`}
+                  style={tw`bg-persian self-start mt-2`}
                 >
                   <Text
-                    style={tailwind.style(
-                      "text-base",
-                      "italic",
-                      "p-1",
-                      "px-2",
-                      "bg-[#fad643]",
-                      "text-stone-900",
-                      "font-bold",
-                      PostStyles.smallTranslate
+                    style={tw.style(
+                      "text-base italic p-1 px-2 bg-sun text-stone-800 font-bold",
+                      Translate.smallTranslate
                     )}
                   >
                     Adicionar
@@ -290,9 +267,9 @@ function NewPost() {
             </View>
           ))}
         </View>
-        <View style={tailwind`flex-row-reverse`}>
+        <View style={tw`flex-row-reverse`}>
           <Button
-            style={tailwind`w-1/4 mt-2`}
+            style={tw`w-1/4 mt-2`}
             _text={{ color: "black" }}
             bg="#fad643"
             _pressed={{ background: "#fdc500" }}
@@ -332,26 +309,21 @@ function NewPost() {
             },
           }}
         >
-          <View style={tailwind`bg-[#F72585] mb-2`}>
+          <View style={tw`bg-[#F72585] mb-2`}>
             <Text
-              style={tailwind.style(
-                "text-2xl",
-                "italic",
-                "text-center",
-                "bg-[#fad643]",
-                "text-stone-800",
-                "font-bold",
-                PostStyles.smallTranslate
+              style={tw.style(
+                "text-2xl italic text-center bg-sun text-stone-800 font-bold",
+                Translate.smallTranslate
               )}
             >
               Personalize as tags
             </Text>
           </View>
-          <View style={tailwind`flex flex-row justify-between`}>
+          <View style={tw`flex flex-row justify-between`}>
             {scaleLabel.map((label, i) => (
-              <View style={tailwind`flex-col items-center w-1/4`} key={i}>
+              <View style={tw`flex-col items-center w-1/4`} key={i}>
                 <Input
-                  style={tailwind`bg-slate-50`}
+                  style={tw`bg-slate-50`}
                   maxLength={8}
                   w="full"
                   mb={2}
@@ -369,9 +341,9 @@ function NewPost() {
               </View>
             ))}
           </View>
-          <View style={tailwind`flex-row-reverse`}>
+          <View style={tw`flex-row-reverse`}>
             <Button
-              style={tailwind`w-1/4 mt-4`}
+              style={tw`w-1/4 mt-4`}
               _text={{ color: "black" }}
               bg="#fad643"
               _pressed={{ background: "#fdc500" }}
@@ -390,18 +362,6 @@ function NewPost() {
     );
   };
 
-  const PostStyles = StyleSheet.create({
-    main: {
-      transform: [{ translateY: -5 }],
-    },
-    translate: {
-      transform: [{ translateX: 4 }, { translateY: -4 }],
-    },
-    smallTranslate: {
-      transform: [{ translateX: 2 }, { translateY: -2 }],
-    },
-  });
-
   const QuestionTypeComponent = ({ qst }: { qst: string }): JSX.Element => {
     const onChoose = (qst: string): void | null => {
       if (question === "") {
@@ -411,20 +371,17 @@ function NewPost() {
       setChoice(qst);
     };
     return (
-      <View style={tailwind`mt-4`}>
-        <View style={tailwind`bg-[#F72585]`}>
+      <View style={tw`mt-4`}>
+        <View style={tw`bg-persian`}>
           <TouchableOpacity
             onPress={() => onChoose(qst)}
-            style={PostStyles.translate}
+            style={Translate.translate}
           >
             <Text
-              style={tailwind.style(
-                "text-2xl",
-                "italic",
-                "text-center",
-                choice === qst ? "bg-[#4fea74]" : "bg-[#fad643]",
-                choice === qst ? "text-slate-100" : "text-stone-700",
-                "font-bold"
+              style={tw.style(
+                "text-2xl italic text-center font-bold",
+                choice === qst ? "bg-emerald" : "bg-sun",
+                choice === qst ? "text-slate-100" : "text-stone-700"
               )}
             >
               {qst}
@@ -437,14 +394,13 @@ function NewPost() {
 
   return (
     <View
-      style={tailwind.style(
-        theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
-        "w-full",
-        "h-full"
+      style={tw.style(
+        theme === "light" ? "bg-red-200" : "bg-dark",
+        "w-full h-full"
       )}
     >
-      <View style={tailwind`w-11/12 mx-auto`}>
-        <View style={tailwind`absolute top-10`}>
+      <View style={tw`w-11/12 mx-auto`}>
+        <View style={tw`absolute top-10`}>
           {theme === "dark" ? (
             <MaterialIcons
               name="wb-sunny"
@@ -463,25 +419,19 @@ function NewPost() {
         </View>
         <View style={{ transform: [{ translateY: 100 }] }}>
           <View
-            style={tailwind.style(
+            style={tw.style(
               "border-l-8 border-b-8 rounded-lg",
               "bg-[#fdc500]",
               "mb-5"
             )}
           >
             <Text
-              style={tailwind.style(
-                "text-2xl",
-                "italic",
-                "p-4",
-                "bg-[#f72585]",
-                "text-slate-50",
-                "text-center ",
-                "font-bold",
-                PostStyles.translate
+              style={tw.style(
+                "text-2xl italic p-4 bg-persian text-slate-100 text-center font-bold",
+                Translate.translate
               )}
             >
-              {hasChoosen ? question : "Qual é a dúvida de hoje?"}
+              {hasChoosen ? question.toUpperCase() : "QUAL É A DÚVIDA DE HOJE?"}
             </Text>
           </View>
           {hasChoosen == true && choice !== "Sim ou Não" ? (
@@ -505,28 +455,26 @@ function NewPost() {
                   },
                 }}
               >
-                <TextArea
-                  autoCompleteType={true}
+                <TextInput
                   placeholder="Escreva aqui"
-                  borderColor="#f72585"
-                  color="black"
-                  h="12"
                   value={question}
-                  style={tailwind`bg-slate-100`}
+                  style={tw.style(
+                    "bg-slate-100 rounded-sm p-3 text-xl border-persian border"
+                  )}
                   onChangeText={(text) => setQuestion(text)}
-                ></TextArea>
+                ></TextInput>
 
                 {image ? (
-                  <View style={tailwind.style("flex-row justify-center mt-1")}>
+                  <View style={tw.style("flex-row justify-center mt-1")}>
                     <Image
-                      style={tailwind.style(
+                      style={tw.style(
                         { width: 100, height: 100 },
-                        "rounded-md border-2 border-[#F72585]"
+                        "rounded-md border-2 border-persian"
                       )}
                       source={{ uri: image.uri }}
                     ></Image>
                     <IconButton
-                      style={tailwind`absolute left-[53%]`}
+                      style={tw`absolute left-[53%]`}
                       onPress={() => setImage(null)}
                       _pressed={{ bg: "#edc531" }}
                       py={1}
@@ -542,18 +490,13 @@ function NewPost() {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    style={tailwind`bg-[#F72585] self-start mt-2`}
+                    style={tw`bg-[#F72585] self-start mt-2`}
                     onPress={addImage}
                   >
                     <Text
-                      style={tailwind.style(
-                        "text-sm",
-                        "italic",
-                        "px-2",
-                        "bg-[#fad643]",
-                        "text-stone-700",
-                        "font-bold",
-                        PostStyles.smallTranslate
+                      style={tw.style(
+                        "text-sm italic px-2 bg-sun text-stone-800 font-bold",
+                        Translate.xsTranslate
                       )}
                     >
                       IMAGEM{" "}
@@ -567,22 +510,17 @@ function NewPost() {
                     </Text>
                   </TouchableOpacity>
                 )}
-                <View style={tailwind`bg-slate-100 w-2/3 mt-6`}>
+                <View style={tw`bg-turquoise self-start mt-6`}>
                   <Text
-                    style={tailwind.style(
-                      "text-xl",
-                      "italic",
-                      "p-2",
-                      "bg-[#c86bfa]",
-                      "text-slate-50",
-                      "font-bold",
-                      PostStyles.translate
+                    style={tw.style(
+                      "text-xl italic p-2 bg-violet text-slate-50 font-bold",
+                      Translate.smallTranslate
                     )}
                   >
-                    Sua pergunta é do tipo
+                    SUA PERGUNTA É DO TIPO
                   </Text>
                 </View>
-                <View style={tailwind``}>
+                <View style={tw``}>
                   {questionType.map((question, index) => (
                     <QuestionTypeComponent qst={question} key={index} />
                   ))}
@@ -590,20 +528,16 @@ function NewPost() {
               </PresenceTransition>
             </>
           )}
-          <View style={tailwind`bg-slate-50 self-start mt-2`}>
+          <View style={tw`bg-slate-50 self-start mt-2`}>
             <TouchableOpacity
               onPress={() => setHasSpoiler(!hasSpoiler)}
-              style={tailwind.style(PostStyles.smallTranslate, "flex-row")}
+              style={tw.style(Translate.smallTranslate, "flex-row")}
             >
               <Text
-                style={tailwind.style(
-                  "text-base",
-                  "px-2",
-                  "italic",
-                  "text-center",
-                  hasSpoiler ? "bg-[#4fea74]" : "bg-[#e71d36]",
-                  hasSpoiler ? "text-slate-100" : "text-slate-100",
-                  "font-bold"
+                style={tw.style(
+                  "text-base px-2 italic text-center font-bold",
+                  hasSpoiler ? "bg-emerald" : "bg-[#e71d36]",
+                  hasSpoiler ? "text-slate-100" : "text-slate-100"
                 )}
               >
                 {hasSpoiler ? "Não contém spoiler  " : "Marcar como spoiler  "}
@@ -623,17 +557,11 @@ function NewPost() {
               </Text>
             </TouchableOpacity>
           </View>
-          <View style={tailwind`self-start mt-6 bg-slate-100`}>
+          <View style={tw`self-start mt-6 bg-turquoise`}>
             <Text
-              style={tailwind.style(
-                "text-sm",
-                "px-2",
-                "italic",
-                "text-center",
-                "bg-[#c86bfa]",
-                "text-slate-100",
-                "font-bold",
-                PostStyles.smallTranslate
+              style={tw.style(
+                "text-sm px-2 italic text-center bg-violet text-slate-100 font-bold",
+                Translate.xsTranslate
               )}
             >
               TAGS{" "}
@@ -646,25 +574,24 @@ function NewPost() {
               }
             </Text>
           </View>
-          <Input
-            mt={1}
-            borderColor="#f72585"
+          <TextInput
+            style={tw.style(
+              "bg-slate-100 rounded-sm p-1 text-xl border-persian border"
+            )}
             placeholder="Ex: pessoal, curiosidade, super heróis, netflix"
             value={tags}
-            color="black"
-            style={tailwind`bg-slate-100`}
             onChangeText={(text) => setTags(text)}
-          ></Input>
+          ></TextInput>
           <TouchableOpacity
-            style={tailwind.style(
+            style={tw.style(
               "text-slate-100 bg-[#fad643] self-start mx-auto mt-10"
             )}
             onPress={addQuestion}
           >
             <Text
-              style={tailwind.style(
+              style={tw.style(
                 "text-slate-100 bg-[#f72585] font-bold text-3xl italic px-2",
-                PostStyles.translate
+                Translate.translate
               )}
             >
               ENVIAR {<FontAwesome name="send-o" size={24} color="white" />}
