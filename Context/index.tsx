@@ -42,8 +42,8 @@ type ContextType = {
   setIsAuth: (data: boolean) => void;
   user: null | UserInt;
   setUser: (data: UserInt) => void;
-  scaleTxt: string[];
-  setScaleTxt: (data: string[]) => void;
+  loading: boolean;
+  setLoading: (data: boolean) => void;
   theme: string;
   setTheme: (data: string) => void;
   questions: Questions[] | null;
@@ -55,8 +55,8 @@ const initialValue = {
   setIsAuth: () => {},
   user: null,
   setUser: () => {},
-  scaleTxt: ["Meh", "Cool", "Amazing"],
-  setScaleTxt: () => {},
+  loading: true,
+  setLoading: () => {},
   theme: "dark",
   setTheme: () => {},
   questions: null,
@@ -68,8 +68,7 @@ export const AppContext = createContext<ContextType>(initialValue);
 export const AppContextProvider = ({ children }: Props) => {
   const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState<null | UserInt>(null);
-  const [question, setQuestion] = useState("");
-  const [scaleTxt, setScaleTxt] = useState(["Meh", "Cool", "Amazing"]);
+  const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState("dark");
   const [questions, setQuestions] = useState<Questions[] | null>(null);
 
@@ -80,8 +79,8 @@ export const AppContextProvider = ({ children }: Props) => {
         setIsAuth,
         user,
         setUser,
-        scaleTxt,
-        setScaleTxt,
+        loading,
+        setLoading,
         theme,
         setTheme,
         questions,

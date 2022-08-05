@@ -95,17 +95,18 @@ const UsersProfile = ({ route }: ScreenProps) => {
   };
 
   const goToProfile = async (item: UserInt) => {
-    /* navigation.navigate("UsersProfile", {
-      name: item.name!,
-      userUid: item.uid,
-      avatar: item.avatar!,
-    }); */
-
     if (item.uid === user?.uid) {
       navigation.navigate("Profile");
       setShowModal(false);
-    } else await getTargetUser(item.uid);
-    setShowModal(false);
+    } else {
+      navigation.navigate("UsersProfile", {
+        name: item.name!,
+        userUid: item.uid,
+        avatar: item.avatar!,
+      });
+      await getTargetUser(item.uid);
+      setShowModal(false);
+    }
   };
 
   const userList = ({ item }: { item: UserInt }) => {
@@ -301,7 +302,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
               >
                 <Text
                   style={tw.style(
-                    "text-base italic text-stone-700 font-bold w-11/12"
+                    "text-base italic text-stone-700 font-bold w-full"
                   )}
                 >
                   {question.question}

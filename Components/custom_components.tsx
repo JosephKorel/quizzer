@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
+  Button,
   FlatList,
   Image,
   ListRenderItem,
+  StatusBar,
   Text,
   TouchableOpacity,
   View,
@@ -298,6 +300,61 @@ export const MyQuestionComponent = ({ question }: { question: Questions }) => {
         </View>
       )}
       {question.scale && <>{ScaleComponent()}</>}
+    </View>
+  );
+};
+
+export const LoadingScreen = (): JSX.Element => {
+  return (
+    <View
+      style={tw.style(
+        "absolute top-0 w-full h-full flex-col justify-center items-center bg-dark z-20"
+      )}
+    >
+      <StatusBar barStyle="light-content" backgroundColor="#0D0F47" />
+      <Text
+        style={tw.style(
+          "tracking-widest absolute top-1/4 text-6xl text-center text-persian font-bold"
+        )}
+      >
+        QUI
+        <Text style={tw.style("italic text-6xl")}>ZZ</Text>
+        ER
+      </Text>
+      <Text
+        style={tw.style(
+          "tracking-widest absolute top-1/4 text-6xl text-center text-emerald font-bold",
+          Translate.translate
+        )}
+      >
+        QUI
+        <Text style={tw.style("italic text-6xl")}>ZZ</Text>
+        ER
+      </Text>
+      <Text
+        style={tw.style(
+          "tracking-widest absolute top-1/4 text-6xl text-center text-violet font-bold",
+          Translate.smallTranslate
+        )}
+      >
+        QUI
+        <Text style={tw.style("italic text-6xl")}>ZZ</Text>
+        ER
+      </Text>
+      <Text
+        style={tw.style(
+          "text-7xl text-emerald font-bold absolute top-1/6 right-10"
+        )}
+      >
+        ?
+      </Text>
+      <Text
+        style={tw.style(
+          "text-8xl text-emerald font-bold absolute top-1/3 left-10"
+        )}
+      >
+        ?
+      </Text>
     </View>
   );
 };

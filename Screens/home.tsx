@@ -39,10 +39,18 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { QuestionComponent } from "../Components/questions_components";
+import { LoadingScreen } from "../Components/custom_components";
 
 function Home() {
-  const { user, theme, setTheme, questions, setQuestions } =
-    useContext(AppContext);
+  const {
+    user,
+    theme,
+    setTheme,
+    questions,
+    setQuestions,
+    loading,
+    setLoading,
+  } = useContext(AppContext);
   const [index, setIndex] = useState(0);
   const [reveal, setReveal] = useState(false);
   const [scaleVal, setScaleVal] = useState<number | number[]>([]);
@@ -83,6 +91,9 @@ function Home() {
 
   useEffect(() => {
     retrieveCollection();
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
   }, []);
 
   useEffect(() => {
@@ -664,6 +675,7 @@ function Home() {
         "w-full h-full"
       )}
     >
+      {loading && <LoadingScreen />}
       <View style={tw`w-[98%] mx-auto`}>
         <View
           style={tw`absolute top-10 flex-row w-full justify-between items-center z-10`}
