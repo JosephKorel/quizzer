@@ -694,7 +694,7 @@ function Home() {
         <StatusBar
           barStyle={theme === "light" ? "dark-content" : "light-content"}
         />
-        <View style={tw.style("h-full flex-col justify-center items-center")}>
+        <View style={tw.style("h-full flex-col justify-center")}>
           {/* <GestureHandlerRootView>
             <PanGestureHandler onGestureEvent={GestureHandler}>
               <Animated.View style={tw.style("", rStyle)}>

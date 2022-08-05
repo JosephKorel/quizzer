@@ -101,8 +101,7 @@ function MyQuestions() {
     <View
       style={tw.style(
         theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
-        "w-full",
-        "h-full"
+        "w-full h-full"
       )}
     >
       <View style={tw`w-11/12 mx-auto`}>

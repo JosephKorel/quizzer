@@ -39,12 +39,12 @@ const UsersProfile = ({ route }: ScreenProps) => {
 
   const { name, userUid, avatar } = route.params;
 
-  const getTargetUser = async () => {
+  const getTargetUser = async (uid: string) => {
     //Número de respostas
     let totalAnswers: number = 0;
 
     //Query do doc
-    const docRef = doc(db, "users", userUid);
+    const docRef = doc(db, "users", uid);
     const docSnap = await getDoc(docRef);
     const userData = docSnap.data() as UserInt;
 
@@ -63,7 +63,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
   };
 
   useEffect(() => {
-    getTargetUser();
+    getTargetUser(userUid);
   }, []);
 
   //Checa se está seguindo
@@ -83,15 +83,29 @@ const UsersProfile = ({ route }: ScreenProps) => {
       await updateDoc(userDoc, { followers: arrayUnion(user) });
 
       //Atualizar o front
-      getTargetUser();
+      getTargetUser(uid);
     } else {
       const userDoc = doc(db, "users", uid);
       const filter = target.followers.filter((item) => item.uid !== user!.uid);
       await updateDoc(userDoc, { followers: filter });
 
       //Atualizar o front
-      getTargetUser();
+      getTargetUser(uid);
     }
+  };
+
+  const goToProfile = async (item: UserInt) => {
+    /* navigation.navigate("UsersProfile", {
+      name: item.name!,
+      userUid: item.uid,
+      avatar: item.avatar!,
+    }); */
+
+    if (item.uid === user?.uid) {
+      navigation.navigate("Profile");
+      setShowModal(false);
+    } else await getTargetUser(item.uid);
+    setShowModal(false);
   };
 
   const userList = ({ item }: { item: UserInt }) => {
@@ -107,55 +121,13 @@ const UsersProfile = ({ route }: ScreenProps) => {
               "flex-row items-center bg-sun w-full",
               Translate.smallTranslate
             )}
-            onPress={() =>
-              navigation.navigate("UsersProfile", {
-                name: item.name!,
-                userUid: item.uid,
-                avatar: item.avatar!,
-              })
-            }
+            onPress={() => goToProfile(item)}
           >
             <Text
               style={tw.style("text-stone-700 text-lg font-semibold p-1 w-2/3")}
             >
               {item.name}
             </Text>
-            {/* <View
-              style={tw.style("flex-row items-center justify-between w-1/6")}
-            >
-              <TouchableOpacity style={tw.style("")}>
-                <MaterialCommunityIcons
-                  name="guy-fawkes-mask"
-                  size={24}
-                  color="black"
-                  style={tw.style("")}
-                  onPress={() =>
-                    navigation.navigate("UsersProfile", {
-                      name: item.name!,
-                      userUid: item.uid,
-                      avatar: item.avatar!,
-                    })
-                  }
-                />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                {follows ? (
-                  <SimpleLineIcons
-                    name="user-following"
-                    size={24}
-                    color="green"
-                    onPress={() => handleFollow(item.uid, follows, item)}
-                  />
-                ) : (
-                  <SimpleLineIcons
-                    name="user-follow"
-                    size={24}
-                    color="black"
-                    onPress={() => handleFollow(item.uid, follows, item)}
-                  />
-                )}
-              </TouchableOpacity>
-            </View> */}
           </TouchableOpacity>
         </View>
       </View>
@@ -168,7 +140,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
       await updateDoc(userDoc, { followers: arrayUnion(user) });
 
       //Atualizar o front
-      getTargetUser();
+      getTargetUser(userUid);
     } else {
       const userDoc = doc(db, "users", currUser?.uid!);
       const filter = currUser?.followers.filter(
@@ -177,7 +149,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
       await updateDoc(userDoc, { followers: filter });
 
       //Atualizar o front
-      getTargetUser();
+      getTargetUser(userUid);
     }
   };
 
@@ -237,7 +209,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
         </View>
         <View style={tw.style("flex-row justify-around items-center mt-4")}>
           <TouchableOpacity
-            style={tw.style("bg-persian w-[40%]")}
+            style={tw.style("bg-persian w-[44%]")}
             onPress={() => {
               setShowModal(true);
               setGroup(currUser?.following!);
@@ -253,7 +225,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={tw.style("bg-[#05f2d2]  w-[40%]")}
+            style={tw.style("bg-[#05f2d2]  w-[44%]")}
             onPress={() => {
               setShowModal(true);
               setGroup(currUser?.followers!);
@@ -271,7 +243,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
         </View>
         <View style={tw.style("flex-row justify-around items-center mt-4")}>
           <TouchableOpacity
-            style={tw.style("bg-turquoise w-[40%]")}
+            style={tw.style("bg-turquoise w-[44%]")}
             onPress={() => {
               setShow(!show);
             }}
@@ -285,7 +257,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
               RESPOSTAS: {answers}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={tw.style("bg-persian  w-[40%]")}>
+          <TouchableOpacity style={tw.style("bg-persian  w-[44%]")}>
             <Text
               style={tw.style(
                 "text-lg italic p-2 bg-sun text-stone-700 text-center font-bold",

@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import { AppContext, Questions, UserInt } from "../Context";
@@ -138,44 +145,30 @@ function Profile() {
             >
               {item.name}
             </Text>
-            {/* <View
-              style={tw.style("flex-row items-center justify-between w-1/6")}
-            >
-              <TouchableOpacity style={tw.style("")}>
-                <MaterialCommunityIcons
-                  name="guy-fawkes-mask"
-                  size={24}
-                  color="black"
-                  style={tw.style("")}
-                  onPress={() =>
-                    navigation.navigate("UsersProfile", {
-                      name: item.name!,
-                      userUid: item.uid,
-                      avatar: item.avatar!,
-                    })
-                  }
-                />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                {follows ? (
-                  <SimpleLineIcons
-                    name="user-following"
-                    size={24}
-                    color="green"
-                    onPress={() => handleUnfollow(item.uid, follows, item)}
-                  />
-                ) : (
-                  <SimpleLineIcons
-                    name="user-follow"
-                    size={24}
-                    color="black"
-                    onPress={() => handleUnfollow(item.uid, follows, item)}
-                  />
-                )}
-              </TouchableOpacity>
-            </View> */}
           </TouchableOpacity>
         </View>
+      </View>
+    );
+  };
+
+  const MyQuestionList = ({ item }: { item: Questions }) => {
+    return (
+      <View style={tw.style("mt-4 bg-persian", !show && "hidden")}>
+        <TouchableOpacity
+          style={tw.style(
+            "bg-sun p-2 flex-row justify-between items-center",
+            Translate.smallTranslate
+          )}
+        >
+          <Text
+            style={tw.style(
+              "text-base italic text-stone-700 font-bold w-11/12"
+            )}
+          >
+            {item.question}
+          </Text>
+          <DeleteDialog deleteQuestion={deleteQuestion} id={item.id} />
+        </TouchableOpacity>
       </View>
     );
   };
@@ -184,11 +177,10 @@ function Profile() {
     <View
       style={tw.style(
         theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
-        "w-full",
-        "h-full"
+        "w-full h-full"
       )}
     >
-      <View style={tw`w-11/12 mx-auto`}>
+      <View style={tw`w-[98%] mx-auto`}>
         <View style={tw`absolute top-10`}>
           {theme === "dark" ? (
             <MaterialIcons
@@ -206,130 +198,143 @@ function Profile() {
             />
           )}
         </View>
-        <View style={tw`self-center mt-24`}>
-          <Avatar
-            source={{ uri: user?.avatar ? user.avatar : undefined }}
-            size="xl"
-          />
-        </View>
-        <View style={tw.style("border-l-8 border-b-8 rounded-lg bg-sun mt-4")}>
-          <Text
-            style={tw.style(
-              "text-2xl italic p-4 bg-persian text-slate-50 text-center font-bold",
-              Translate.translate
-            )}
-          >
-            {auth.currentUser?.displayName}
-          </Text>
-        </View>
-        <View style={tw.style("flex-row justify-around items-center mt-4")}>
-          <TouchableOpacity
-            style={tw.style("bg-persian w-[40%]")}
-            onPress={() => {
-              setShowModal(true);
-              setGroup(myProf?.following!);
-            }}
-          >
-            <Text
-              style={tw.style(
-                "text-lg  italic p-2 text-stone-700 text-center font-bold bg-sun",
-                Translate.smallTranslate
-              )}
-            >
-              SEGUINDO: {myProf?.following.length}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={tw.style("bg-[#05f2d2]  w-[40%]")}
-            onPress={() => {
-              setShowModal(true);
-              setGroup(myProf?.followers!);
-            }}
-          >
-            <Text
-              style={tw.style(
-                "text-lg italic p-2 bg-violet text-stone-100 text-center font-bold",
-                Translate.smallTranslate
-              )}
-            >
-              SEGUIDORES: {myProf?.followers.length}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View style={tw.style("flex-row justify-around items-center mt-4")}>
-          <TouchableOpacity
-            style={tw.style("bg-turquoise")}
-            onPress={() => {
-              setShow(!show);
-            }}
-          >
-            <Text
-              style={tw.style(
-                "text-lg italic p-2 bg-violet text-stone-100 text-center font-bold",
-                Translate.smallTranslate
-              )}
-            >
-              RESPOSTAS: {answCount}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={tw.style("bg-persian")}>
-            <Text
-              style={tw.style(
-                "text-lg italic p-2 bg-sun text-stone-700 text-center font-bold",
-                Translate.smallTranslate
-              )}
-            >
-              PERGUNTAS: {questions?.length}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View style={tw.style("mt-10")}>
-          <TouchableOpacity
-            style={tw.style("bg-[#fad643]")}
-            onPress={() => {
-              setShow(!show);
-            }}
-          >
-            <Text
-              style={tw.style(
-                "text-lg",
-                "italic",
-                "p-2",
-                "bg-[#f72585] ",
-                "text-slate-100",
-                "text-center ",
-                "font-bold",
-                Translate.smallTranslate
-              )}
-            >
-              VER PERGUNTAS
-            </Text>
-          </TouchableOpacity>
-          {questions?.map((question, index) => (
+        <View style={tw`h-full flex-col justify-center`}>
+          <View style={tw`h-5/6`}>
+            <View style={tw`self-center`}>
+              <Avatar
+                source={{ uri: user?.avatar ? user.avatar : undefined }}
+                size="xl"
+              />
+            </View>
             <View
-              key={index}
-              style={tw.style("mt-4 bg-[#f72585]", !show && "hidden")}
+              style={tw.style("border-l-8 border-b-8 rounded-lg bg-sun mt-4")}
             >
-              <TouchableOpacity
+              <Text
                 style={tw.style(
-                  "bg-[#fad643] p-2 flex-row justify-between items-center",
-                  Translate.smallTranslate
+                  "text-2xl italic p-4 bg-persian text-slate-50 text-center font-bold",
+                  Translate.translate
                 )}
+              >
+                {auth.currentUser?.displayName}
+              </Text>
+            </View>
+            <View style={tw.style("flex-row justify-around items-center mt-4")}>
+              <TouchableOpacity
+                style={tw.style("bg-persian w-[40%]")}
+                onPress={() => {
+                  setShowModal(true);
+                  setGroup(myProf?.following!);
+                }}
               >
                 <Text
                   style={tw.style(
-                    "text-base italic text-stone-700 font-bold w-11/12"
+                    "text-lg  italic p-2 text-stone-700 text-center font-bold bg-sun",
+                    Translate.smallTranslate
                   )}
                 >
-                  {question.question}
+                  SEGUINDO: {myProf?.following.length}
                 </Text>
-                <DeleteDialog
-                  deleteQuestion={deleteQuestion}
-                  id={question.id}
-                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={tw.style("bg-[#05f2d2]  w-[40%]")}
+                onPress={() => {
+                  setShowModal(true);
+                  setGroup(myProf?.followers!);
+                }}
+              >
+                <Text
+                  style={tw.style(
+                    "text-lg italic p-2 bg-violet text-stone-100 text-center font-bold",
+                    Translate.smallTranslate
+                  )}
+                >
+                  SEGUIDORES: {myProf?.followers.length}
+                </Text>
               </TouchableOpacity>
             </View>
-          ))}
+            <View style={tw.style("flex-row justify-around items-center mt-4")}>
+              <TouchableOpacity
+                style={tw.style("bg-turquoise")}
+                onPress={() => {
+                  setShow(!show);
+                }}
+              >
+                <Text
+                  style={tw.style(
+                    "text-lg italic p-2 bg-violet text-stone-100 text-center font-bold",
+                    Translate.smallTranslate
+                  )}
+                >
+                  RESPOSTAS: {answCount}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={tw.style("bg-persian")}>
+                <Text
+                  style={tw.style(
+                    "text-lg italic p-2 bg-sun text-stone-700 text-center font-bold",
+                    Translate.smallTranslate
+                  )}
+                >
+                  PERGUNTAS: {questions?.length}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={tw.style("mt-10 h-1/2", {
+                overflow: "visible",
+              })}
+            >
+              <TouchableOpacity
+                style={tw.style("bg-sun")}
+                onPress={() => {
+                  setShow(!show);
+                }}
+              >
+                <Text
+                  style={tw.style(
+                    "text-lg italic p-2 bg-persian text-slate-100 text-center font-bold",
+                    Translate.smallTranslate
+                  )}
+                >
+                  VER PERGUNTAS
+                </Text>
+              </TouchableOpacity>
+              <View
+                style={tw.style(
+                  "h-11/12",
+
+                  !show && "hidden"
+                )}
+              >
+                <FlatList data={questions} renderItem={MyQuestionList} />
+                {/* {questions?.map((question, index) => (
+                  <View
+                    key={index}
+                    style={tw.style("mt-4 bg-persian", !show && "hidden")}
+                  >
+                    <TouchableOpacity
+                      style={tw.style(
+                        "bg-sun p-2 flex-row justify-between items-center",
+                        Translate.smallTranslate
+                      )}
+                    >
+                      <Text
+                        style={tw.style(
+                          "text-base italic text-stone-700 font-bold"
+                        )}
+                      >
+                        {question.question}
+                      </Text>
+                      <DeleteDialog
+                        deleteQuestion={deleteQuestion}
+                        id={question.id}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))} */}
+              </View>
+            </View>
+          </View>
         </View>
       </View>
       {error !== "" && <AlertComponent success={success} error={error} />}
