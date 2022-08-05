@@ -379,60 +379,50 @@ export const BottomNav = (): JSX.Element => {
     <View
       style={tailwind`absolute bottom-4 w-full flex-row justify-around items-center`}
     >
-      <IconButton
-        style={tailwind`rounded-full`}
-        _pressed={{ bg: "#F845967" }}
-        icon={
-          route.name === "Home" ? (
-            <MaterialIcons
-              name="search"
-              size={24}
-              color="#F72585"
-              onPress={() => navigation.navigate("Search")}
-            />
-          ) : (
-            <MaterialCommunityIcons
-              name="comment-question"
-              size={24}
-              color="#F72585"
-              onPress={() => navigation.navigate("Home")}
-            />
-          )
-        }
-      />
-      <IconButton
-        style={tailwind`rounded-full`}
-        _pressed={{ bg: "#F964A7" }}
-        icon={
-          <MaterialIcons
-            name="add-box"
-            size={24}
-            color="#F72585"
-            onPress={() => navigation.navigate("NewPost")}
-          />
-        }
-      />
-      <IconButton
-        style={tailwind`rounded-full`}
-        _pressed={{ bg: "#F964A7" }}
-        icon={
-          <MaterialIcons name="my-library-books" size={24} color="#F72585" />
-        }
-        onPress={() => navigation.navigate("MyQuestions")}
-      />
-
-      <IconButton
-        style={tailwind`rounded-full`}
-        _pressed={{ bg: "#F964A7" }}
-        icon={
+      {route.name === "Home" ? (
+        <TouchableOpacity
+          style={tailwind`rounded-full`}
+          onPress={() => navigation.navigate("Search")}
+        >
+          <MaterialIcons name="search" size={24} color="#F72585" />
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={tailwind`rounded-full`}
+          onPress={() => navigation.navigate("Home")}
+        >
           <MaterialCommunityIcons
-            name="guy-fawkes-mask"
+            name="comment-question"
             size={24}
             color="#F72585"
-            onPress={() => navigation.navigate("Profile")}
           />
-        }
-      />
+        </TouchableOpacity>
+      )}
+
+      <TouchableOpacity
+        style={tailwind`rounded-full`}
+        onPress={() => navigation.navigate("NewPost")}
+      >
+        <MaterialIcons name="add-box" size={24} color="#F72585" />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={tailwind`rounded-full`}
+        onPress={() => navigation.navigate("MyQuestions")}
+      >
+        <MaterialIcons name="my-library-books" size={24} color="#F72585" />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={tailwind`rounded-full`}
+        onPress={() => navigation.navigate("Profile")}
+      >
+        <MaterialCommunityIcons
+          name="guy-fawkes-mask"
+          size={24}
+          color="#F72585"
+        />
+      </TouchableOpacity>
     </View>
   );
 };
