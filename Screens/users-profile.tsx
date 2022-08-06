@@ -137,17 +137,30 @@ const UsersProfile = ({ route }: ScreenProps) => {
 
   const userFollow = async () => {
     if (!isFollowing) {
+      //Atualiza o documento do usuário sendo seguido
       const userDoc = doc(db, "users", currUser?.uid!);
       await updateDoc(userDoc, { followers: arrayUnion(user) });
+
+      //Atualiza o documento do usuário atual
+      const myDoc = doc(db, "users", user?.uid!);
+      await updateDoc(myDoc, { following: arrayUnion(currUser) });
 
       //Atualizar o front
       getTargetUser(userUid);
     } else {
+      //Atualiza o documento do usuário sendo seguido
       const userDoc = doc(db, "users", currUser?.uid!);
       const filter = currUser?.followers.filter(
         (item) => item.uid !== user!.uid
       );
       await updateDoc(userDoc, { followers: filter });
+
+      //Atualiza o documento do usuário atual
+      const myDoc = doc(db, "users", user?.uid!);
+      const myFilter = user?.following.filter(
+        (item) => item.uid !== currUser?.uid
+      );
+      await updateDoc(myDoc, { following: myFilter });
 
       //Atualizar o front
       getTargetUser(userUid);

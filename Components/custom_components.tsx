@@ -11,11 +11,19 @@ import {
 } from "react-native";
 import { Questions, UserInt } from "../Context";
 import tw from "../Components/tailwind_config";
-import { MaterialIcons } from "@expo/vector-icons";
+import { EvilIcons, MaterialIcons } from "@expo/vector-icons";
 import { PresenceTransition } from "native-base";
 import { QuestionComponent } from "./questions_components";
 import { Translate } from "./nativeBase_Components";
 import { Slider } from "@miblanchard/react-native-slider";
+import Animated, {
+  cancelAnimation,
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 
 interface MyModalInt {
   props: {
@@ -355,6 +363,43 @@ export const LoadingScreen = (): JSX.Element => {
       >
         ?
       </Text>
+    </View>
+  );
+};
+
+export const LoadingComponent = (): JSX.Element => {
+  const rotation = useSharedValue(0);
+
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          rotateZ: `${rotation.value}deg`,
+        },
+      ],
+    };
+  }, [rotation.value]);
+
+  useEffect(() => {
+    rotation.value = withRepeat(
+      withTiming(360, {
+        duration: 1000,
+        easing: Easing.linear,
+      }),
+      -1
+    );
+    return () => cancelAnimation(rotation);
+  }, []);
+
+  return (
+    <View
+      style={tw.style(
+        "absolute top-0 w-full h-full flex-col justify-center items-center bg-dark z-20"
+      )}
+    >
+      <Animated.View style={tw.style("p-1", animatedStyles)}>
+        <EvilIcons name="spinner-3" size={44} color="#F72585" />
+      </Animated.View>
     </View>
   );
 };

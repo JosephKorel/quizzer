@@ -3,6 +3,7 @@ import {
   collection,
   doc,
   DocumentData,
+  getDoc,
   getDocs,
   query,
   updateDoc,
@@ -21,7 +22,7 @@ import { auth, db } from "../firebase_config";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import { Slider } from "@miblanchard/react-native-slider";
-import { AppContext, Questions } from "../Context";
+import { AppContext, Questions, UserInt } from "../Context";
 import tw from "../Components/tailwind_config";
 import { Avatar, IconButton } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -39,11 +40,17 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { QuestionComponent } from "../Components/questions_components";
-import { LoadingScreen } from "../Components/custom_components";
+import {
+  LoadingComponent,
+  LoadingScreen,
+} from "../Components/custom_components";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 function Home() {
   const {
     user,
+    setUser,
+    setIsAuth,
     theme,
     setTheme,
     questions,
@@ -55,14 +62,57 @@ function Home() {
   const [reveal, setReveal] = useState(false);
   const [scaleVal, setScaleVal] = useState<number | number[]>([]);
   const [isSliding, setIsSliding] = useState(false);
-  const [search, setSearch] = useState("");
-  const [myQuestions, setMyQuestions] = useState(false);
-  const [allQuestions, setAllQuestions] = useState<Questions[] | null>(null);
-  const [tagSearch, setTagSearch] = useState(false);
+
+  const [feedQuestions, setFeedQuestions] = useState<Questions[] | null>(null);
   const [error, setError] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const navigation = useNavigation<propsStack>();
+
+  const getUser = async (authUser: User) => {
+    //Query do usuário
+    const docRef = doc(db, "users", authUser.uid);
+    const docSnap = await getDoc(docRef);
+    const userData = docSnap.data() as UserInt;
+
+    //Array que recebe cada documento
+    let questionDocs: Questions[] = [];
+
+    //Query da coleção
+    const questionCol = collection(db, "questionsdb");
+    const colQuery = query(questionCol);
+    const querySnapshot = await getDocs(colQuery);
+    querySnapshot.forEach((doc: DocumentData) => questionDocs.push(doc.data()));
+
+    //Pega as perguntas apenas de quem estou seguindo
+    const showQuestions = questionDocs.filter((item) => {
+      if (userData.following.some((obj) => item.author.uid === obj.uid)) {
+        return true;
+      }
+    });
+
+    //Sort pelo número de votos
+    showQuestions.sort((a, b) => {
+      if (a.views > b.views) return -1;
+      else return 1;
+    });
+
+    //Sort pelas perguntas ainda não respondidas
+    showQuestions.sort((a, b) => {
+      if (a.hasVoted.includes(user?.uid!)) return 1;
+      else return -1;
+    });
+
+    setFeedQuestions(showQuestions);
+    setQuestions(questionDocs);
+    setUser({
+      name: authUser.displayName,
+      uid: authUser.uid,
+      avatar: authUser.photoURL,
+      followers: userData.followers,
+      following: userData.following,
+    });
+  };
 
   const retrieveCollection = async () => {
     //Array que recebe cada documento
@@ -74,33 +124,55 @@ function Home() {
     const querySnapshot = await getDocs(colQuery);
     querySnapshot.forEach((doc: DocumentData) => questionDocs.push(doc.data()));
 
+    //Pega as perguntas apenas de quem estou seguindo
+    const showQuestions = questionDocs.filter((item) => {
+      if (user?.following.some((obj) => item.author.uid === obj.uid)) {
+        return true;
+      }
+    });
+
     //Sort pelo número de votos
-    questionDocs.sort((a, b) => {
+    showQuestions.sort((a, b) => {
       if (a.views > b.views) return -1;
       else return 1;
     });
 
     //Sort pelas perguntas ainda não respondidas
-    questionDocs.sort((a, b) => {
-      if (a.hasVoted.includes(user!.uid)) return 1;
+    showQuestions.sort((a, b) => {
+      if (a.hasVoted.includes(user?.uid!)) return 1;
       else return -1;
     });
+
+    setFeedQuestions(showQuestions);
     setQuestions(questionDocs);
-    setAllQuestions(questionDocs);
   };
 
   useEffect(() => {
-    retrieveCollection();
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  }, []);
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        getUser(user);
+        setIsAuth(true);
+        setTimeout(() => {
+          setLoading(false);
+        }, 1000);
+      } else {
+        setIsAuth(false);
+        navigation.navigate("Login");
+      }
+    });
+  }, [onAuthStateChanged]);
 
   useEffect(() => {
     setTimeout(() => {
       setError("");
     }, 2000);
   }, [error]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsUpdating(false);
+    }, 500);
+  }, [isUpdating]);
 
   //Voto de Sim ou Não
   const onVote = async (choice: string): Promise<void | null> => {
@@ -288,29 +360,6 @@ function Home() {
     }
   };
 
-  const searchForTag = (): void | null => {
-    let tags: string[] = [];
-    const tagArr = search.toLocaleLowerCase().split(",");
-
-    //Depois de separar por vírgula, retira os espaços
-    tagArr.forEach((item) => tags.push(item.trim()));
-
-    const questionFilter = allQuestions?.filter((item) => {
-      return item.tags.some((tag) => tags.includes(tag));
-    });
-
-    if (questionFilter?.length) {
-      setQuestions(questionFilter);
-      setTagSearch(false);
-      setIsSearching(true);
-    } else {
-      setError(
-        "Nenhuma pergunta com esta tag foi encontrada, mostrando todas as perguntas"
-      );
-      return null;
-    }
-  };
-
   const custom = (value: number | Array<number>, index: number) => {
     const labels = questions![index].labels!;
     if (Array.isArray(value)) {
@@ -328,24 +377,6 @@ function Home() {
         );
     }
   };
-
-  useEffect(() => {
-    const showMyQuestions = () => {
-      const myQuestionFilter = allQuestions?.filter(
-        (item) => item.author.uid === user?.uid
-      );
-      setQuestions(myQuestionFilter!);
-    };
-
-    const showAllQuestions = () => {
-      const myQuestionFilter = allQuestions?.filter(
-        (item) => item.author.uid !== user?.uid
-      );
-      setQuestions(myQuestionFilter!);
-    };
-
-    myQuestions ? showMyQuestions() : showAllQuestions();
-  }, [myQuestions]);
 
   const YesNoButtons = (): JSX.Element => {
     const hasVoted = (): boolean => {
@@ -675,34 +706,45 @@ function Home() {
         "w-full h-full"
       )}
     >
+      {isUpdating && <LoadingComponent />}
+
       {loading && <LoadingScreen />}
       <View style={tw`w-[98%] mx-auto`}>
         <View
           style={tw`absolute top-10 flex-row w-full justify-between items-center z-10`}
         >
           {theme === "dark" ? (
-            <MaterialIcons
-              name="wb-sunny"
-              size={24}
-              color="#F72585"
+            <TouchableOpacity
               onPress={() => setTheme("light")}
-            />
+              style={tw.style("rounded-full")}
+            >
+              <MaterialIcons name="wb-sunny" size={24} color="#F72585" />
+            </TouchableOpacity>
           ) : (
-            <MaterialIcons
-              name="nightlight-round"
-              size={24}
-              color="#0d0f47"
+            <TouchableOpacity
               onPress={() => setTheme("dark")}
-            />
+              style={tw.style("rounded-full")}
+            >
+              <MaterialIcons
+                name="nightlight-round"
+                size={24}
+                color="#0d0f47"
+              />
+            </TouchableOpacity>
           )}
-          <IconButton
-            style={tw` rounded-full`}
-            icon={<MaterialIcons name="refresh" size={24} color="#2ecfc0" />}
-            onPress={retrieveCollection}
-          />
+          <TouchableOpacity
+            onPress={() => {
+              setIsUpdating(true);
+              retrieveCollection();
+            }}
+            style={tw.style("rounded-full")}
+          >
+            <MaterialIcons name="refresh" size={24} color="#2ecfc0" />
+          </TouchableOpacity>
         </View>
         <StatusBar
           barStyle={theme === "light" ? "dark-content" : "light-content"}
+          backgroundColor={theme === "light" ? "#fecaca" : "#0D0F47"}
         />
         <View style={tw.style("h-full flex-col justify-center")}>
           {/* <GestureHandlerRootView>
@@ -715,7 +757,7 @@ function Home() {
             </PanGestureHandler>
           </GestureHandlerRootView> */}
           <View style={tw.style("h-5/6")}>
-            <FlatList data={questions} renderItem={HomeQuestions} />
+            <FlatList data={feedQuestions} renderItem={HomeQuestions} />
           </View>
         </View>
       </View>

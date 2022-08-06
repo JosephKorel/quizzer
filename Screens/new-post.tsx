@@ -399,7 +399,7 @@ function NewPost() {
         "w-full h-full"
       )}
     >
-      <View style={tw`w-11/12 mx-auto`}>
+      <View style={tw.style("w-11/12 mx-auto")}>
         <View style={tw`absolute top-10`}>
           {theme === "dark" ? (
             <MaterialIcons
@@ -595,6 +595,10 @@ function NewPost() {
               ENVIAR {<FontAwesome name="send-o" size={24} color="white" />}
             </Text>
           </TouchableOpacity>
+          {/* <View style={tw.style("w-full h-20 bg-red-200")}></View>
+          <View style={tw.style("w-full h-20 bg-red-200")}></View>
+          <View style={tw.style("w-full h-20 bg-red-200")}></View>
+          <View style={tw.style("w-full h-20 bg-red-200")}></View> */}
         </View>
       </View>
       {error !== "" && <AlertComponent success={success} error={error} />}

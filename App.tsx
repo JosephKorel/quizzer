@@ -23,7 +23,7 @@ export default function App() {
       <NativeBaseProvider>
         <NavigationContainer>
           <Navigator
-            initialRouteName="Login"
+            initialRouteName="Home"
             screenOptions={{ headerShown: false }}
           >
             <Screen name="Login" component={Login}></Screen>
@@ -35,7 +35,7 @@ export default function App() {
             <Screen
               name="UsersProfile"
               component={UsersProfile}
-              initialParams={{ name: "", avatar: "" }}
+              initialParams={{ name: "", userUid: "", avatar: "" }}
             ></Screen>
           </Navigator>
         </NavigationContainer>
