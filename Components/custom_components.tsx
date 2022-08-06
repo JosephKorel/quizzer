@@ -184,16 +184,11 @@ export const MyQuestionComponent = ({ question }: { question: Questions }) => {
   }): JSX.Element => {
     return (
       <View style={tw`mt-4`}>
-        <View style={tw`bg-slate-100`}>
+        <View style={tw`bg-stone-800`}>
           <TouchableOpacity style={Translate.translate}>
             <Text
               style={tw.style(
-                "text-2xl",
-                "italic",
-                "text-center",
-                "bg-[#F72585]",
-                "text-slate-100",
-                "font-bold"
+                "text-2xl italic text-center bg-persian text-slate-100 font-bold"
               )}
             >
               {qstkey}: {value.length}

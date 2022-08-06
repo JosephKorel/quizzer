@@ -73,27 +73,6 @@ const UsersProfile = ({ route }: ScreenProps) => {
     ? true
     : false;
 
-  const handleFollow = async (
-    uid: string,
-    follows: boolean,
-    target: UserInt
-  ) => {
-    if (!follows) {
-      const userDoc = doc(db, "users", uid);
-      await updateDoc(userDoc, { followers: arrayUnion(user) });
-
-      //Atualizar o front
-      getTargetUser(uid);
-    } else {
-      const userDoc = doc(db, "users", uid);
-      const filter = target.followers.filter((item) => item.uid !== user!.uid);
-      await updateDoc(userDoc, { followers: filter });
-
-      //Atualizar o front
-      getTargetUser(uid);
-    }
-  };
-
   const goToProfile = async (item: UserInt) => {
     if (item.uid === user?.uid) {
       navigation.navigate("Profile");
@@ -110,9 +89,6 @@ const UsersProfile = ({ route }: ScreenProps) => {
   };
 
   const userList = ({ item }: { item: UserInt }) => {
-    const filter = item.followers.filter((item) => item.uid === user!.uid);
-    const follows = filter.length ? true : false;
-
     return (
       <View style={tw.style("flex-row justify-around items-center mt-2")}>
         <Avatar source={{ uri: item.avatar! }} />
@@ -135,7 +111,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
     );
   };
 
-  const userFollow = async () => {
+  const handleFollow = async () => {
     if (!isFollowing) {
       //Atualiza o documento do usuário sendo seguido
       const userDoc = doc(db, "users", currUser?.uid!);
@@ -170,9 +146,8 @@ const UsersProfile = ({ route }: ScreenProps) => {
   return (
     <View
       style={tw.style(
-        theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
-        "w-full",
-        "h-full"
+        theme === "light" ? "bg-red-200" : "bg-dark",
+        "w-full h-full"
       )}
     >
       <View style={tw`w-11/12 mx-auto`}>
@@ -214,7 +189,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
             >
               {name}
             </Text>
-            <TouchableOpacity onPress={userFollow}>
+            <TouchableOpacity onPress={handleFollow}>
               <Text style={tw.style("text-base italic text-slate-50")}>
                 {isFollowing ? "Deixar de seguir" : "Seguir"}
               </Text>

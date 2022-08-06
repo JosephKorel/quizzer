@@ -113,8 +113,7 @@ export default function Login() {
         <Text style={tw.style("italic text-6xl")}>ZZ</Text>
         ER
       </Text>
-
-      <Text
+      {/* <Text
         style={tw.style(
           "text-7xl text-emerald font-bold absolute top-1/6 right-10"
         )}
@@ -127,7 +126,7 @@ export default function Login() {
         )}
       >
         ?
-      </Text>
+      </Text> */}
       <TouchableOpacity
         onPress={() => promptAsync()}
         style={tw.style("bg-turquoise mt-20")}
