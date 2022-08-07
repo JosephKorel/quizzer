@@ -60,7 +60,7 @@ export const UserListModal = ({ props }: MyModalInt): JSX.Element => {
       >
         <TouchableOpacity
           style={tw.style(
-            "relative z-10 h-2/3 w-5/6 min-h-2/3 min-w-5/6 bg-dark rounded-md"
+            "relative z-10 h-2/3 w-[90%] min-h-2/3 min-w-[90%] bg-dark rounded-md"
           )}
           onPress={() => setShowModal(true)}
           activeOpacity={1}
@@ -120,7 +120,7 @@ export const CustomQuestionModal = ({
       >
         <TouchableOpacity
           style={tw.style(
-            "relative z-10 h-2/3 w-[96%] min-h-2/3 min-w-[96%] bg-dark rounded-md"
+            "relative z-10 h-2/3 w-[96%] min-h-2/3 min-w-[96%] bg-violet-600 rounded-md"
           )}
           onPress={() => setShowQst(true)}
           activeOpacity={1}

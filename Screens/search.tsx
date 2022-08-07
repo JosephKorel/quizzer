@@ -149,54 +149,25 @@ function Search() {
   };
 
   const userComponent = ({ item }: { item: UsersInt }) => {
-    const filter = item.followers.filter((item) => item.uid === user!.uid);
-    const isFollowing = filter.length ? true : false;
-
     return (
       <View style={tw.style("flex-row items-center mt-2")}>
-        <Avatar source={{ uri: item.avatar }} />
-        <View style={tw.style("bg-persian w-full ml-2")}>
-          <TouchableOpacity
-            style={tw.style(
-              "flex-row items-center bg-sun w-full",
-              Translate.smallTranslate
-            )}
-            onPress={() =>
-              navigation.navigate("UsersProfile", {
-                name: item.name!,
-                userUid: item.uid,
-                avatar: item.avatar!,
-              })
-            }
-          >
-            <Text
-              style={tw.style("text-stone-700 text-lg font-semibold p-1 w-2/3")}
-            >
-              {item.name}
-            </Text>
-            {/* <View
-              style={tw.style("flex-row items-center justify-between w-1/6")}
-            >
-              <TouchableOpacity>
-                {isFollowing ? (
-                  <SimpleLineIcons
-                    name="user-following"
-                    size={24}
-                    color="green"
-                    onPress={() => handleFollow(item.uid, isFollowing, item)}
-                  />
-                ) : (
-                  <SimpleLineIcons
-                    name="user-follow"
-                    size={24}
-                    color="black"
-                    onPress={() => handleFollow(item.uid, isFollowing, item)}
-                  />
-                )}
-              </TouchableOpacity>
-            </View> */}
-          </TouchableOpacity>
-        </View>
+        <Avatar source={{ uri: item.avatar }} size="sm" />
+        <TouchableOpacity
+          style={tw.style(
+            "flex-row ml-2 border-b border-stone-100 items-center w-full"
+          )}
+          onPress={() =>
+            navigation.navigate("UsersProfile", {
+              name: item.name!,
+              userUid: item.uid,
+              avatar: item.avatar!,
+            })
+          }
+        >
+          <Text style={tw.style("text-stone-100 text-lg font-bold p-1")}>
+            {item.name.toUpperCase()}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -221,19 +192,23 @@ function Search() {
       <View style={tw`w-11/12 mx-auto`}>
         <View style={tw`absolute top-10 w-full z-10`}>
           {theme === "dark" ? (
-            <MaterialIcons
-              name="wb-sunny"
-              size={24}
-              color="#F72585"
+            <TouchableOpacity
+              style={tw.style("rounded-full")}
               onPress={() => setTheme("light")}
-            />
+            >
+              <MaterialIcons name="wb-sunny" size={24} color="#F72585" />
+            </TouchableOpacity>
           ) : (
-            <MaterialIcons
-              name="nightlight-round"
-              size={24}
-              color="#0d0f47"
+            <TouchableOpacity
+              style={tw.style("rounded-full")}
               onPress={() => setTheme("dark")}
-            />
+            >
+              <MaterialIcons
+                name="nightlight-round"
+                size={24}
+                color="#0d0f47"
+              />
+            </TouchableOpacity>
           )}
         </View>
         <View style={{ transform: [{ translateY: 80 }] }}>
@@ -249,11 +224,10 @@ function Search() {
           </View>
           <View
             style={tw.style(
-              "flex-row items-center justify-between p-1 rounded-md bg-slate-200 mt-2"
+              "flex-row items-center justify-between p-1 rounded-sm bg-slate-200 mt-2"
             )}
           >
             <TextInput
-              autoComplete="off"
               placeholder="Comece a digitar"
               value={search}
               onChangeText={(text) => setSearch(text)}
@@ -275,10 +249,12 @@ function Search() {
               />
             )}
           </View>
-          <View style={tw.style("mt-2 flex-row justify-between items-center")}>
+          <View
+            style={tw.style("mt-2 flex-row justify-between items-center mb-4")}
+          >
             <TouchableOpacity
               onPress={() => setShowQst(false)}
-              style={tw.style("bg-stone-800")}
+              style={tw.style("bg-sun")}
             >
               <Text
                 style={tw.style(
@@ -291,7 +267,7 @@ function Search() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setShowQst(true)}
-              style={tw.style("bg-stone-800")}
+              style={tw.style("bg-sun")}
             >
               <Text
                 style={tw.style(

@@ -107,33 +107,27 @@ function Profile() {
   };
 
   const userList = ({ item }: { item: UserInt }) => {
-    const filter = item.followers.filter((item) => item.uid === user!.uid);
-    const follows = filter.length ? true : false;
-
     return (
-      <View style={tw.style("flex-row justify-around items-center mt-2")}>
-        <Avatar source={{ uri: item.avatar! }} />
-        <View style={tw.style("bg-persian w-full w-[70%]")}>
-          <TouchableOpacity
-            style={tw.style(
-              "flex-row items-center bg-sun w-full",
-              Translate.smallTranslate
-            )}
-            onPress={() =>
-              navigation.navigate("UsersProfile", {
-                name: item.name!,
-                userUid: item.uid,
-                avatar: item.avatar!,
-              })
-            }
-          >
-            <Text
-              style={tw.style("text-stone-700 text-lg font-semibold p-1 w-2/3")}
-            >
-              {item.name}
-            </Text>
-          </TouchableOpacity>
-        </View>
+      <View style={tw.style("flex-row items-center mt-2 p-2")}>
+        <Avatar source={{ uri: item.avatar! }} size="sm" />
+
+        <TouchableOpacity
+          style={tw.style(
+            "flex-row items-center border-b border-persian ml-2 flex-1",
+            Translate.smallTranslate
+          )}
+          onPress={() =>
+            navigation.navigate("UsersProfile", {
+              name: item.name!,
+              userUid: item.uid,
+              avatar: item.avatar!,
+            })
+          }
+        >
+          <Text style={tw.style("text-slate-100 text-base font-bold p-1")}>
+            {item.name?.toUpperCase()}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -163,26 +157,30 @@ function Profile() {
   return (
     <View
       style={tw.style(
-        theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
+        theme === "light" ? "bg-red-200" : "bg-dark",
         "w-full h-full"
       )}
     >
       <View style={tw`w-[98%] mx-auto`}>
         <View style={tw`absolute top-10`}>
           {theme === "dark" ? (
-            <MaterialIcons
-              name="wb-sunny"
-              size={24}
-              color="#F72585"
+            <TouchableOpacity
+              style={tw.style("rounded-full")}
               onPress={() => setTheme("light")}
-            />
+            >
+              <MaterialIcons name="wb-sunny" size={24} color="#F72585" />
+            </TouchableOpacity>
           ) : (
-            <MaterialIcons
-              name="nightlight-round"
-              size={24}
-              color="#0d0f47"
+            <TouchableOpacity
+              style={tw.style("rounded-full")}
               onPress={() => setTheme("dark")}
-            />
+            >
+              <MaterialIcons
+                name="nightlight-round"
+                size={24}
+                color="#0d0f47"
+              />
+            </TouchableOpacity>
           )}
         </View>
         <View style={tw`h-full flex-col justify-center w-[96%] mx-auto`}>

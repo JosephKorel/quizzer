@@ -480,7 +480,7 @@ export const QuestionComponent = ({
       <View style={tw`mt-2 flex-row items-center`}>
         <AntDesign name="tags" size={24} color="gray" style={tw`mr-3`} />
         {item.tags.map((tag, i, arr) => (
-          <Text key={i} style={tw`text-slate-500 text-xs mr-2`}>
+          <Text key={i} style={tw`text-slate-200 text-xs mr-2`}>
             {tag.toUpperCase()}
             {i === arr.length - 1 ? "" : ","}
           </Text>

@@ -90,23 +90,18 @@ const UsersProfile = ({ route }: ScreenProps) => {
 
   const userList = ({ item }: { item: UserInt }) => {
     return (
-      <View style={tw.style("flex-row justify-around items-center mt-2")}>
-        <Avatar source={{ uri: item.avatar! }} />
-        <View style={tw.style("bg-persian w-full w-[70%]")}>
-          <TouchableOpacity
-            style={tw.style(
-              "flex-row items-center bg-sun w-full",
-              Translate.smallTranslate
-            )}
-            onPress={() => goToProfile(item)}
-          >
-            <Text
-              style={tw.style("text-stone-700 text-lg font-semibold p-1 w-2/3")}
-            >
-              {item.name}
-            </Text>
-          </TouchableOpacity>
-        </View>
+      <View style={tw.style("flex-row items-center p-2")}>
+        <Avatar source={{ uri: item.avatar! }} size="sm" />
+        <TouchableOpacity
+          style={tw.style(
+            "border border-t-gray-700 border-b-slate-100 border-r-slate-100 border-l-gray-700 rounded-r-lg rounded-t-lg ml-2 flex-1"
+          )}
+          onPress={() => goToProfile(item)}
+        >
+          <Text style={tw.style("text-stone-100 text-base font-bold p-1")}>
+            {item.name?.toUpperCase()}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -153,19 +148,23 @@ const UsersProfile = ({ route }: ScreenProps) => {
       <View style={tw`w-11/12 mx-auto`}>
         <View style={tw`absolute top-10`}>
           {theme === "dark" ? (
-            <MaterialIcons
-              name="wb-sunny"
-              size={24}
-              color="#F72585"
+            <TouchableOpacity
+              style={tw.style("rounded-full")}
               onPress={() => setTheme("light")}
-            />
+            >
+              <MaterialIcons name="wb-sunny" size={24} color="#F72585" />
+            </TouchableOpacity>
           ) : (
-            <MaterialIcons
-              name="nightlight-round"
-              size={24}
-              color="#0d0f47"
+            <TouchableOpacity
+              style={tw.style("rounded-full")}
               onPress={() => setTheme("dark")}
-            />
+            >
+              <MaterialIcons
+                name="nightlight-round"
+                size={24}
+                color="#0d0f47"
+              />
+            </TouchableOpacity>
           )}
         </View>
         <View style={tw`self-center mt-24`}>
@@ -173,9 +172,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
             <Avatar source={{ uri: avatar }} size="xl" />
           </View>
         </View>
-        <View
-          style={tw.style("border-l-8 border-b-8 rounded-lg bg-[#fdc500] mt-4")}
-        >
+        <View style={tw.style("border-l-8 border-b-8 rounded-lg bg-sun mt-4")}>
           <View
             style={tw.style(
               "p-4 bg-persian flex-row items-center justify-between",
@@ -187,7 +184,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
                 "text-2xl italic text-slate-50 text-center font-bold"
               )}
             >
-              {name}
+              {name.toUpperCase()}
             </Text>
             <TouchableOpacity onPress={handleFollow}>
               <Text style={tw.style("text-base italic text-slate-50")}>
@@ -231,12 +228,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
           </TouchableOpacity>
         </View>
         <View style={tw.style("flex-row justify-around items-center mt-4")}>
-          <TouchableOpacity
-            style={tw.style("bg-turquoise w-[44%]")}
-            onPress={() => {
-              setShow(!show);
-            }}
-          >
+          <TouchableOpacity style={tw.style("bg-turquoise w-[44%]")}>
             <Text
               style={tw.style(
                 "text-lg  italic p-2 text-slate-100 text-center font-bold bg-violet",
@@ -246,7 +238,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
               RESPOSTAS: {answers}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={tw.style("bg-persian  w-[44%]")}>
+          <TouchableOpacity style={tw.style("bg-persian w-[44%]")}>
             <Text
               style={tw.style(
                 "text-lg italic p-2 bg-sun text-stone-700 text-center font-bold",
