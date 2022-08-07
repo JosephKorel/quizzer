@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Text,
+  TextInput,
+  Touchable,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { AppContext } from "../Context";
 import { doc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -400,205 +407,279 @@ function NewPost() {
       )}
     >
       <View style={tw.style("w-11/12 mx-auto")}>
-        <View style={tw`absolute top-10`}>
+        <View style={tw`absolute top-10 z-10`}>
           {theme === "dark" ? (
-            <MaterialIcons
-              name="wb-sunny"
-              size={24}
-              color="#F72585"
+            <TouchableOpacity
               onPress={() => setTheme("light")}
-            />
+              style={tw.style("rounded-full")}
+            >
+              <MaterialIcons name="wb-sunny" size={24} color="#F72585" />
+            </TouchableOpacity>
           ) : (
-            <MaterialIcons
-              name="nightlight-round"
-              size={24}
-              color="#0d0f47"
+            <TouchableOpacity
+              style={tw.style("rounded-full")}
               onPress={() => setTheme("dark")}
-            />
+            >
+              <MaterialIcons
+                name="nightlight-round"
+                size={24}
+                color="#0d0f47"
+              />
+            </TouchableOpacity>
           )}
         </View>
-        <View style={{ transform: [{ translateY: 100 }] }}>
-          <View
-            style={tw.style(
-              "border-l-8 border-b-8 rounded-lg",
-              "bg-[#fdc500]",
-              "mb-5"
-            )}
-          >
-            <Text
-              style={tw.style(
-                "text-2xl italic p-4 bg-persian text-slate-100 text-center font-bold",
-                Translate.translate
-              )}
-            >
-              {hasChoosen ? question.toUpperCase() : "QUAL É A DÚVIDA DE HOJE?"}
-            </Text>
-          </View>
-          {hasChoosen == true && choice !== "Sim ou Não" ? (
-            <>
-              {choice === "Enquete" && OptionMap()}
-              {choice === "Escala de 0 a 10" && ScaleLabel()}
-            </>
-          ) : (
-            <>
-              <PresenceTransition
-                visible={!hasChoosen}
-                initial={{
-                  opacity: 0,
-                  scale: 0,
-                }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                  transition: {
-                    duration: 150,
-                  },
-                }}
+        <View style={tw.style("h-full flex-col justify-center")}>
+          <View style={tw.style("h-5/6 flex-col justify-between")}>
+            <View>
+              <View
+                style={tw.style("border-l-8 border-b-8 rounded-lg bg-sun mt-4")}
               >
-                <TextInput
-                  placeholder="Escreva aqui"
-                  value={question}
+                <Text
                   style={tw.style(
-                    "bg-slate-100 rounded-sm p-3 text-xl border-persian border"
+                    "text-2xl italic p-4 bg-persian text-slate-100 text-center font-bold",
+                    Translate.translate
                   )}
-                  onChangeText={(text) => setQuestion(text)}
-                ></TextInput>
+                >
+                  {hasChoosen
+                    ? question.toUpperCase()
+                    : "QUAL É A DÚVIDA DE HOJE?"}
+                </Text>
+              </View>
+              {!hasChoosen && (
+                <>
+                  <TextInput
+                    placeholder="Escreva aqui"
+                    value={question}
+                    style={tw.style(
+                      "bg-slate-100 rounded-sm p-3 text-xl border-persian border mt-2"
+                    )}
+                    onChangeText={(text) => setQuestion(text)}
+                  ></TextInput>
 
-                {image ? (
-                  <View style={tw.style("flex-row justify-center mt-1")}>
-                    <Image
-                      style={tw.style(
-                        { width: 100, height: 100 },
-                        "rounded-md border-2 border-persian"
-                      )}
-                      source={{ uri: image.uri }}
-                    ></Image>
-                    <IconButton
-                      style={tw`absolute left-[53%]`}
-                      onPress={() => setImage(null)}
-                      _pressed={{ bg: "#edc531" }}
-                      py={1}
-                      size="sm"
-                      icon={
-                        <MaterialCommunityIcons
-                          name="close-box-multiple"
-                          size={24}
-                          color="#fad643"
-                        />
-                      }
-                    />
-                  </View>
-                ) : (
-                  <TouchableOpacity
-                    style={tw`bg-[#F72585] self-start mt-2`}
-                    onPress={addImage}
-                  >
+                  {image ? (
+                    <View style={tw.style("flex-row justify-center mt-1")}>
+                      <Image
+                        style={tw.style(
+                          { width: 100, height: 100 },
+                          "rounded-md border-2 border-persian"
+                        )}
+                        source={{ uri: image.uri }}
+                      ></Image>
+                      <IconButton
+                        style={tw`absolute left-[53%]`}
+                        onPress={() => setImage(null)}
+                        _pressed={{ bg: "#edc531" }}
+                        py={1}
+                        size="sm"
+                        icon={
+                          <MaterialCommunityIcons
+                            name="close-box-multiple"
+                            size={24}
+                            color="#fad643"
+                          />
+                        }
+                      />
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      style={tw`bg-persian self-start mt-2`}
+                      onPress={addImage}
+                    >
+                      <Text
+                        style={tw.style(
+                          "text-sm italic px-2 bg-sun text-stone-800 font-bold",
+                          Translate.xsTranslate
+                        )}
+                      >
+                        IMAGEM{" "}
+                        {
+                          <MaterialCommunityIcons
+                            name="upload"
+                            size={18}
+                            color="#212529"
+                          />
+                        }
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </>
+              )}
+            </View>
+            {hasChoosen == true && choice !== "Sim ou Não" ? (
+              <>
+                {choice === "Enquete" && OptionMap()}
+                {choice === "Escala de 0 a 10" && ScaleLabel()}
+              </>
+            ) : (
+              <>
+                <PresenceTransition
+                  visible={!hasChoosen}
+                  initial={{
+                    opacity: 0,
+                    scale: 0,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    transition: {
+                      duration: 150,
+                    },
+                  }}
+                >
+                  {/* <TextInput
+                    placeholder="Escreva aqui"
+                    value={question}
+                    style={tw.style(
+                      "bg-slate-100 rounded-sm p-3 text-xl border-persian border"
+                    )}
+                    onChangeText={(text) => setQuestion(text)}
+                  ></TextInput>
+
+                  {image ? (
+                    <View style={tw.style("flex-row justify-center mt-1")}>
+                      <Image
+                        style={tw.style(
+                          { width: 100, height: 100 },
+                          "rounded-md border-2 border-persian"
+                        )}
+                        source={{ uri: image.uri }}
+                      ></Image>
+                      <IconButton
+                        style={tw`absolute left-[53%]`}
+                        onPress={() => setImage(null)}
+                        _pressed={{ bg: "#edc531" }}
+                        py={1}
+                        size="sm"
+                        icon={
+                          <MaterialCommunityIcons
+                            name="close-box-multiple"
+                            size={24}
+                            color="#fad643"
+                          />
+                        }
+                      />
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      style={tw`bg-persian self-start mt-2`}
+                      onPress={addImage}
+                    >
+                      <Text
+                        style={tw.style(
+                          "text-sm italic px-2 bg-sun text-stone-800 font-bold",
+                          Translate.xsTranslate
+                        )}
+                      >
+                        IMAGEM{" "}
+                        {
+                          <MaterialCommunityIcons
+                            name="upload"
+                            size={18}
+                            color="#212529"
+                          />
+                        }
+                      </Text>
+                    </TouchableOpacity>
+                  )} */}
+                  <View style={tw`bg-turquoise self-start`}>
                     <Text
                       style={tw.style(
-                        "text-sm italic px-2 bg-sun text-stone-800 font-bold",
-                        Translate.xsTranslate
+                        "text-xl italic p-2 bg-violet text-slate-50 font-bold",
+                        Translate.smallTranslate
                       )}
                     >
-                      IMAGEM{" "}
-                      {
-                        <MaterialCommunityIcons
-                          name="upload"
-                          size={18}
-                          color="#212529"
-                        />
-                      }
+                      SUA PERGUNTA É DO TIPO
                     </Text>
-                  </TouchableOpacity>
+                  </View>
+                  <View style={tw``}>
+                    {questionType.map((question, index) => (
+                      <QuestionTypeComponent qst={question} key={index} />
+                    ))}
+                  </View>
+                </PresenceTransition>
+              </>
+            )}
+
+            <View style={tw`mt-6`}>
+              <View style={tw.style("self-start bg-turquoise")}>
+                <Text
+                  style={tw.style(
+                    "text-sm px-2 italic self-start text-center bg-violet text-slate-100 font-bold",
+                    Translate.xsTranslate
+                  )}
+                >
+                  TAGS{" "}
+                  {
+                    <MaterialCommunityIcons
+                      name="tag-multiple"
+                      size={18}
+                      color="white"
+                    />
+                  }
+                </Text>
+              </View>
+              <TextInput
+                style={tw.style(
+                  "bg-slate-100 rounded-sm text-base border-persian border mt-1"
                 )}
-                <View style={tw`bg-turquoise self-start mt-6`}>
+                placeholder="Ex: pessoal, curiosidade, super heróis, netflix"
+                value={tags}
+                onChangeText={(text) => setTags(text)}
+              ></TextInput>
+              <View style={tw`bg-violet self-start mt-2`}>
+                <TouchableOpacity
+                  onPress={() => setHasSpoiler(!hasSpoiler)}
+                  style={tw.style(
+                    Translate.smallTranslate,
+                    "flex-row items-center"
+                  )}
+                >
                   <Text
                     style={tw.style(
-                      "text-xl italic p-2 bg-violet text-slate-50 font-bold",
-                      Translate.smallTranslate
+                      "text-base px-2 italic text-center font-bold",
+                      hasSpoiler ? "bg-emerald" : "bg-[#e71d36]",
+                      hasSpoiler ? "text-slate-100" : "text-slate-100"
                     )}
                   >
-                    SUA PERGUNTA É DO TIPO
+                    {hasSpoiler
+                      ? "Não contém spoiler  "
+                      : "Marcar como spoiler  "}
+                    {hasSpoiler ? (
+                      <MaterialCommunityIcons
+                        name="shield-off"
+                        size={20}
+                        color="white"
+                      />
+                    ) : (
+                      <MaterialCommunityIcons
+                        name="shield"
+                        size={20}
+                        color="white"
+                      />
+                    )}
                   </Text>
-                </View>
-                <View style={tw``}>
-                  {questionType.map((question, index) => (
-                    <QuestionTypeComponent qst={question} key={index} />
-                  ))}
-                </View>
-              </PresenceTransition>
-            </>
-          )}
-          <View style={tw`bg-violet self-start mt-2`}>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             <TouchableOpacity
-              onPress={() => setHasSpoiler(!hasSpoiler)}
-              style={tw.style(Translate.smallTranslate, "flex-row")}
+              style={tw.style("text-slate-100 bg-sun self-start mx-auto")}
+              onPress={addQuestion}
             >
               <Text
                 style={tw.style(
-                  "text-base px-2 italic text-center font-bold",
-                  hasSpoiler ? "bg-emerald" : "bg-[#e71d36]",
-                  hasSpoiler ? "text-slate-100" : "text-slate-100"
+                  "text-slate-100 bg-persian font-bold text-3xl italic px-2",
+                  Translate.translate
                 )}
               >
-                {hasSpoiler ? "Não contém spoiler  " : "Marcar como spoiler  "}
-                {hasSpoiler ? (
-                  <MaterialCommunityIcons
-                    name="shield-off"
-                    size={20}
-                    color="white"
-                  />
-                ) : (
-                  <MaterialCommunityIcons
-                    name="shield"
-                    size={20}
-                    color="white"
-                  />
-                )}
+                ENVIAR {<FontAwesome name="send-o" size={24} color="white" />}
               </Text>
             </TouchableOpacity>
-          </View>
-          <View style={tw`self-start mt-6 bg-turquoise`}>
-            <Text
-              style={tw.style(
-                "text-sm px-2 italic text-center bg-violet text-slate-100 font-bold",
-                Translate.xsTranslate
-              )}
-            >
-              TAGS{" "}
-              {
-                <MaterialCommunityIcons
-                  name="tag-multiple"
-                  size={18}
-                  color="white"
-                />
-              }
-            </Text>
-          </View>
-          <TextInput
-            style={tw.style(
-              "bg-slate-100 rounded-sm text-base border-persian border mt-1"
-            )}
-            placeholder="Ex: pessoal, curiosidade, super heróis, netflix"
-            value={tags}
-            onChangeText={(text) => setTags(text)}
-          ></TextInput>
-          <TouchableOpacity
-            style={tw.style("text-slate-100 bg-sun self-start mx-auto mt-20")}
-            onPress={addQuestion}
-          >
-            <Text
-              style={tw.style(
-                "text-slate-100 bg-persian font-bold text-3xl italic px-2",
-                Translate.translate
-              )}
-            >
-              ENVIAR {<FontAwesome name="send-o" size={24} color="white" />}
-            </Text>
-          </TouchableOpacity>
-          {/* <View style={tw.style("w-full h-20 bg-red-200")}></View>
+            {/* <View style={tw.style("w-full h-20 bg-red-200")}></View>
           <View style={tw.style("w-full h-20 bg-red-200")}></View>
           <View style={tw.style("w-full h-20 bg-red-200")}></View>
           <View style={tw.style("w-full h-20 bg-red-200")}></View> */}
+          </View>
         </View>
       </View>
       {error !== "" && <AlertComponent success={success} error={error} />}
