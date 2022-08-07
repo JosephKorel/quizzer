@@ -81,38 +81,40 @@ export default function Login() {
 
   return (
     <View
-      style={tw`absolute top-0 w-full text-center flex flex-col justify-center items-center bg-dark h-full`}
+      style={tw`absolute top-0 w-full text-center flex flex-col justify-around items-center bg-dark h-full`}
     >
       <StatusBar barStyle="light-content" backgroundColor="#0D0F47" />
-      <Text
-        style={tw.style(
-          "tracking-widest absolute top-1/4 text-6xl text-center text-persian font-bold"
-        )}
-      >
-        QUI
-        <Text style={tw.style("italic text-6xl")}>ZZ</Text>
-        ER
-      </Text>
-      <Text
-        style={tw.style(
-          "tracking-widest absolute top-1/4 text-6xl text-center text-emerald font-bold",
-          Translate.translate
-        )}
-      >
-        QUI
-        <Text style={tw.style("italic text-6xl")}>ZZ</Text>
-        ER
-      </Text>
-      <Text
-        style={tw.style(
-          "tracking-widest absolute top-1/4 text-6xl text-center text-violet font-bold",
-          Translate.smallTranslate
-        )}
-      >
-        QUI
-        <Text style={tw.style("italic text-6xl")}>ZZ</Text>
-        ER
-      </Text>
+      <View>
+        <Text
+          style={tw.style(
+            "tracking-widest text-6xl text-center text-violet font-bold"
+          )}
+        >
+          QUI
+          <Text style={tw.style("italic text-6xl")}>ZZ</Text>
+          ER
+        </Text>
+        <Text
+          style={tw.style(
+            "tracking-widest absolute text-6xl text-center text-sun font-bold",
+            Translate.translate
+          )}
+        >
+          QUI
+          <Text style={tw.style("italic text-6xl")}>ZZ</Text>
+          ER
+        </Text>
+        <Text
+          style={tw.style(
+            "tracking-widest absolute text-6xl text-center text-persian font-bold",
+            Translate.smallTranslate
+          )}
+        >
+          QUI
+          <Text style={tw.style("italic text-6xl")}>ZZ</Text>
+          ER
+        </Text>
+      </View>
       {/* <Text
         style={tw.style(
           "text-7xl text-emerald font-bold absolute top-1/6 right-10"
@@ -127,24 +129,26 @@ export default function Login() {
       >
         ?
       </Text> */}
-      <TouchableOpacity
-        onPress={() => promptAsync()}
-        style={tw.style("bg-turquoise mt-20")}
-      >
+      <TouchableOpacity onPress={() => promptAsync()} style={tw.style("mt-20")}>
         <View
           style={tw.style(
-            "bg-violet p-3 flex-row items-center",
+            "p-3 flex-row items-center border-b border-b-sun",
             Translate.smallTranslate
           )}
         >
-          <AntDesign
-            name="google"
-            size={24}
-            color="white"
-            style={tw.style("mr-2")}
-          />
-          <Text style={tw.style("text-slate-100 text-xl font-bold")}>
-            ENTRAR COM O GOOGLE
+          <Text style={tw.style("text-persian text-xl font-bold")}>
+            ENTRAR COM O{" "}
+            <AntDesign
+              name="google"
+              size={24}
+              color="#4285F4"
+              style={tw.style("mr-2")}
+            />
+            <Text style={tw.style("text-[#DB4437]")}>O</Text>
+            <Text style={tw.style("text-[#F4B400]")}>O</Text>
+            <Text style={tw.style("text-[#4285F4]")}>G</Text>
+            <Text style={tw.style("text-[#0F9D58]")}>L</Text>
+            <Text style={tw.style("text-[#DB4437]")}>E</Text>
           </Text>
         </View>
       </TouchableOpacity>
