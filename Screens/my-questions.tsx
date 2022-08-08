@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { AppContext, Questions } from "../Context";
 import { collection, DocumentData, getDocs, query } from "firebase/firestore";
 import { auth, db } from "../firebase_config";
@@ -48,6 +48,35 @@ function MyQuestions() {
   useEffect(() => {
     retrieveCollection();
   }, []);
+
+  const QuestionList = ({
+    item,
+    i,
+  }: {
+    item: Questions;
+    i: number;
+  }): JSX.Element => {
+    return (
+      <View style={tw.style("mt-4")}>
+        <TouchableOpacity
+          style={tw.style("bg-persian")}
+          onPress={() => {
+            setIndex(i);
+            setShowModal(true);
+          }}
+        >
+          <Text
+            style={tw.style(
+              "text-lg italic p-2 bg-sun text-stone-800 text-center font-bold",
+              Translate.smallTranslate
+            )}
+          >
+            {item.question}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   const MyQuestionsModal = (): JSX.Element => {
     return (
@@ -100,7 +129,7 @@ function MyQuestions() {
   return (
     <View
       style={tw.style(
-        theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
+        theme === "light" ? "bg-red-200" : "bg-dark",
         "w-full h-full"
       )}
     >
@@ -122,42 +151,28 @@ function MyQuestions() {
             />
           )}
         </View>
-
-        <View style={tw.style("border-l-8 border-b-8 rounded-lg bg-sun mt-24")}>
-          <Text
-            style={tw.style(
-              "text-2xl italic p-4 bg-persian text-slate-100 text-center font-bold",
-              Translate.translate
-            )}
-          >
-            Minhas perguntas
-          </Text>
-        </View>
-        {questions?.map((question, i) => (
-          <View key={i} style={tw.style("mt-4")}>
-            <TouchableOpacity
-              style={tw.style("bg-persian")}
-              onPress={() => {
-                setIndex(i);
-                setShowModal(true);
-              }}
+        <View style={tw.style("h-full flex-col justify-center")}>
+          <View style={tw.style("h-5/6")}>
+            <View
+              style={tw.style("border-l-8 border-b-8 rounded-lg bg-sun mt-4")}
             >
               <Text
                 style={tw.style(
-                  "text-lg italic p-2 bg-sun text-stone-800 text-center font-bold",
-                  Translate.smallTranslate
+                  "text-2xl italic p-4 bg-persian text-slate-100 text-center font-bold",
+                  Translate.translate
                 )}
               >
-                {question.question}
+                Minhas perguntas
               </Text>
-            </TouchableOpacity>
-            {/* <QuestionModal
-              showModal={showModal}
-              setShowModal={setShowModal}
-              question={questions[qstIndex]}
-            /> */}
+            </View>
+            <FlatList
+              data={questions}
+              renderItem={({ item, index }) => (
+                <QuestionList item={item} i={index} />
+              )}
+            />
           </View>
-        ))}
+        </View>
       </View>
       {showModal && <MyQuestionsModal />}
       <BottomNav />
