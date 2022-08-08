@@ -19,13 +19,6 @@ const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   useDeviceContext(tw, { withDeviceColorScheme: false });
-  const [colorScheme, toggleColorScheme, setColorScheme] = useAppColorScheme(
-    tw,
-    "dark"
-  );
-  useEffect(() => {
-    setColorScheme("dark");
-  }, []);
 
   return (
     <AppContextProvider>

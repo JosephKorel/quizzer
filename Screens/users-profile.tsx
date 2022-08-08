@@ -1,31 +1,33 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack, RootStackParamList } from "./RootStackParams";
 import { AppContext, Questions, UserInt } from "../Context";
 import { arrayUnion, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase_config";
 import tw from "../Components/tailwind_config";
-import {
-  BottomNav,
-  QuestionModal,
-  Translate,
-} from "../Components/nativeBase_Components";
-import { MaterialIcons, SimpleLineIcons } from "@expo/vector-icons";
+import { BottomNav, Translate } from "../Components/nativeBase_Components";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Avatar } from "native-base";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
   CustomQuestionModal,
   UserListModal,
 } from "../Components/custom_components";
 import { QuestionComponent } from "../Components/questions_components";
-import MyQuestions from "./my-questions";
 
 type ScreenProps = NativeStackScreenProps<RootStackParamList, "UsersProfile">;
 
 const UsersProfile = ({ route }: ScreenProps) => {
-  const { user, theme, setTheme, questions } = useContext(AppContext);
+  const { user, colorScheme, toggleColorScheme, questions } =
+    useContext(AppContext);
   const [userQuestions, setUserQuestions] = useState<Questions[]>([]);
   const [currUser, setCurrUser] = useState<UserInt | null>(null);
   const [answers, setAnswers] = useState(0);
@@ -147,7 +149,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
     i: number;
   }): JSX.Element => {
     return (
-      <View style={tw.style("mt-4 bg-persian")}>
+      <View style={tw.style("mt-4 bg-black dark:bg-persian")}>
         <TouchableOpacity
           style={tw.style(
             "bg-sun p-2 flex-row justify-between items-center",
@@ -169,25 +171,24 @@ const UsersProfile = ({ route }: ScreenProps) => {
   };
 
   return (
-    <View
-      style={tw.style(
-        theme === "light" ? "bg-red-200" : "bg-dark",
-        "w-full h-full"
-      )}
-    >
+    <View style={tw.style("w-full h-full bg-red-200 dark:bg-dark")}>
+      <StatusBar
+        barStyle={colorScheme === "light" ? "dark-content" : "light-content"}
+        backgroundColor={colorScheme === "light" ? "#fecaca" : "#0D0F47"}
+      />
       <View style={tw`w-11/12 mx-auto`}>
         <View style={tw`absolute top-10`}>
-          {theme === "dark" ? (
+          {colorScheme === "dark" ? (
             <TouchableOpacity
               style={tw.style("rounded-full")}
-              onPress={() => setTheme("light")}
+              onPress={() => toggleColorScheme()}
             >
               <MaterialIcons name="wb-sunny" size={24} color="#F72585" />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={tw.style("rounded-full")}
-              onPress={() => setTheme("dark")}
+              onPress={() => toggleColorScheme()}
             >
               <MaterialIcons
                 name="nightlight-round"
@@ -221,7 +222,11 @@ const UsersProfile = ({ route }: ScreenProps) => {
                   {name.toUpperCase()}
                 </Text>
                 <TouchableOpacity onPress={handleFollow}>
-                  <Text style={tw.style("text-base italic text-slate-50")}>
+                  <Text
+                    style={tw.style(
+                      "text-sm italic text-slate-50 border-b border-slate-50"
+                    )}
+                  >
                     {isFollowing ? "Deixar de seguir" : "Seguir"}
                   </Text>
                 </TouchableOpacity>
@@ -229,7 +234,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
             </View>
             <View style={tw.style("flex-row justify-around items-center mt-4")}>
               <TouchableOpacity
-                style={tw.style("bg-persian w-[44%]")}
+                style={tw.style("bg-black dark:bg-persian w-[44%]")}
                 onPress={() => {
                   setShowModal(true);
                   setGroup(currUser?.following!);
@@ -245,7 +250,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={tw.style("bg-[#05f2d2]  w-[44%]")}
+                style={tw.style("bg-black dark:bg-persian  w-[44%]")}
                 onPress={() => {
                   setShowModal(true);
                   setGroup(currUser?.followers!);
@@ -262,7 +267,9 @@ const UsersProfile = ({ route }: ScreenProps) => {
               </TouchableOpacity>
             </View>
             <View style={tw.style("flex-row justify-around items-center mt-4")}>
-              <TouchableOpacity style={tw.style("bg-turquoise w-[44%]")}>
+              <TouchableOpacity
+                style={tw.style("bg-black dark:bg-persian w-[44%]")}
+              >
                 <Text
                   style={tw.style(
                     "text-lg  italic p-2 text-slate-100 text-center font-bold bg-violet",
@@ -272,7 +279,9 @@ const UsersProfile = ({ route }: ScreenProps) => {
                   RESPOSTAS: {answers}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={tw.style("bg-persian w-[44%]")}>
+              <TouchableOpacity
+                style={tw.style("bg-black dark:bg-persian w-[44%]")}
+              >
                 <Text
                   style={tw.style(
                     "text-lg italic p-2 bg-sun text-stone-700 text-center font-bold",
@@ -285,7 +294,7 @@ const UsersProfile = ({ route }: ScreenProps) => {
             </View>
             <View style={tw.style("mt-10")}>
               <TouchableOpacity
-                style={tw.style("bg-sun")}
+                style={tw.style("bg-black dark:bg-sun")}
                 onPress={() => {
                   setShow(!show);
                 }}

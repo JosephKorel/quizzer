@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
   Image,
+  StatusBar,
   Text,
   TextInput,
   Touchable,
@@ -22,6 +23,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { Button, IconButton, Input, PresenceTransition } from "native-base";
 import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
+import { useAppColorScheme } from "twrnc";
 
 function NewPost() {
   const { user, theme, setTheme } = useContext(AppContext);
@@ -37,6 +39,11 @@ function NewPost() {
   const [success, setSuccess] = useState("");
 
   const questionType = ["Sim ou Não", "Enquete", "Escala de 0 a 10"];
+
+  const [colorScheme, toggleColorScheme, setColorScheme] = useAppColorScheme(
+    tw,
+    "dark"
+  );
 
   useEffect(() => {
     setTimeout(() => {
@@ -379,7 +386,7 @@ function NewPost() {
     };
     return (
       <View style={tw`mt-4`}>
-        <View style={tw`bg-persian`}>
+        <View style={tw`bg-black dark:bg-persian`}>
           <TouchableOpacity
             onPress={() => onChoose(qst)}
             style={Translate.translate}
@@ -400,17 +407,16 @@ function NewPost() {
   };
 
   return (
-    <View
-      style={tw.style(
-        theme === "light" ? "bg-red-200" : "bg-dark",
-        "w-full h-full"
-      )}
-    >
+    <View style={tw.style("bg-red-200 dark:bg-dark w-full h-full")}>
+      <StatusBar
+        barStyle={colorScheme === "light" ? "dark-content" : "light-content"}
+        backgroundColor={colorScheme === "light" ? "#fecaca" : "#0D0F47"}
+      />
       <View style={tw.style("w-11/12 mx-auto")}>
         <View style={tw`absolute top-10 z-10`}>
-          {theme === "dark" ? (
+          {colorScheme === "dark" ? (
             <TouchableOpacity
-              onPress={() => setTheme("light")}
+              onPress={() => toggleColorScheme()}
               style={tw.style("rounded-full")}
             >
               <MaterialIcons name="wb-sunny" size={24} color="#F72585" />
@@ -418,7 +424,7 @@ function NewPost() {
           ) : (
             <TouchableOpacity
               style={tw.style("rounded-full")}
-              onPress={() => setTheme("dark")}
+              onPress={() => toggleColorScheme()}
             >
               <MaterialIcons
                 name="nightlight-round"
@@ -482,7 +488,7 @@ function NewPost() {
                     </View>
                   ) : (
                     <TouchableOpacity
-                      style={tw`bg-persian self-start mt-2`}
+                      style={tw`bg-black dark:bg-persian self-start mt-2`}
                       onPress={addImage}
                     >
                       <Text
@@ -526,62 +532,7 @@ function NewPost() {
                     },
                   }}
                 >
-                  {/* <TextInput
-                    placeholder="Escreva aqui"
-                    value={question}
-                    style={tw.style(
-                      "bg-slate-100 rounded-sm p-3 text-xl border-persian border"
-                    )}
-                    onChangeText={(text) => setQuestion(text)}
-                  ></TextInput>
-
-                  {image ? (
-                    <View style={tw.style("flex-row justify-center mt-1")}>
-                      <Image
-                        style={tw.style(
-                          { width: 100, height: 100 },
-                          "rounded-md border-2 border-persian"
-                        )}
-                        source={{ uri: image.uri }}
-                      ></Image>
-                      <IconButton
-                        style={tw`absolute left-[53%]`}
-                        onPress={() => setImage(null)}
-                        _pressed={{ bg: "#edc531" }}
-                        py={1}
-                        size="sm"
-                        icon={
-                          <MaterialCommunityIcons
-                            name="close-box-multiple"
-                            size={24}
-                            color="#fad643"
-                          />
-                        }
-                      />
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={tw`bg-persian self-start mt-2`}
-                      onPress={addImage}
-                    >
-                      <Text
-                        style={tw.style(
-                          "text-sm italic px-2 bg-sun text-stone-800 font-bold",
-                          Translate.xsTranslate
-                        )}
-                      >
-                        IMAGEM{" "}
-                        {
-                          <MaterialCommunityIcons
-                            name="upload"
-                            size={18}
-                            color="#212529"
-                          />
-                        }
-                      </Text>
-                    </TouchableOpacity>
-                  )} */}
-                  <View style={tw`bg-turquoise self-start`}>
+                  <View style={tw`bg-slate-100 dark:bg-turquoise self-start`}>
                     <Text
                       style={tw.style(
                         "text-xl italic p-2 bg-violet text-slate-50 font-bold",
@@ -601,7 +552,9 @@ function NewPost() {
             )}
 
             <View style={tw`mt-6`}>
-              <View style={tw.style("self-start bg-turquoise")}>
+              <View
+                style={tw.style("self-start bg-slate-100 dark:bg-turquoise")}
+              >
                 <Text
                   style={tw.style(
                     "text-sm px-2 italic self-start text-center bg-violet text-slate-100 font-bold",
@@ -620,50 +573,50 @@ function NewPost() {
               </View>
               <TextInput
                 style={tw.style(
-                  "bg-slate-100 rounded-sm text-base border-persian border mt-1"
+                  "bg-slate-100 rounded-sm text-base border-persian border mt-1 p-1"
                 )}
                 placeholder="Ex: pessoal, curiosidade, super heróis, netflix"
                 value={tags}
                 onChangeText={(text) => setTags(text)}
               ></TextInput>
-              <View style={tw`bg-violet self-start mt-2`}>
-                <TouchableOpacity
-                  onPress={() => setHasSpoiler(!hasSpoiler)}
+
+              <TouchableOpacity
+                onPress={() => setHasSpoiler(!hasSpoiler)}
+                style={tw.style(
+                  "flex-row items-center bg-black dark:bg-turquoise self-start mt-2"
+                )}
+              >
+                <Text
                   style={tw.style(
-                    Translate.smallTranslate,
-                    "flex-row items-center"
+                    "text-base px-2 italic text-center font-bold text-slate-100",
+                    hasSpoiler ? "bg-emerald" : "bg-[#e71d36]",
+                    Translate.smallTranslate
                   )}
                 >
-                  <Text
-                    style={tw.style(
-                      "text-base px-2 italic text-center font-bold",
-                      hasSpoiler ? "bg-emerald" : "bg-[#e71d36]",
-                      hasSpoiler ? "text-slate-100" : "text-slate-100"
-                    )}
-                  >
-                    {hasSpoiler
-                      ? "Não contém spoiler  "
-                      : "Marcar como spoiler  "}
-                    {hasSpoiler ? (
-                      <MaterialCommunityIcons
-                        name="shield-off"
-                        size={20}
-                        color="white"
-                      />
-                    ) : (
-                      <MaterialCommunityIcons
-                        name="shield"
-                        size={20}
-                        color="white"
-                      />
-                    )}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                  {hasSpoiler
+                    ? "Não contém spoiler  "
+                    : "Marcar como spoiler  "}
+                  {hasSpoiler ? (
+                    <MaterialCommunityIcons
+                      name="shield-off"
+                      size={20}
+                      color="white"
+                    />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="shield"
+                      size={20}
+                      color="white"
+                    />
+                  )}
+                </Text>
+              </TouchableOpacity>
             </View>
 
             <TouchableOpacity
-              style={tw.style("text-slate-100 bg-sun self-start mx-auto")}
+              style={tw.style(
+                "text-slate-100 bg-black dark:bg-sun self-start mx-auto"
+              )}
               onPress={addQuestion}
             >
               <Text
@@ -675,10 +628,6 @@ function NewPost() {
                 ENVIAR {<FontAwesome name="send-o" size={24} color="white" />}
               </Text>
             </TouchableOpacity>
-            {/* <View style={tw.style("w-full h-20 bg-red-200")}></View>
-          <View style={tw.style("w-full h-20 bg-red-200")}></View>
-          <View style={tw.style("w-full h-20 bg-red-200")}></View>
-          <View style={tw.style("w-full h-20 bg-red-200")}></View> */}
           </View>
         </View>
       </View>

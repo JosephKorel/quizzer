@@ -1,19 +1,15 @@
 import {
-  arrayUnion,
   collection,
   doc,
   DocumentData,
   getDoc,
   getDocs,
   query,
-  updateDoc,
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import {
   FlatList,
-  Image,
   StatusBar,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -21,13 +17,11 @@ import {
 import { auth, db } from "../firebase_config";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
-import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions, UserInt } from "../Context";
 import tw from "../Components/tailwind_config";
 import { useDeviceContext, useAppColorScheme } from "twrnc";
-import { Avatar, IconButton } from "native-base";
+import { Avatar } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
 import { AlertComponent, BottomNav } from "../Components/nativeBase_Components";
 import {
   GestureHandlerRootView,
@@ -40,10 +34,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import {
-  HomeQuestionComponent,
-  QuestionComponent,
-} from "../Components/questions_components";
+import { HomeQuestionComponent } from "../Components/questions_components";
 import {
   LoadingComponent,
   LoadingScreen,
@@ -55,8 +46,8 @@ function Home() {
     user,
     setUser,
     setIsAuth,
-    theme,
-    setTheme,
+    colorScheme,
+    toggleColorScheme,
     questions,
     setQuestions,
     loading,
@@ -69,13 +60,6 @@ function Home() {
   const navigation = useNavigation<propsStack>();
 
   useDeviceContext(tw, { withDeviceColorScheme: false });
-
-  const [colorScheme, toggleColorScheme, setColorScheme] = useAppColorScheme(
-    tw,
-    "dark"
-  );
-
-  console.log(colorScheme);
 
   const getUser = async (authUser: User) => {
     //Query do usuário

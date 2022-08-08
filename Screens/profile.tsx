@@ -1,5 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
 import { AppContext, Questions, UserInt } from "../Context";
@@ -27,7 +33,7 @@ import { signOut } from "firebase/auth";
 import { UserListModal } from "../Components/custom_components";
 
 function Profile() {
-  const { user, setUser, theme, setTheme } = useContext(AppContext);
+  const { user, colorScheme, toggleColorScheme } = useContext(AppContext);
   const [questions, setQuestions] = useState<Questions[] | null>(null);
   const [answCount, setAnswCount] = useState(0);
   const [show, setShow] = useState(false);
@@ -133,7 +139,9 @@ function Profile() {
 
   const MyQuestionList = ({ item }: { item: Questions }) => {
     return (
-      <View style={tw.style("mt-4 bg-persian", !show && "hidden")}>
+      <View
+        style={tw.style("mt-4 bg-black dark:bg-persian", !show && "hidden")}
+      >
         <TouchableOpacity
           style={tw.style(
             "bg-sun p-2 flex-row justify-between items-center",
@@ -154,25 +162,24 @@ function Profile() {
   };
 
   return (
-    <View
-      style={tw.style(
-        theme === "light" ? "bg-red-200" : "bg-dark",
-        "w-full h-full"
-      )}
-    >
+    <View style={tw.style("w-full h-full bg-red-200 dark:bg-dark")}>
+      <StatusBar
+        barStyle={colorScheme === "light" ? "dark-content" : "light-content"}
+        backgroundColor={colorScheme === "light" ? "#fecaca" : "#0D0F47"}
+      />
       <View style={tw`w-[98%] mx-auto`}>
         <View style={tw`absolute top-10`}>
-          {theme === "dark" ? (
+          {colorScheme === "dark" ? (
             <TouchableOpacity
               style={tw.style("rounded-full")}
-              onPress={() => setTheme("light")}
+              onPress={() => toggleColorScheme()}
             >
               <MaterialIcons name="wb-sunny" size={24} color="#F72585" />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={tw.style("rounded-full")}
-              onPress={() => setTheme("dark")}
+              onPress={() => toggleColorScheme()}
             >
               <MaterialIcons
                 name="nightlight-round"
@@ -209,12 +216,12 @@ function Profile() {
                   Translate.translate
                 )}
               >
-                {auth.currentUser?.displayName}
+                {auth.currentUser?.displayName?.toUpperCase()}
               </Text>
             </View>
             <View style={tw.style("flex-row justify-around items-center mt-4")}>
               <TouchableOpacity
-                style={tw.style("bg-persian w-[44%]")}
+                style={tw.style("bg-black dark:bg-persian w-[44%]")}
                 onPress={() => {
                   setShowModal(true);
                   setGroup(myProf?.following!);
@@ -230,7 +237,7 @@ function Profile() {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={tw.style("bg-[#05f2d2]  w-[44%]")}
+                style={tw.style("bg-black dark:bg-persian  w-[44%]")}
                 onPress={() => {
                   setShowModal(true);
                   setGroup(myProf?.followers!);
@@ -248,7 +255,7 @@ function Profile() {
             </View>
             <View style={tw.style("flex-row justify-around items-center mt-4")}>
               <TouchableOpacity
-                style={tw.style("bg-turquoise w-[44%]")}
+                style={tw.style("bg-black dark:bg-persian w-[44%]")}
                 onPress={() => {
                   setShow(!show);
                 }}
@@ -262,7 +269,9 @@ function Profile() {
                   RESPOSTAS: {answCount}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={tw.style("bg-persian w-[44%]")}>
+              <TouchableOpacity
+                style={tw.style("bg-black dark:bg-persian w-[44%]")}
+              >
                 <Text
                   style={tw.style(
                     "text-lg italic p-2 bg-sun text-stone-700 text-center font-bold",
@@ -279,7 +288,7 @@ function Profile() {
               })}
             >
               <TouchableOpacity
-                style={tw.style("bg-sun")}
+                style={tw.style("bg-black dark:bg-sun")}
                 onPress={() => {
                   setShow(!show);
                 }}

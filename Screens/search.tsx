@@ -1,26 +1,17 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import {
-  MaterialCommunityIcons,
-  MaterialIcons,
-  SimpleLineIcons,
-} from "@expo/vector-icons";
-import {
-  arrayRemove,
   arrayUnion,
   collection,
   doc,
-  DocumentData,
   getDocs,
   query,
-  setDoc,
   updateDoc,
 } from "firebase/firestore";
 import { Avatar } from "native-base";
 import React, { useContext, useEffect, useState } from "react";
 import {
   FlatList,
-  Image,
   StatusBar,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -33,7 +24,6 @@ import { AppContext, Questions, UserInt } from "../Context";
 import { db } from "../firebase_config";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
-import { useAppColorScheme } from "twrnc";
 
 interface UsersInt {
   name: string;
@@ -44,11 +34,8 @@ interface UsersInt {
 }
 
 function Search() {
-  const { user, theme, setTheme, questions, setQuestions } =
+  const { user, questions, colorScheme, toggleColorScheme } =
     useContext(AppContext);
-
-  const [colorScheme, toggleColorScheme, setColorScheme] =
-    useAppColorScheme(tw);
 
   const [users, setUsers] = useState<UsersInt[] | null>(null);
   const [tagFilter, setTagFilter] = useState<Questions[]>([]);
@@ -56,35 +43,6 @@ function Search() {
   const [showQst, setShowQst] = useState(false);
 
   const navigation = useNavigation<propsStack>();
-
-  const retrieveCollection = async (
-    sortViews: boolean,
-    sortAnswered: boolean
-  ) => {
-    //Array que recebe cada documento
-    let questionDocs: Questions[] = [];
-
-    //Query da coleção
-    const questionCol = collection(db, "questionsdb");
-    const colQuery = query(questionCol);
-    const querySnapshot = await getDocs(colQuery);
-    querySnapshot.forEach((doc: DocumentData) => questionDocs.push(doc.data()));
-
-    if (sortViews) {
-      //Sort pelo número de votos
-      questionDocs.sort((a, b) => {
-        if (a.views > b.views) return -1;
-        else return 1;
-      });
-    } else if (sortAnswered) {
-      //Sort pelas perguntas ainda não respondidas
-      questionDocs.sort((a, b) => {
-        if (a.hasVoted.includes(user!.uid)) return 1;
-        else return -1;
-      });
-    }
-    setQuestions(questionDocs);
-  };
 
   const getUsers = async () => {
     let usersArr: UsersInt[] = [];
@@ -167,7 +125,7 @@ function Search() {
     return (
       <TouchableOpacity
         style={tw.style(
-          "flex-row items-center mt-2 bg-slate-100 border border-persian rounded-md p-1"
+          "flex-row items-center mt-2 bg-slate-100 border border-stone-800 dark:border-persian rounded-md p-1"
         )}
         onPress={() => visitProfile(item)}
       >
@@ -203,7 +161,9 @@ function Search() {
                 }}
               />
             </TouchableOpacity>
-            <Text style={tw`text-slate-300 text-base`}>{item.author.name}</Text>
+            <Text style={tw`text-stone-800 dark:text-slate-300 text-base`}>
+              {item.author.name}
+            </Text>
           </View>
         </View>
         <QuestionComponent
@@ -247,7 +207,7 @@ function Search() {
           )}
         </View>
         <View style={{ transform: [{ translateY: 80 }] }}>
-          <View style={tw.style("bg-sun")}>
+          <View style={tw.style("bg-black dark:bg-sun")}>
             <Text
               style={tw.style(
                 "text-slate-100 bg-persian font-bold text-lg p-1 italic",
@@ -290,7 +250,7 @@ function Search() {
           >
             <TouchableOpacity
               onPress={() => setShowQst(false)}
-              style={tw.style("bg-sun")}
+              style={tw.style("bg-black dark:bg-sun")}
             >
               <Text
                 style={tw.style(
@@ -303,7 +263,7 @@ function Search() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setShowQst(true)}
-              style={tw.style("bg-sun")}
+              style={tw.style("bg-black dark:bg-sun")}
             >
               <Text
                 style={tw.style(

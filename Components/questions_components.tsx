@@ -24,7 +24,7 @@ import { AppContext, Questions } from "../Context";
 import tw from "./tailwind_config";
 import { Translate } from "./nativeBase_Components";
 import { AntDesign } from "@expo/vector-icons";
-import { useAppColorScheme, useDeviceContext } from "twrnc";
+import { useAppColorScheme } from "twrnc";
 
 export const QuestionComponent = ({
   item,
@@ -35,7 +35,7 @@ export const QuestionComponent = ({
   filter: Questions[];
   setFilter: (data: Questions[]) => void;
 }) => {
-  const { user } = useContext(AppContext);
+  const { user, colorScheme } = useContext(AppContext);
   const [reveal, setReveal] = useState(false);
   const [scaleVal, setScaleVal] = useState<number | number[]>([]);
   const [isSliding, setIsSliding] = useState(false);
@@ -321,24 +321,6 @@ export const QuestionComponent = ({
     }
   };
 
-  const custom = (value: number | Array<number>) => {
-    const labels = item.labels!;
-    if (Array.isArray(value)) {
-      if (value[0] < 2)
-        return (
-          <Text style={tw`italic text-lg text-slate-50`}>{labels[0]}</Text>
-        );
-      if (value[0] < 6)
-        return (
-          <Text style={tw`italic text-lg text-slate-50`}>{labels[1]}</Text>
-        );
-      if (value[0] > 6)
-        return (
-          <Text style={tw`italic text-lg text-slate-50`}>{labels[2]}</Text>
-        );
-    }
-  };
-
   const ScaleComponent = () => {
     let totalValues: number[] = [];
 
@@ -356,13 +338,14 @@ export const QuestionComponent = ({
     return (
       <View style={tw`mt-10`}>
         <Slider
-          minimumTrackTintColor="#FAD643"
-          thumbTintColor="#FAD643"
+          minimumTrackTintColor={
+            colorScheme === "light" ? "#F72585" : "#FAD643"
+          }
+          thumbTintColor={colorScheme === "light" ? "#F72585" : "#FAD643"}
           minimumValue={0}
           maximumValue={10}
           value={currScaleVal()}
           onValueChange={(value) => setScaleVal(value)}
-          renderAboveThumbComponent={() => custom(scaleVal)}
           onSlidingComplete={onChangeScale}
           onSlidingStart={onSliding}
         ></Slider>
@@ -371,7 +354,7 @@ export const QuestionComponent = ({
             <View style={tw`bg-black mt-8`}>
               <TouchableOpacity style={Translate.smallTranslate}>
                 <Text
-                  style={tw`text-slate-800 bg-sun font-bold text-2xl text-center italic`}
+                  style={tw`text-slate-100 dark:text-slate-800 bg-persian dark:bg-sun font-bold text-2xl text-center italic`}
                 >
                   RESPOSTA MÉDIA: {averageAnswer.toFixed(1)}
                 </Text>
@@ -418,7 +401,7 @@ export const QuestionComponent = ({
             </Text>
             <Text
               style={tw.style(
-                "text-4xl italic text-sun font-bold text-center",
+                "text-4xl italic text-persian dark:text-sun font-bold text-center",
                 Translate.xsTranslate
               )}
             >
@@ -451,7 +434,10 @@ export const QuestionComponent = ({
       <View style={tw`mt-2 flex-row items-center`}>
         <AntDesign name="tags" size={24} color="gray" style={tw`mr-3`} />
         {item.tags.map((tag, i, arr) => (
-          <Text key={i} style={tw`text-slate-200 text-xs mr-2`}>
+          <Text
+            key={i}
+            style={tw`text-stone-700 dark:text-slate-200 text-xs mr-2`}
+          >
             {tag.toUpperCase()}
             {i === arr.length - 1 ? "" : ","}
           </Text>

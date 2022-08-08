@@ -1,4 +1,6 @@
 import { createContext, ReactNode, useState } from "react";
+import { RnColorScheme, useAppColorScheme } from "twrnc";
+import tw from "../Components/tailwind_config";
 
 type Props = {
   children: ReactNode;
@@ -48,6 +50,8 @@ type ContextType = {
   setTheme: (data: string) => void;
   questions: Questions[] | null;
   setQuestions: (data: Questions[]) => void;
+  colorScheme: RnColorScheme;
+  toggleColorScheme: () => void;
 };
 
 const initialValue = {
@@ -61,6 +65,8 @@ const initialValue = {
   setTheme: () => {},
   questions: null,
   setQuestions: () => {},
+  colorScheme: undefined,
+  toggleColorScheme: () => {},
 };
 
 export const AppContext = createContext<ContextType>(initialValue);
@@ -71,6 +77,8 @@ export const AppContextProvider = ({ children }: Props) => {
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState("light");
   const [questions, setQuestions] = useState<Questions[] | null>(null);
+  const [colorScheme, toggleColorScheme, setColorScheme] =
+    useAppColorScheme(tw);
 
   return (
     <AppContext.Provider
@@ -85,6 +93,8 @@ export const AppContextProvider = ({ children }: Props) => {
         setTheme,
         questions,
         setQuestions,
+        colorScheme,
+        toggleColorScheme,
       }}
     >
       {children}

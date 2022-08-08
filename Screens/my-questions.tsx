@@ -1,21 +1,23 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { AppContext, Questions } from "../Context";
 import { collection, DocumentData, getDocs, query } from "firebase/firestore";
 import { auth, db } from "../firebase_config";
 import moment from "moment";
 import tw from "../Components/tailwind_config";
-import {
-  BottomNav,
-  QuestionModal,
-  Translate,
-} from "../Components/nativeBase_Components";
+import { BottomNav, Translate } from "../Components/nativeBase_Components";
 import { MaterialIcons } from "@expo/vector-icons";
 import { PresenceTransition } from "native-base";
 import { MyQuestionComponent } from "../Components/custom_components";
 
 function MyQuestions() {
-  const { user, theme, setTheme } = useContext(AppContext);
+  const { colorScheme, toggleColorScheme } = useContext(AppContext);
   const [questions, setQuestions] = useState<Questions[] | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [index, setIndex] = useState(0);
@@ -127,27 +129,26 @@ function MyQuestions() {
   };
 
   return (
-    <View
-      style={tw.style(
-        theme === "light" ? "bg-red-200" : "bg-dark",
-        "w-full h-full"
-      )}
-    >
+    <View style={tw.style("w-full h-full bg-red-200 dark:bg-dark")}>
+      <StatusBar
+        barStyle={colorScheme === "light" ? "dark-content" : "light-content"}
+        backgroundColor={colorScheme === "light" ? "#fecaca" : "#0D0F47"}
+      />
       <View style={tw`w-11/12 mx-auto`}>
         <View style={tw`absolute top-10`}>
-          {theme === "dark" ? (
+          {colorScheme === "dark" ? (
             <MaterialIcons
               name="wb-sunny"
               size={24}
               color="#F72585"
-              onPress={() => setTheme("light")}
+              onPress={() => toggleColorScheme()}
             />
           ) : (
             <MaterialIcons
               name="nightlight-round"
               size={24}
               color="#0d0f47"
-              onPress={() => setTheme("dark")}
+              onPress={() => toggleColorScheme()}
             />
           )}
         </View>

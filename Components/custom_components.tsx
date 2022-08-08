@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Questions, UserInt } from "../Context";
+import { AppContext, Questions, UserInt } from "../Context";
 import tw from "../Components/tailwind_config";
 import { EvilIcons, MaterialIcons } from "@expo/vector-icons";
 import { PresenceTransition } from "native-base";
@@ -24,6 +24,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+import { useAppColorScheme } from "twrnc";
 
 interface MyModalInt {
   props: {
@@ -96,6 +97,11 @@ export const CustomQuestionModal = ({
   setShowQst,
   children,
 }: QuestionModalInt): JSX.Element => {
+  const [colorScheme, toggleColorScheme, setColorScheme] =
+    useAppColorScheme(tw);
+
+  const { theme } = useContext(AppContext);
+
   return (
     <TouchableOpacity
       style={tw.style(
@@ -120,7 +126,7 @@ export const CustomQuestionModal = ({
       >
         <TouchableOpacity
           style={tw.style(
-            "relative z-10 h-2/3 w-[96%] min-h-2/3 min-w-[96%] bg-violet-600 rounded-md"
+            "relative z-10 h-2/3 w-[96%] min-h-2/3 min-w-[96%] bg-sun dark:bg-violet-600 rounded-md"
           )}
           onPress={() => setShowQst(true)}
           activeOpacity={1}
@@ -132,7 +138,7 @@ export const CustomQuestionModal = ({
             <MaterialIcons
               name="close"
               size={24}
-              color="white"
+              color={theme === "light" ? "black" : "white"}
               style={tw`mr-2 p-2`}
             />
           </TouchableOpacity>
