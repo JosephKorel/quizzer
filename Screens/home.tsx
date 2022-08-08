@@ -24,6 +24,7 @@ import { propsStack } from "./RootStackParams";
 import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions, UserInt } from "../Context";
 import tw from "../Components/tailwind_config";
+import { useDeviceContext, useAppColorScheme } from "twrnc";
 import { Avatar, IconButton } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
@@ -66,6 +67,15 @@ function Home() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const navigation = useNavigation<propsStack>();
+
+  useDeviceContext(tw, { withDeviceColorScheme: false });
+
+  const [colorScheme, toggleColorScheme, setColorScheme] = useAppColorScheme(
+    tw,
+    "dark"
+  );
+
+  console.log(colorScheme);
 
   const getUser = async (authUser: User) => {
     //Query do usuário
@@ -218,7 +228,9 @@ function Home() {
                 }}
               />
             </TouchableOpacity>
-            <Text style={tw`text-slate-300 text-base`}>{item.author.name}</Text>
+            <Text style={tw`text-slate-900 dark:text-slate-200 text-base`}>
+              {item.author.name}
+            </Text>
           </View>
         </View>
         <HomeQuestionComponent
@@ -227,35 +239,30 @@ function Home() {
           setFilter={setQuestions}
         />
         <View
-          style={tw`w-full mt-2 mb-5 p-[1px] bg-slate-300 rounded-br-lg rounded-tl-lg`}
+          style={tw`w-full mt-2 mb-5 p-[1px] bg-stone-600 dark:bg-slate-300 rounded-br-lg rounded-tl-lg`}
         ></View>
       </View>
     );
   };
 
   return (
-    <View
-      style={tw.style(
-        theme === "light" ? "bg-red-200" : "bg-dark",
-        "w-full h-full"
-      )}
-    >
+    <View style={tw.style("bg-red-200 dark:bg-dark w-full h-full")}>
       {isUpdating && <LoadingComponent />}
       {loading && <LoadingScreen />}
       <View style={tw`w-[98%] mx-auto`}>
         <View
           style={tw`absolute top-10 flex-row w-full justify-between items-center z-10`}
         >
-          {theme === "dark" ? (
+          {colorScheme === "dark" ? (
             <TouchableOpacity
-              onPress={() => setTheme("light")}
+              onPress={() => toggleColorScheme()}
               style={tw.style("rounded-full")}
             >
               <MaterialIcons name="wb-sunny" size={24} color="#F72585" />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              onPress={() => setTheme("dark")}
+              onPress={() => toggleColorScheme()}
               style={tw.style("rounded-full")}
             >
               <MaterialIcons
@@ -272,12 +279,12 @@ function Home() {
             }}
             style={tw.style("rounded-full")}
           >
-            <MaterialIcons name="refresh" size={24} color="#2ecfc0" />
+            <MaterialIcons name="refresh" size={24} color="#F72585" />
           </TouchableOpacity>
         </View>
         <StatusBar
-          barStyle={theme === "light" ? "dark-content" : "light-content"}
-          backgroundColor={theme === "light" ? "#fecaca" : "#0D0F47"}
+          barStyle={colorScheme === "light" ? "dark-content" : "light-content"}
+          backgroundColor={colorScheme === "light" ? "#fecaca" : "#0D0F47"}
         />
         <View style={tw.style("h-full flex-col justify-center")}>
           <View style={tw.style("h-5/6")}>

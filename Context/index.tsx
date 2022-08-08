@@ -57,7 +57,7 @@ const initialValue = {
   setUser: () => {},
   loading: true,
   setLoading: () => {},
-  theme: "dark",
+  theme: "light",
   setTheme: () => {},
   questions: null,
   setQuestions: () => {},
@@ -69,7 +69,7 @@ export const AppContextProvider = ({ children }: Props) => {
   const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState<null | UserInt>(null);
   const [loading, setLoading] = useState(true);
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState("light");
   const [questions, setQuestions] = useState<Questions[] | null>(null);
 
   return (

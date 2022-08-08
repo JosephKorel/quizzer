@@ -24,36 +24,7 @@ import { AppContext, Questions } from "../Context";
 import tw from "./tailwind_config";
 import { Translate } from "./nativeBase_Components";
 import { AntDesign } from "@expo/vector-icons";
-
-export const retrieveCollection = async (
-  sortViews: boolean,
-  sortAnswered: boolean
-) => {
-  const { user, setQuestions } = useContext(AppContext);
-  //Array que recebe cada documento
-  let questionDocs: Questions[] = [];
-
-  //Query da coleção
-  const questionCol = collection(db, "questionsdb");
-  const colQuery = query(questionCol);
-  const querySnapshot = await getDocs(colQuery);
-  querySnapshot.forEach((doc: DocumentData) => questionDocs.push(doc.data()));
-
-  if (sortViews) {
-    //Sort pelo número de votos
-    questionDocs.sort((a, b) => {
-      if (a.views > b.views) return -1;
-      else return 1;
-    });
-  } else if (sortAnswered) {
-    //Sort pelas perguntas ainda não respondidas
-    questionDocs.sort((a, b) => {
-      if (a.hasVoted.includes(user!.uid)) return 1;
-      else return -1;
-    });
-  }
-  setQuestions(questionDocs);
-};
+import { useAppColorScheme, useDeviceContext } from "twrnc";
 
 export const QuestionComponent = ({
   item,
@@ -832,10 +803,10 @@ export const HomeQuestionComponent = ({
         ></Slider>
         {item.hasVoted.includes(user?.uid!) && (
           <View>
-            <View style={tw`bg-sun mt-8`}>
+            <View style={tw`bg-black dark:bg-sun mt-8`}>
               <TouchableOpacity style={Translate.smallTranslate}>
                 <Text
-                  style={tw`text-slate-100 bg-violet font-bold text-2xl text-center italic`}
+                  style={tw`text-slate-100 bg-persian font-bold text-2xl text-center italic`}
                 >
                   RESPOSTA MÉDIA: {averageAnswer.toFixed(1)}
                 </Text>
@@ -850,7 +821,7 @@ export const HomeQuestionComponent = ({
   return (
     <View style={tw``}>
       {item.hasSpoiler === true && reveal === false ? (
-        <View style={tw.style("mt-8 p-4 bg-[#F72585]")}>
+        <View style={tw.style("mt-8 p-4 bg-persian")}>
           <Text style={tw.style("text-slate-100 font-bold italic text-3xl")}>
             Cuidado! Esta pergunta contém spoiler, tem certeza de que quer ver?
           </Text>
@@ -915,7 +886,10 @@ export const HomeQuestionComponent = ({
       <View style={tw`mt-2 flex-row items-center`}>
         <AntDesign name="tags" size={24} color="gray" style={tw`mr-3`} />
         {item.tags.map((tag, i, arr) => (
-          <Text key={i} style={tw`text-slate-200 text-xs mr-2`}>
+          <Text
+            key={i}
+            style={tw`text-stone-800 dark:text-slate-300 text-xs mr-2`}
+          >
             {tag.toUpperCase()}
             {i === arr.length - 1 ? "" : ","}
           </Text>

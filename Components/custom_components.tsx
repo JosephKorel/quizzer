@@ -311,7 +311,7 @@ export const LoadingScreen = (): JSX.Element => {
   return (
     <View
       style={tw.style(
-        "absolute top-0 w-full h-full flex-col justify-center items-center bg-dark z-20"
+        "absolute top-0 w-full h-full flex-col justify-center items-center bg-red-200 dark:bg-dark z-20"
       )}
     >
       <StatusBar barStyle="light-content" backgroundColor="#0D0F47" />
@@ -375,7 +375,7 @@ export const LoadingComponent = (): JSX.Element => {
   return (
     <View
       style={tw.style(
-        "absolute top-0 w-full h-full flex-col justify-center items-center bg-dark z-20"
+        "absolute top-0 w-full h-full flex-col justify-center items-center bg-red-200 dark:bg-dark z-20"
       )}
     >
       <Animated.View style={tw.style("p-1", animatedStyles)}>

@@ -19,6 +19,7 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   FlatList,
   Image,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -32,6 +33,7 @@ import { AppContext, Questions, UserInt } from "../Context";
 import { db } from "../firebase_config";
 import { useNavigation } from "@react-navigation/native";
 import { propsStack } from "./RootStackParams";
+import { useAppColorScheme } from "twrnc";
 
 interface UsersInt {
   name: string;
@@ -44,6 +46,9 @@ interface UsersInt {
 function Search() {
   const { user, theme, setTheme, questions, setQuestions } =
     useContext(AppContext);
+
+  const [colorScheme, toggleColorScheme, setColorScheme] =
+    useAppColorScheme(tw);
 
   const [users, setUsers] = useState<UsersInt[] | null>(null);
   const [tagFilter, setTagFilter] = useState<Questions[]>([]);
@@ -214,25 +219,24 @@ function Search() {
   };
 
   return (
-    <View
-      style={tw.style(
-        theme === "light" ? "bg-red-200" : "bg-dark",
-        "w-full h-full"
-      )}
-    >
+    <View style={tw.style("bg-red-200 dark:bg-dark w-full h-full")}>
+      <StatusBar
+        barStyle={colorScheme === "light" ? "dark-content" : "light-content"}
+        backgroundColor={colorScheme === "light" ? "#fecaca" : "#0D0F47"}
+      />
       <View style={tw`w-11/12 mx-auto`}>
         <View style={tw`absolute top-10 w-full z-10`}>
-          {theme === "dark" ? (
+          {colorScheme === "dark" ? (
             <TouchableOpacity
               style={tw.style("rounded-full")}
-              onPress={() => setTheme("light")}
+              onPress={() => toggleColorScheme()}
             >
               <MaterialIcons name="wb-sunny" size={24} color="#F72585" />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={tw.style("rounded-full")}
-              onPress={() => setTheme("dark")}
+              onPress={() => toggleColorScheme()}
             >
               <MaterialIcons
                 name="nightlight-round"
