@@ -182,7 +182,7 @@ function NewPost() {
 
       if (choice === "Sim ou Não") {
         const votes = { yes: [], no: [] };
-        await addDoc(newTags, votes, null, null, null);
+        await addDoc(newTags.slice(0, 3), votes, null, null, null);
 
         return;
       }
@@ -193,12 +193,12 @@ function NewPost() {
         options.forEach(
           (option) => (allOptions = { ...allOptions, [option]: [] })
         );
-        await addDoc(newTags, null, allOptions, null, null);
+        await addDoc(newTags.slice(0, 3), null, allOptions, null, null);
 
         return;
       }
       if (choice === "Escala de 0 a 10") {
-        await addDoc(newTags, null, null, [], scaleLabel);
+        await addDoc(newTags.slice(0, 3), null, null, [], scaleLabel);
 
         return;
       }

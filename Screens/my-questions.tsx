@@ -103,7 +103,7 @@ function MyQuestions() {
         >
           <TouchableOpacity
             style={tw.style(
-              "relative z-10 h-2/3 w-[96%] min-h-2/3 min-w-[96%] bg-sun rounded-md"
+              "relative z-10 h-2/3 w-[96%] min-h-2/3 min-w-[96%] bg-sun dark:bg-violet rounded-md"
             )}
             onPress={() => setShowModal(true)}
             activeOpacity={1}
