@@ -174,18 +174,43 @@ function Search() {
 
   const renderQuestions = ({ item }: { item: Questions }) => {
     return (
-      <QuestionComponent
-        item={item}
-        filter={tagFilter}
-        setFilter={setTagFilter}
-      />
+      <View>
+        <View style={tw.style("text-center")}>
+          <View style={tw`flex flex-col items-center`}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("UsersProfile", {
+                  name: item.author.name,
+                  userUid: item.author.uid,
+                  avatar: item.author.avatar,
+                })
+              }
+            >
+              <Avatar
+                source={{
+                  uri: item.author.avatar,
+                }}
+              />
+            </TouchableOpacity>
+            <Text style={tw`text-slate-300 text-base`}>{item.author.name}</Text>
+          </View>
+        </View>
+        <QuestionComponent
+          item={item}
+          filter={tagFilter}
+          setFilter={setTagFilter}
+        />
+        <View
+          style={tw`w-full mt-2 mb-5 p-[1px] bg-slate-300 rounded-br-lg rounded-tl-lg`}
+        ></View>
+      </View>
     );
   };
 
   return (
     <View
       style={tw.style(
-        theme === "light" ? "bg-red-200" : "bg-[#0d0f47]",
+        theme === "light" ? "bg-red-200" : "bg-dark",
         "w-full h-full"
       )}
     >
@@ -212,7 +237,7 @@ function Search() {
           )}
         </View>
         <View style={{ transform: [{ translateY: 80 }] }}>
-          <View style={tw.style("bg-[#FAD643]")}>
+          <View style={tw.style("bg-sun")}>
             <Text
               style={tw.style(
                 "text-slate-100 bg-persian font-bold text-lg p-1 italic",
@@ -229,6 +254,7 @@ function Search() {
           >
             <TextInput
               placeholder="Comece a digitar"
+              style={tw.style("p-1 flex-1")}
               value={search}
               onChangeText={(text) => setSearch(text)}
             />
@@ -280,13 +306,13 @@ function Search() {
             </TouchableOpacity>
           </View>
           {!showQst ? (
-            <View>
+            <View style={tw.style("max-h-[76%]")}>
               {search.length > 2 && (
                 <FlatList data={usersFilter} renderItem={userComponent} />
               )}
             </View>
           ) : (
-            <View>
+            <View style={tw.style("max-h-[76%]")}>
               <FlatList data={tagFilter} renderItem={renderQuestions} />
             </View>
           )}

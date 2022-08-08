@@ -402,7 +402,7 @@ export const QuestionComponent = ({
                 <Text
                   style={tw`text-slate-100 bg-violet font-bold text-2xl text-center italic`}
                 >
-                  RESPOSTA MÉDIA: {averageAnswer}
+                  RESPOSTA MÉDIA: {averageAnswer.toFixed(1)}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -441,13 +441,13 @@ export const QuestionComponent = ({
         <View style={tw`mt-4 p-2`}>
           <View style={tw`flex-col justify-center items-center`}>
             <Text
-              style={tw`absolute text-4xl italic text-center text-[#4361ee] font-bold`}
+              style={tw`absolute text-4xl italic text-center text-slate-500 font-bold`}
             >
               {item.question}
             </Text>
             <Text
               style={tw.style(
-                "text-4xl italic text-[#F72585] font-bold text-center",
+                "text-4xl italic text-persian font-bold text-center",
                 Translate.xsTranslate
               )}
             >
