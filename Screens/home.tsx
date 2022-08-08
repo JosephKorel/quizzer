@@ -62,7 +62,6 @@ function Home() {
   const [reveal, setReveal] = useState(false);
   const [scaleVal, setScaleVal] = useState<number | number[]>([]);
   const [isSliding, setIsSliding] = useState(false);
-
   const [feedQuestions, setFeedQuestions] = useState<Questions[] | null>(null);
   const [error, setError] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
@@ -118,6 +117,11 @@ function Home() {
     //Array que recebe cada documento
     let questionDocs: Questions[] = [];
 
+    //Query do usuário
+    const docRef = doc(db, "users", user?.uid!);
+    const docSnap = await getDoc(docRef);
+    const userData = docSnap.data() as UserInt;
+
     //Query da coleção
     const questionCol = collection(db, "questionsdb");
     const colQuery = query(questionCol);
@@ -126,7 +130,7 @@ function Home() {
 
     //Pega as perguntas apenas de quem estou seguindo
     const showQuestions = questionDocs.filter((item) => {
-      if (user?.following.some((obj) => item.author.uid === obj.uid)) {
+      if (userData.following.some((obj) => item.author.uid === obj.uid)) {
         return true;
       }
     });
@@ -707,7 +711,6 @@ function Home() {
       )}
     >
       {isUpdating && <LoadingComponent />}
-
       {loading && <LoadingScreen />}
       <View style={tw`w-[98%] mx-auto`}>
         <View
@@ -747,15 +750,6 @@ function Home() {
           backgroundColor={theme === "light" ? "#fecaca" : "#0D0F47"}
         />
         <View style={tw.style("h-full flex-col justify-center")}>
-          {/* <GestureHandlerRootView>
-            <PanGestureHandler onGestureEvent={GestureHandler}>
-              <Animated.View style={tw.style("", rStyle)}>
-                <View style={tw.style("h-11/12")}>
-                  <FlatList data={questions} renderItem={HomeQuestions} />
-                </View>
-              </Animated.View>
-            </PanGestureHandler>
-          </GestureHandlerRootView> */}
           <View style={tw.style("h-5/6")}>
             <FlatList data={feedQuestions} renderItem={HomeQuestions} />
           </View>

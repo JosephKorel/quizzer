@@ -90,19 +90,20 @@ const UsersProfile = ({ route }: ScreenProps) => {
 
   const userList = ({ item }: { item: UserInt }) => {
     return (
-      <View style={tw.style("flex-row items-center p-2")}>
+      <TouchableOpacity
+        style={tw.style(
+          "flex-row items-center p-1 bg-slate-100 rounded-md mt-2"
+        )}
+        onPress={() => goToProfile(item)}
+      >
         <Avatar source={{ uri: item.avatar! }} size="sm" />
-        <TouchableOpacity
-          style={tw.style(
-            "border border-t-slate-100 border-b-persian border-r-persian border-l-slate-100 rounded-r-lg rounded-t-lg ml-2 flex-1"
-          )}
-          onPress={() => goToProfile(item)}
+
+        <Text
+          style={tw.style("ml-2 flex-1 text-stone-800 text-base font-bold p-1")}
         >
-          <Text style={tw.style("text-stone-100 text-base font-bold p-1")}>
-            {item.name?.toUpperCase()}
-          </Text>
-        </TouchableOpacity>
-      </View>
+          {item.name?.toUpperCase()}
+        </Text>
+      </TouchableOpacity>
     );
   };
 

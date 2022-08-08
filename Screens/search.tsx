@@ -116,7 +116,7 @@ function Search() {
   };
 
   const usersFilter: UsersInt[] | undefined =
-    search.length > 2
+    search.length > 1
       ? users?.filter((user) =>
           user.name.toLowerCase().includes(search.toLowerCase())
         )
@@ -148,28 +148,42 @@ function Search() {
     }
   };
 
+  const visitProfile = (item: UserInt) => {
+    if (item.uid === user?.uid) navigation.navigate("Profile");
+    else
+      navigation.navigate("UsersProfile", {
+        name: item.name!,
+        userUid: item.uid,
+        avatar: item.avatar!,
+      });
+  };
+
   const userComponent = ({ item }: { item: UsersInt }) => {
     return (
-      <View style={tw.style("flex-row items-center mt-2")}>
+      <TouchableOpacity
+        style={tw.style(
+          "flex-row items-center mt-2 bg-slate-100 border border-persian rounded-md p-1"
+        )}
+        onPress={() => visitProfile(item)}
+      >
         <Avatar source={{ uri: item.avatar }} size="sm" />
-        <TouchableOpacity
-          style={tw.style(
-            "flex-row ml-2 border-b border-stone-100 items-center w-full"
-          )}
-          onPress={() =>
-            navigation.navigate("UsersProfile", {
-              name: item.name!,
-              userUid: item.uid,
-              avatar: item.avatar!,
-            })
-          }
+        <Text
+          style={tw.style("text-stone-800 text-lg font-bold p-1 flex-1 ml-2")}
         >
-          <Text style={tw.style("text-stone-100 text-lg font-bold p-1")}>
-            {item.name.toUpperCase()}
-          </Text>
-        </TouchableOpacity>
-      </View>
+          {item.name.toUpperCase()}
+        </Text>
+      </TouchableOpacity>
     );
+  };
+
+  const goToUser = (item: Questions) => {
+    if (item.author.uid === user?.uid) navigation.navigate("Profile");
+    else
+      navigation.navigate("UsersProfile", {
+        name: item.author.name,
+        userUid: item.author.uid,
+        avatar: item.author.avatar,
+      });
   };
 
   const renderQuestions = ({ item }: { item: Questions }) => {
@@ -177,15 +191,7 @@ function Search() {
       <View>
         <View style={tw.style("text-center")}>
           <View style={tw`flex flex-col items-center`}>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("UsersProfile", {
-                  name: item.author.name,
-                  userUid: item.author.uid,
-                  avatar: item.author.avatar,
-                })
-              }
-            >
+            <TouchableOpacity onPress={() => goToUser(item)}>
               <Avatar
                 source={{
                   uri: item.author.avatar,
@@ -307,7 +313,7 @@ function Search() {
           </View>
           {!showQst ? (
             <View style={tw.style("max-h-[76%]")}>
-              {search.length > 2 && (
+              {search.length > 1 && (
                 <FlatList data={usersFilter} renderItem={userComponent} />
               )}
             </View>

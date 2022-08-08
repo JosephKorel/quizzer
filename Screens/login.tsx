@@ -115,32 +115,18 @@ export default function Login() {
           ER
         </Text>
       </View>
-      {/* <Text
-        style={tw.style(
-          "text-7xl text-emerald font-bold absolute top-1/6 right-10"
-        )}
+      <TouchableOpacity
+        onPress={() => promptAsync()}
+        style={tw.style("p-3 border border-slate-100 rounded-md")}
       >
-        ?
-      </Text>
-      <Text
-        style={tw.style(
-          "text-8xl text-emerald font-bold absolute top-1/3 left-10"
-        )}
-      >
-        ?
-      </Text> */}
-      <TouchableOpacity onPress={() => promptAsync()} style={tw.style("mt-20")}>
         <View
-          style={tw.style(
-            "p-3 flex-row items-center border-b border-b-sun",
-            Translate.smallTranslate
-          )}
+          style={tw.style("flex-row items-center ", Translate.smallTranslate)}
         >
-          <Text style={tw.style("text-persian text-xl font-bold")}>
+          <Text style={tw.style("text-slate-100 text-2xl font-bold")}>
             ENTRAR COM O{" "}
             <AntDesign
               name="google"
-              size={24}
+              size={28}
               color="#4285F4"
               style={tw.style("mr-2")}
             />
@@ -148,7 +134,7 @@ export default function Login() {
             <Text style={tw.style("text-[#F4B400]")}>O</Text>
             <Text style={tw.style("text-[#4285F4]")}>G</Text>
             <Text style={tw.style("text-[#0F9D58]")}>L</Text>
-            <Text style={tw.style("text-[#DB4437]")}>E</Text>
+            <Text style={tw.style("text-[#DB4437] text-3xl")}>e</Text>
           </Text>
         </View>
       </TouchableOpacity>

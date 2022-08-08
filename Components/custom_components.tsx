@@ -76,7 +76,7 @@ export const UserListModal = ({ props }: MyModalInt): JSX.Element => {
               style={tw`p-2`}
             />
           </TouchableOpacity>
-          <View>
+          <View style={tw.style("p-2")}>
             <FlatList data={group} renderItem={userList}></FlatList>
           </View>
         </TouchableOpacity>
@@ -317,7 +317,7 @@ export const LoadingScreen = (): JSX.Element => {
       <StatusBar barStyle="light-content" backgroundColor="#0D0F47" />
       <Text
         style={tw.style(
-          "tracking-widest absolute top-1/4 text-6xl text-center text-persian font-bold"
+          "tracking-widest absolute top-1/4 text-6xl text-center text-violet font-bold"
         )}
       >
         QUI
@@ -326,7 +326,7 @@ export const LoadingScreen = (): JSX.Element => {
       </Text>
       <Text
         style={tw.style(
-          "tracking-widest absolute top-1/4 text-6xl text-center text-emerald font-bold",
+          "tracking-widest absolute top-1/4 text-6xl text-center text-sun font-bold",
           Translate.translate
         )}
       >
@@ -336,27 +336,13 @@ export const LoadingScreen = (): JSX.Element => {
       </Text>
       <Text
         style={tw.style(
-          "tracking-widest absolute top-1/4 text-6xl text-center text-violet font-bold",
+          "tracking-widest absolute top-1/4 text-6xl text-center text-persian font-bold",
           Translate.smallTranslate
         )}
       >
         QUI
         <Text style={tw.style("italic text-6xl")}>ZZ</Text>
         ER
-      </Text>
-      <Text
-        style={tw.style(
-          "text-7xl text-emerald font-bold absolute top-1/6 right-10"
-        )}
-      >
-        ?
-      </Text>
-      <Text
-        style={tw.style(
-          "text-8xl text-emerald font-bold absolute top-1/3 left-10"
-        )}
-      >
-        ?
       </Text>
     </View>
   );

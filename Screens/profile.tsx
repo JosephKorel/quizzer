@@ -108,27 +108,26 @@ function Profile() {
 
   const userList = ({ item }: { item: UserInt }) => {
     return (
-      <View style={tw.style("flex-row items-center mt-2 p-2")}>
+      <TouchableOpacity
+        style={tw.style(
+          "flex-row items-center p-1 bg-slate-100 rounded-md mt-2"
+        )}
+        onPress={() =>
+          navigation.navigate("UsersProfile", {
+            name: item.name!,
+            userUid: item.uid,
+            avatar: item.avatar!,
+          })
+        }
+      >
         <Avatar source={{ uri: item.avatar! }} size="sm" />
 
-        <TouchableOpacity
-          style={tw.style(
-            "flex-row items-center border-b border-persian ml-2 flex-1",
-            Translate.smallTranslate
-          )}
-          onPress={() =>
-            navigation.navigate("UsersProfile", {
-              name: item.name!,
-              userUid: item.uid,
-              avatar: item.avatar!,
-            })
-          }
+        <Text
+          style={tw.style("ml-2 flex-1 text-stone-800 text-base font-bold p-1")}
         >
-          <Text style={tw.style("text-slate-100 text-base font-bold p-1")}>
-            {item.name?.toUpperCase()}
-          </Text>
-        </TouchableOpacity>
-      </View>
+          {item.name?.toUpperCase()}
+        </Text>
+      </TouchableOpacity>
     );
   };
 
