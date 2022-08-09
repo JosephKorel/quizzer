@@ -4,7 +4,6 @@ import {
   StatusBar,
   Text,
   TextInput,
-  Touchable,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -21,12 +20,11 @@ import {
   Translate,
 } from "../Components/nativeBase_Components";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Button, IconButton, Input, PresenceTransition } from "native-base";
+import { Button, IconButton, PresenceTransition } from "native-base";
 import { MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
-import { useAppColorScheme } from "twrnc";
 
 function NewPost() {
-  const { user, theme, setTheme } = useContext(AppContext);
+  const { user, colorScheme, toggleColorScheme } = useContext(AppContext);
   const [choice, setChoice] = useState("");
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState<string[]>(["", ""]);
@@ -40,11 +38,6 @@ function NewPost() {
 
   const questionType = ["Sim ou Não", "Enquete", "Escala de 0 a 10"];
 
-  const [colorScheme, toggleColorScheme, setColorScheme] = useAppColorScheme(
-    tw,
-    "dark"
-  );
-
   useEffect(() => {
     setTimeout(() => {
       setError("");
@@ -53,9 +46,7 @@ function NewPost() {
   }, [error, success]);
 
   useEffect(() => {
-    choice === "" || choice === "Sim ou Não"
-      ? setHasChoosen(false)
-      : setHasChoosen(true);
+    choice === "Enquete" && setHasChoosen(true);
   }, [choice]);
 
   const addImage = async () => {
@@ -225,10 +216,10 @@ function NewPost() {
     };
     return (
       <View>
-        <View style={tw`bg-slate-100 mb-1 bg-persian`}>
+        <View style={tw`mb-1 bg-black dark:bg-persian`}>
           <Text
             style={tw.style(
-              "text-lg italic py-1 bg-emerald text-slate-50 text-center font-bold",
+              "text-lg italic py-1 bg-emerald text-stone-700 text-center font-bold",
               Translate.smallTranslate
             )}
           >
@@ -238,35 +229,30 @@ function NewPost() {
         <View style={tw`flex-col`}>
           {options.map((item, index) => (
             <View key={index}>
-              <View style={tw`flex-row items-center mt-2`}>
-                <Input
+              <View
+                style={tw`flex-row items-center mt-2 border border-stone-800 dark:border-persian bg-slate-100`}
+              >
+                <TextInput
                   placeholder={"Opção" + (index + 1).toString()}
                   value={item}
-                  w="5/6"
-                  style={tw`bg-slate-100 text-stone-900`}
+                  style={tw` text-stone-900 flex-1 p-1 rounded-sm `}
                   maxLength={18}
                   onChangeText={(text) => {
                     setOptions(
                       options.map((value, i) => (index === i ? text : value))
                     );
                   }}
-                ></Input>
+                ></TextInput>
                 {options.length > 2 && index === options.length - 1 && (
-                  <IconButton
-                    onPress={removeOption}
-                    ml={4}
-                    bg="#fad643"
-                    _pressed={{ background: "#fdc500" }}
-                    icon={
-                      <MaterialIcons name="delete" size={24} color="black" />
-                    }
-                  />
+                  <TouchableOpacity onPress={removeOption}>
+                    <MaterialIcons name="delete" size={24} color="black" />
+                  </TouchableOpacity>
                 )}
               </View>
               {index >= options.length - 1 && index < 3 && (
                 <TouchableOpacity
                   onPress={addOption}
-                  style={tw`bg-persian self-start mt-2`}
+                  style={tw`bg-black dark:bg-persian self-start mt-2`}
                 >
                   <Text
                     style={tw.style(
@@ -292,86 +278,12 @@ function NewPost() {
             }
             onPress={() => {
               setChoice("");
+              setHasChoosen(false);
             }}
           >
             Voltar
           </Button>
         </View>
-      </View>
-    );
-  };
-
-  const ScaleLabel = (): JSX.Element => {
-    const icons: JSX.Element[] = [
-      <MaterialIcons name="thumb-down" size={24} color="#F72585" />,
-      <MaterialIcons name="thumb-up" size={24} color="#F72585" />,
-      <MaterialIcons name="auto-awesome" size={24} color="#F72585" />,
-    ];
-    return (
-      <View>
-        <PresenceTransition
-          visible={hasChoosen}
-          initial={{
-            opacity: 0,
-            scale: 0,
-          }}
-          animate={{
-            opacity: 1,
-            scale: 1,
-            transition: {
-              duration: 150,
-            },
-          }}
-        >
-          <View style={tw`bg-[#F72585] mb-2`}>
-            <Text
-              style={tw.style(
-                "text-2xl italic text-center bg-sun text-stone-800 font-bold",
-                Translate.smallTranslate
-              )}
-            >
-              Personalize as tags
-            </Text>
-          </View>
-          <View style={tw`flex flex-row justify-between`}>
-            {scaleLabel.map((label, i) => (
-              <View style={tw`flex-col items-center w-1/4`} key={i}>
-                <Input
-                  style={tw`bg-slate-50`}
-                  maxLength={8}
-                  w="full"
-                  mb={2}
-                  key={i}
-                  value={label}
-                  onChangeText={(text) =>
-                    setScaleLabel(
-                      scaleLabel.map((item, index) =>
-                        index === i ? text : item
-                      )
-                    )
-                  }
-                />
-                {icons[i]}
-              </View>
-            ))}
-          </View>
-          <View style={tw`flex-row-reverse`}>
-            <Button
-              style={tw`w-1/4 mt-4`}
-              _text={{ color: "black" }}
-              bg="#fad643"
-              _pressed={{ background: "#fdc500" }}
-              leftIcon={
-                <MaterialIcons name="arrow-back-ios" size={20} color="black" />
-              }
-              onPress={() => {
-                setChoice("");
-              }}
-            >
-              Voltar
-            </Button>
-          </View>
-        </PresenceTransition>
       </View>
     );
   };
@@ -457,7 +369,7 @@ function NewPost() {
                     placeholder="Escreva aqui"
                     value={question}
                     style={tw.style(
-                      "bg-slate-100 rounded-sm p-3 text-xl border-persian border mt-2"
+                      "bg-slate-100 rounded-sm p-3 text-xl border-stone-800 dark:border-persian border mt-2"
                     )}
                     onChangeText={(text) => setQuestion(text)}
                   ></TextInput>
@@ -511,11 +423,8 @@ function NewPost() {
                 </>
               )}
             </View>
-            {hasChoosen == true && choice !== "Sim ou Não" ? (
-              <>
-                {choice === "Enquete" && OptionMap()}
-                {choice === "Escala de 0 a 10" && ScaleLabel()}
-              </>
+            {hasChoosen == true && choice === "Enquete" ? (
+              <>{choice === "Enquete" && OptionMap()}</>
             ) : (
               <>
                 <PresenceTransition
@@ -532,7 +441,7 @@ function NewPost() {
                     },
                   }}
                 >
-                  <View style={tw`bg-slate-100 dark:bg-turquoise self-start`}>
+                  <View style={tw`bg-black dark:bg-turquoise self-start`}>
                     <Text
                       style={tw.style(
                         "text-xl italic p-2 bg-violet text-slate-50 font-bold",
@@ -552,9 +461,7 @@ function NewPost() {
             )}
 
             <View style={tw`mt-6`}>
-              <View
-                style={tw.style("self-start bg-slate-100 dark:bg-turquoise")}
-              >
+              <View style={tw.style("self-start bg-black dark:bg-turquoise")}>
                 <Text
                   style={tw.style(
                     "text-sm px-2 italic self-start text-center bg-violet text-slate-100 font-bold",
@@ -573,7 +480,7 @@ function NewPost() {
               </View>
               <TextInput
                 style={tw.style(
-                  "bg-slate-100 rounded-sm text-base border-persian border mt-1 p-1"
+                  "bg-slate-100 rounded-sm text-base border-stone-800 dark:border-persian border mt-1 p-1"
                 )}
                 placeholder="Ex: pessoal, curiosidade, super heróis, netflix"
                 value={tags}
