@@ -159,14 +159,17 @@ export const QuestionComponent = ({
       <View style={tw`flex-row justify-around items-center`}>
         <TouchableOpacity
           onPress={() => onVote("yes")}
-          style={tw.style("bg-sun", yesVote() && "bg-violet")}
+          style={tw.style(
+            "bg-black dark:bg-sun",
+            yesVote() && "bg-violet dark:bg-violet"
+          )}
         >
           <Text
             style={tw.style(
               "font-bold text-2xl p-1",
               Translate.smallTranslate,
               yesVote()
-                ? "bg-emerald text-stone-800"
+                ? "bg-emerald text-stone-700"
                 : "bg-persian text-slate-100"
             )}
           >
@@ -176,7 +179,7 @@ export const QuestionComponent = ({
 
         <TouchableOpacity
           onPress={() => onVote("no")}
-          style={tw.style("bg-sun", noVote() && "bg-violet")}
+          style={tw.style("bg-black dark:bg-sun", noVote() && "bg-violet")}
         >
           <Text
             style={tw.style(
@@ -216,12 +219,12 @@ export const QuestionComponent = ({
         <View style={tw`mt-5`}>
           <TouchableOpacity
             onPress={() => onChoose(objkey)}
-            style={tw.style(voted() ? "bg-violet" : "bg-persian")}
+            style={tw.style(voted() ? "bg-violet" : "bg-black dark:bg-persian")}
           >
             <Text
               style={tw.style(
                 "font-bold text-2xl text-center italic",
-                voted() ? "bg-emerald text-stone-800" : "text-stone-800 bg-sun",
+                voted() ? "bg-emerald text-stone-700" : "text-stone-800 bg-sun",
                 Translate.smallTranslate
               )}
             >
@@ -351,7 +354,7 @@ export const QuestionComponent = ({
         ></Slider>
         {item.hasVoted.includes(user?.uid!) && (
           <View>
-            <View style={tw`bg-black mt-8`}>
+            <View style={tw`bg-black dark:bg-persian mt-8`}>
               <TouchableOpacity style={Translate.smallTranslate}>
                 <Text
                   style={tw`text-slate-100 dark:text-slate-800 bg-persian dark:bg-sun font-bold text-2xl text-center italic`}

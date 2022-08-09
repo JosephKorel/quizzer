@@ -117,7 +117,7 @@ function MyQuestions() {
               <MaterialIcons
                 name="close"
                 size={24}
-                color="black"
+                color={colorScheme === "light" ? "black" : "white"}
                 style={tw`p-2`}
               />
             </TouchableOpacity>

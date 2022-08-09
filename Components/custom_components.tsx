@@ -97,10 +97,7 @@ export const CustomQuestionModal = ({
   setShowQst,
   children,
 }: QuestionModalInt): JSX.Element => {
-  const [colorScheme, toggleColorScheme, setColorScheme] =
-    useAppColorScheme(tw);
-
-  const { theme } = useContext(AppContext);
+  const { colorScheme } = useContext(AppContext);
 
   return (
     <TouchableOpacity
@@ -126,7 +123,7 @@ export const CustomQuestionModal = ({
       >
         <TouchableOpacity
           style={tw.style(
-            "relative z-10 h-2/3 w-[96%] min-h-2/3 min-w-[96%] bg-sun dark:bg-violet-600 rounded-md"
+            "relative z-10 h-2/3 w-[96%] min-h-2/3 min-w-[96%] bg-sun dark:bg-violet rounded-md"
           )}
           onPress={() => setShowQst(true)}
           activeOpacity={1}
@@ -138,7 +135,7 @@ export const CustomQuestionModal = ({
             <MaterialIcons
               name="close"
               size={24}
-              color={theme === "light" ? "black" : "white"}
+              color={colorScheme === "light" ? "black" : "white"}
               style={tw`mr-2 p-2`}
             />
           </TouchableOpacity>
@@ -150,14 +147,15 @@ export const CustomQuestionModal = ({
 };
 
 export const MyQuestionComponent = ({ question }: { question: Questions }) => {
+  const { colorScheme } = useContext(AppContext);
   const YesNoButtons = (): JSX.Element => {
     return (
       <View style={tw`flex-row justify-around items-center`}>
         <View style={tw``}>
-          <TouchableOpacity style={tw.style("bg-stone-900")}>
+          <TouchableOpacity style={tw.style("bg-black")}>
             <Text
               style={tw.style(
-                "text-slate-50 bg-[#F72585] font-bold p-1 px-2 text-2xl",
+                "text-slate-100 bg-persian dark:text-stone-800 dark:bg-sun font-bold p-1 px-2 text-2xl",
                 Translate.translate
               )}
             >
@@ -166,10 +164,10 @@ export const MyQuestionComponent = ({ question }: { question: Questions }) => {
           </TouchableOpacity>
         </View>
         <View style={tw``}>
-          <TouchableOpacity style={tw.style("bg-stone-900")}>
+          <TouchableOpacity style={tw.style("bg-black")}>
             <Text
               style={tw.style(
-                "text-slate-50 bg-[#F72585] p-1 px-2 font-bold text-2xl",
+                "text-slate-100 bg-persian dark:text-stone-800 dark:bg-sun p-1 px-2 font-bold text-2xl",
                 Translate.translate
               )}
             >
@@ -190,11 +188,11 @@ export const MyQuestionComponent = ({ question }: { question: Questions }) => {
   }): JSX.Element => {
     return (
       <View style={tw`mt-4`}>
-        <View style={tw`bg-stone-800`}>
+        <View style={tw`bg-black`}>
           <TouchableOpacity style={Translate.translate}>
             <Text
               style={tw.style(
-                "text-2xl italic text-center bg-persian text-slate-100 font-bold"
+                "text-2xl italic text-center text-slate-100 bg-persian dark:text-stone-800 dark:bg-sun font-bold"
               )}
             >
               {qstkey}: {value.length}
@@ -206,34 +204,6 @@ export const MyQuestionComponent = ({ question }: { question: Questions }) => {
   };
 
   const ScaleComponent = () => {
-    const custom = (value: number | Array<number>) => {
-      const labels = question.labels!;
-
-      if (value < 2)
-        return (
-          <Text style={tw`italic text-lg text-slate-50`}>{labels[0]}</Text>
-        );
-      if (value < 6)
-        return (
-          <Text style={tw`italic text-lg text-slate-50`}>{labels[1]}</Text>
-        );
-      if (value > 6)
-        return (
-          <View style={tw`flex-col justify-center items-center`}>
-            <Text style={tw`absolute text-lg italic text-stone-800 font-bold`}>
-              {labels[2]}
-            </Text>
-            <Text
-              style={tw.style(
-                "text-lg italic text-[#F72585] font-bold",
-                Translate.xsTranslate
-              )}
-            >
-              {labels[2]}
-            </Text>
-          </View>
-        );
-    };
     let totalValues: number[] = [];
 
     question.scale?.forEach((item) => totalValues.push(item.value));
@@ -248,24 +218,25 @@ export const MyQuestionComponent = ({ question }: { question: Questions }) => {
     return (
       <View style={tw`mt-4 flex-col justify-between`}>
         <Slider
-          minimumTrackTintColor="#F72585"
-          thumbTintColor="#F72585"
+          minimumTrackTintColor={
+            colorScheme === "light" ? "#F72585" : "#FAD643"
+          }
+          thumbTintColor={colorScheme === "light" ? "#F72585" : "#FAD643"}
           minimumValue={0}
           disabled={true}
           maximumValue={10}
           value={averageAnswer}
-          renderAboveThumbComponent={() => custom(averageAnswer)}
         ></Slider>
         <View style={tw`mt-4`}>
           <View style={tw`bg-stone-900`}>
-            <TouchableOpacity style={tw.style("bg-stone-800")}>
+            <TouchableOpacity style={tw.style("bg-black")}>
               <Text
                 style={tw.style(
-                  "text-2xl italic bg-[#F72585] text-slate-100 font-bold",
+                  "text-2xl italic text-slate-100 bg-persian dark:text-stone-800 dark:bg-sun font-bold p-1",
                   Translate.translate
                 )}
               >
-                RESPOSTA MÉDIA: {averageAnswer}
+                RESPOSTA MÉDIA: {averageAnswer.toFixed(1)}
               </Text>
             </TouchableOpacity>
           </View>
@@ -281,7 +252,7 @@ export const MyQuestionComponent = ({ question }: { question: Questions }) => {
         </Text>
         <Text
           style={tw.style(
-            "text-4xl italic text-[#F72585] font-bold",
+            "text-4xl italic text-persian dark:text-sun font-bold",
             Translate.smallTranslate
           )}
         >
