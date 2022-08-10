@@ -103,9 +103,9 @@ function MyQuestions() {
             },
           }}
         >
-          <TouchableOpacity
+          <View
             style={tw.style(
-              "relative z-10 h-2/3 w-[96%] min-h-2/3 min-w-[96%] bg-sun dark:bg-violet rounded-md"
+              "relative z-10 h-2/3 w-[96%] min-h-2/3 min-w-[96%] bg-sun dark:bg-violet rounded-md flex-col overflow-hidden"
             )}
             onPress={() => setShowModal(true)}
             activeOpacity={1}
@@ -121,8 +121,10 @@ function MyQuestions() {
                 style={tw`p-2`}
               />
             </TouchableOpacity>
-            <View>{<MyQuestionComponent question={questions![index]} />}</View>
-          </TouchableOpacity>
+            <View style={tw`flex-1`}>
+              {<MyQuestionComponent question={questions![index]} />}
+            </View>
+          </View>
         </PresenceTransition>
       </TouchableOpacity>
     );

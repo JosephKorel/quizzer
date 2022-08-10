@@ -152,8 +152,8 @@ function Search() {
   const renderQuestions = ({ item }: { item: Questions }) => {
     return (
       <View>
-        <View style={tw.style("text-center")}>
-          <View style={tw`flex flex-col items-center`}>
+        <View style={tw.style("text-center ")}>
+          <View style={tw`flex flex-col items-center `}>
             <TouchableOpacity onPress={() => goToUser(item)}>
               <Avatar
                 source={{
@@ -254,7 +254,7 @@ function Search() {
             >
               <Text
                 style={tw.style(
-                  "text-slate-100 bg-[#F72585] font-bold text-lg p-1 italic",
+                  "text-slate-100 bg-[#F72585] font-bold text-lg p-1 px-2 italic",
                   Translate.smallTranslate
                 )}
               >
@@ -267,7 +267,7 @@ function Search() {
             >
               <Text
                 style={tw.style(
-                  "text-slate-100 bg-persian font-bold text-lg p-1 italic",
+                  "text-slate-100 bg-persian font-bold text-lg p-1 px-2 italic",
                   Translate.smallTranslate
                 )}
               >
@@ -276,13 +276,13 @@ function Search() {
             </TouchableOpacity>
           </View>
           {!showQst ? (
-            <View style={tw.style("max-h-[76%]")}>
+            <View style={tw.style("max-h-[75%]")}>
               {search.length > 1 && (
                 <FlatList data={usersFilter} renderItem={userComponent} />
               )}
             </View>
           ) : (
-            <View style={tw.style("max-h-[76%]")}>
+            <View style={tw.style("max-h-[75%]")}>
               <FlatList data={tagFilter} renderItem={renderQuestions} />
             </View>
           )}

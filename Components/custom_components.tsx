@@ -213,7 +213,8 @@ export const MyQuestionComponent = ({ question }: { question: Questions }) => {
       return acc;
     }, 0);
 
-    const averageAnswer: number = valueSum / totalValues.length;
+    const averageAnswer: number =
+      totalValues.length != 0 ? valueSum / totalValues.length : 0;
 
     return (
       <View style={tw`mt-4 flex-col justify-between`}>
@@ -245,7 +246,12 @@ export const MyQuestionComponent = ({ question }: { question: Questions }) => {
     );
   };
   return (
-    <View style={tw`h-full p-2 flex-col justify-evenly`}>
+    <View
+      style={tw.style(
+        "p-2 flex-col justify-evenly flex-1",
+        question.media && "justify-between"
+      )}
+    >
       <View style={tw`flex-col justify-center items-center`}>
         <Text style={tw`absolute text-4xl italic text-stone-800 font-bold`}>
           {question.question}
@@ -260,7 +266,7 @@ export const MyQuestionComponent = ({ question }: { question: Questions }) => {
         </Text>
       </View>
       {question.media && (
-        <View style={tw`flex-row justify-center`}>
+        <View style={tw`flex-row justify-center bg-red-200`}>
           <Image
             style={{ width: 300, height: 300, borderRadius: 2 }}
             source={{ uri: question.media }}

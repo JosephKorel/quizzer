@@ -128,6 +128,7 @@ function NewPost() {
         setImage(null);
         setTags("");
         setChoice("");
+        setHasChoosen(false);
       } catch (error) {
         setError("Erro ao carregar imagem, tente novamente");
         return null;
@@ -154,6 +155,7 @@ function NewPost() {
         setTags("");
         setQuestion("");
         setChoice("");
+        setHasChoosen(false);
       } catch (error) {
         setError("Houve algum erro, tente novamente");
         return null;

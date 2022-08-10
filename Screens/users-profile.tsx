@@ -210,13 +210,13 @@ const UsersProfile = ({ route }: ScreenProps) => {
             >
               <View
                 style={tw.style(
-                  "p-4 bg-persian flex-row items-center justify-between",
+                  "p-4 bg-persian flex-row items-center",
                   Translate.translate
                 )}
               >
                 <Text
                   style={tw.style(
-                    "text-2xl italic text-slate-50 text-center font-bold"
+                    "text-2xl italic text-slate-50 text-center font-bold flex-1"
                   )}
                 >
                   {name.toUpperCase()}

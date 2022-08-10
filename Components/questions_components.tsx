@@ -1,30 +1,12 @@
-import {
-  arrayUnion,
-  collection,
-  doc,
-  DocumentData,
-  getDocs,
-  query,
-  updateDoc,
-} from "firebase/firestore";
+import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
-import {
-  Image,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { auth, db } from "../firebase_config";
-import { useNavigation } from "@react-navigation/native";
 import { Slider } from "@miblanchard/react-native-slider";
 import { AppContext, Questions } from "../Context";
 import tw from "./tailwind_config";
 import { Translate } from "./nativeBase_Components";
 import { AntDesign } from "@expo/vector-icons";
-import { useAppColorScheme } from "twrnc";
 
 export const QuestionComponent = ({
   item,
